@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Requirements Specification (SRS) - HKB Protection & Management Co.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .print-break-before { page-break-before: always; }
+            .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased leading-relaxed">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 text-white sticky top-0 z-50 border-b border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 text-white font-bold p-2 rounded-lg text-xs tracking-wider">HKB</div>
+                <span class="font-bold text-lg tracking-tight">Attendance System SRS & Technical Blueprint</span>
+            </div>
+            <div class="flex items-center space-x-4 text-xs font-medium">
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">v1.1 Finalized</span>
+                <button onclick="window.print()" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-md transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 002-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Export PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <!-- Sidebar Navigation -->
+        <aside class="lg:col-span-1 no-print">
+            <nav class="sticky top-24 bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1 text-sm font-medium">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 py-2">Document Structure</div>
+                <a href="#overview" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">1. Project Overview & Rules</a>
+                <a href="#roles" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">2. RBAC & Access Matrix</a>
+                <a href="#tech-stack" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">3. Architecture & Tech Stack</a>
+                <a href="#workflows" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">4. Shift & Absence Logic</a>
+                <a href="#user-flows" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">5. User Flow Architecture</a>
+                <a href="#database" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">6. Drizzle ORM Schema</a>
+                <a href="#api-spec" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">7. REST API Endpoints</a>
+                <a href="#developer-guide" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-brand-600">8. Developer Integration Guide</a>
+            </nav>
+        </aside>
+
+        <!-- Main SRS Content -->
+        <main class="lg:col-span-3 space-y-10">
+
+            <!-- Title & Metadata -->
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                    <div>
+                        <span class="text-xs font-semibold text-brand-600 uppercase tracking-widest">Software Requirements Specification</span>
+                        <h1 class="text-3xl font-bold text-slate-900 mt-1">HKB Protection & Management Co.</h1>
+                        <p class="text-slate-500 font-medium">Shift-Based Attendance Management System (AMS)</p>
+                    </div>
+                    <div class="text-right text-xs text-slate-500">
+                        <p><span class="font-semibold text-slate-700">Date:</span> September 2, 2026</p>
+                        <p><span class="font-semibold text-slate-700">Status:</span> Finalized Blueprint</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 text-xs">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-slate-400 block">Auth Standard</span>
+                        <span class="font-bold text-slate-700">Google OAuth (All Users)</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-slate-400 block">Shift Tracking</span>
+                        <span class="font-bold text-slate-700">Per-Shift Clock-In</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-slate-400 block">Report Output</span>
+                        <span class="font-bold text-slate-700">Strict PDF Engine</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-slate-400 block">Storage Provider</span>
+                        <span class="font-bold text-slate-700">Firebase Cloud Storage</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Overview -->
+            <section id="overview" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">1.</span> Project Overview & Confirmed Decisions
+                    </h2>
+                </div>
+                <p class="text-slate-600 text-sm">
+                    The HKB Attendance Management System is a centralized, web-based platform tailored specifically to security operations. The system manages staff registration, shift-based attendance recording, document-backed leave processing, transfer workflows, and payroll-aligned reporting.
+                </p>
+
+                <div class="bg-slate-50 border-l-4 border-brand-500 p-4 rounded-r-lg space-y-2 text-sm">
+                    <h3 class="font-bold text-slate-800">Confirmed Business Parameters</h3>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-slate-600 text-xs">
+                        <li>• <strong>Registration Data:</strong> Name, Age, Phone, Employee ID, Reg Date, Kin Name, Kin Relation, Kin Phone, Home Location, Work Location.</li>
+                        <li>• <strong>Authentication:</strong> Google OAuth 2.0 mandatory for 100% of accounts.</li>
+                        <li>• <strong>Shift Cadence:</strong> Attendance taken on a <strong>per-shift basis</strong> (Day/Night shifts).</li>
+                        <li>• <strong>Absence Processing:</strong> Absences classified as <em>Sick</em>, <em>Permitted Reason</em> (with allowed days), or <em>Not Permitted</em>.</li>
+                        <li>• <strong>Sick Leave Validation:</strong> Requires medical document upload stored via Firebase.</li>
+                        <li>• <strong>Guard Role Access:</strong> View-only permissions for guards/Askari.</li>
+                        <li>• <strong>Transfer Authorization:</strong> Restricted strictly to Super Admin and HR roles.</li>
+                        <li>• <strong>Reporting Constraints:</strong> Reports generated exclusively in <strong>PDF</strong> format.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 2: Roles and Access Control -->
+            <section id="roles" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">2.</span> Role-Based Access Control (RBAC) Matrix
+                    </h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="p-3 font-semibold">Role</th>
+                                <th class="p-3 font-semibold">Attendance Management</th>
+                                <th class="p-3 font-semibold">Transfer Approval</th>
+                                <th class="p-3 font-semibold">Sensitive Data View</th>
+                                <th class="p-3 font-semibold">PDF Reports & Payroll</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Super Admin</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full Access + Audit Override</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full Authority</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full Access</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full Access</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">HR Personnel</td>
+                                <td class="p-3">View & Audit Sickness Docs</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full Authority</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full Access (Kin/PII)</td>
+                                <td class="p-3 text-emerald-600 font-medium">Full PDF Access</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Senior Supervisor</td>
+                                <td class="p-3">Edit Attendance & Review</td>
+                                <td class="p-3 text-amber-600 font-medium">Initiate Only</td>
+                                <td class="p-3 text-rose-600 font-medium">Restricted</td>
+                                <td class="p-3 text-slate-500">View Summaries Only</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Supervisor</td>
+                                <td class="p-3 text-emerald-600 font-medium">Record/Edit Shift Logs</td>
+                                <td class="p-3 text-amber-600 font-medium">Request Only</td>
+                                <td class="p-3 text-rose-600 font-medium">Restricted</td>
+                                <td class="p-3 text-slate-500">Shift Reports Only</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Bursar / Finance</td>
+                                <td class="p-3 text-slate-500">View-Only (Read Logs)</td>
+                                <td class="p-3 text-rose-600 font-medium">No Access</td>
+                                <td class="p-3 text-rose-600 font-medium">Restricted</td>
+                                <td class="p-3 text-emerald-600 font-medium">Payroll PDF Export</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Askari / Guard</td>
+                                <td class="p-3 text-slate-500">View Own Logs Only</td>
+                                <td class="p-3 text-rose-600 font-medium">No Access</td>
+                                <td class="p-3 text-slate-500">Own Profile Only</td>
+                                <td class="p-3 text-rose-600 font-medium">No Access</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 3: Technical Architecture -->
+            <section id="tech-stack" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">3.</span> Architecture & Technology Stack
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border border-slate-200 p-4 rounded-xl space-y-2">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span> Core Framework & Deployment
+                        </h3>
+                        <p class="text-xs text-slate-600"><strong>Next.js 14+ (App Router):</strong> React Server Components for performance, Server Actions for mutations, dynamic rendering.</p>
+                        <p class="text-xs text-slate-600"><strong>Tailwind CSS & TSX:</strong> Strict type safety and responsive UI components for desktop and mobile devices.</p>
+                        <p class="text-xs text-slate-600"><strong>Vercel Edge Network:</strong> Host infrastructure for global edge caching and fast serverless execution.</p>
+                    </div>
+
+                    <div class="border border-slate-200 p-4 rounded-xl space-y-2">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Database, Caching & Files
+                        </h3>
+                        <p class="text-xs text-slate-600"><strong>Neon Serverless Postgres:</strong> Branchable PostgreSQL database providing serverless auto-scaling.</p>
+                        <p class="text-xs text-slate-600"><strong>Drizzle ORM:</strong> Type-safe SQL builder with efficient migration tooling and minimal query overhead.</p>
+                        <p class="text-xs text-slate-600"><strong>Upstash Redis:</strong> Rate limiting, distributed session locking, and instant caching of active shift sessions.</p>
+                        <p class="text-xs text-slate-600"><strong>Firebase Storage:</strong> Secure cloud storage bucket for medical certificates and sick leave PDFs.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Absence Workflow Logic -->
+            <section id="workflows" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">4.</span> Shift & Absence Workflow Business Logic
+                    </h2>
+                </div>
+
+                <div class="space-y-4 text-xs">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <h3 class="font-bold text-slate-800 text-sm">Absence Classification Rules</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-rose-600 block">SICK</span>
+                                Mandatory fields: Start Date, Expected Return, Doctor's Note Upload (Firebase URL). Requires HR review status.
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-amber-600 block">PERMITTED REASON</span>
+                                e.g., Funeral/Family Emergency. System validates input against maximum approved days threshold (`allowed_days`).
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-slate-600 block">NOT PERMITTED</span>
+                                Absence without prior authorization. Flags account for payroll deduction via Bursar reports.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: User Flows -->
+            <section id="user-flows" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">5.</span> System User Flow Diagrams
+                    </h2>
+                </div>
+
+                <!-- Shift Attendance Flow -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Shift Attendance Workflow (Supervisor)</h3>
+                    <div class="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto">
+                        [Supervisor Auth: Google OAuth] ➔ [Select Active Shift: Day/Night] ➔ [Fetch Assigned Guards List]
+                                                                                                    │
+                                        ┌───────────────────────────────────────────────────────────┴──────────────────────────────────────────┐
+                                        ▼                                                                                                      ▼
+                                 [Mark PRESENT]                                                                                         [Mark ABSENT]
+                                        │                                                                                                      │
+                                        ▼                                                                                                      ▼
+                            [Save Shift Log Record]                                                                                   [Select Category]
+                                                                                                                                               │
+                                                                                 ┌─────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┐
+                                                                                 ▼                                                             ▼                                                            ▼
+                                                                           [Sick Absence]                                              [Permitted Reason]                                           [Not Permitted]
+                                                                                 │                                                             │                                                            │
+                                                                  [Upload Document to Firebase]                                [Specify Reason & Allowed Days]                              [Flag Payroll Deduction]
+                                                                                 │                                                             │                                                            │
+                                                                                 └──────────────────────────────────────────────┬──────────────┴────────────────────────────────────────────┘
+                                                                                                                                ▼
+                                                                                                                   [Save Shift Log Record]
+                    </div>
+                </div>
+
+                <!-- Transfer Flow -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Guard Transfer Workflow (Admin/HR Approved)</h3>
+                    <div class="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto">
+[Supervisor / Sr. Supervisor] ➔ [Submit Transfer Request] ➔ [Upstash Redis Queue Event] ➔ [In-App + Email Alert to Admin/HR]
+                                                                                                            │
+                                                                                      ┌─────────────────────┴──────────────────────┐
+                                                                                      ▼                                            ▼
+                                                                            [Admin/HR APPROVE]                            [Admin/HR REJECT]
+                                                                                      │                                            │
+                                                                [Update Supervisor Assignment in DB]            [Record Rejection Reason in Audit Log]
+                                                                                      │                                            │
+                                                                                      └─────────────────────┬──────────────────────┘
+                                                                                                            ▼
+                                                                                           [Notify Requesting Supervisor]
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Database Schema -->
+            <section id="database" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">6.</span> Database Schema (Drizzle ORM for Neon Postgres)
+                    </h2>
+                </div>
+
+                <div class="bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto font-mono text-xs leading-relaxed">
+<pre><code>import { pgTable, uuid, varchar, integer, timestamp, date, text, pgEnum } from 'drizzle-orm/pg-core';
+
+export const roleEnum = pgEnum('user_role', [
+  'SUPER_ADMIN', 'SENIOR_SUPERVISOR', 'SUPERVISOR', 'HR', 'BURSAR', 'GUARD'
+]);
+
+export const shiftTypeEnum = pgEnum('shift_type', ['DAY', 'NIGHT']);
+export const attendanceStatusEnum = pgEnum('attendance_status', ['PRESENT', 'ABSENT']);
+export const absenceCategoryEnum = pgEnum('absence_category', ['SICK', 'PERMITTED_REASON', 'NOT_PERMITTED']);
+export const transferStatusEnum = pgEnum('transfer_status', ['PENDING', 'APPROVED', 'REJECTED']);
+
+// Core Users Table
+export const users = pgTable('users', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  googleId: varchar('google_id', { length: 255 }).notNull().unique(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  fullName: varchar('full_name', { length: 255 }).notNull(),
+  role: roleEnum('role').notNull().default('GUARD'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Guard Profiles (Extends User Data)
+export const guardProfiles = pgTable('guard_profiles', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  employeeId: varchar('employee_id', { length: 50 }).notNull().unique(),
+  age: integer('age').notNull(),
+  phone: varchar('phone', { length: 20 }).notNull(),
+  homeLocation: varchar('home_location', { length: 255 }).notNull(),
+  workLocation: varchar('work_location', { length: 255 }).notNull(),
+  kinName: varchar('kin_name', { length: 255 }).notNull(),
+  kinRelation: varchar('kin_relation', { length: 100 }).notNull(),
+  kinPhone: varchar('kin_phone', { length: 20 }).notNull(),
+  registrationDate: date('registration_date').notNull(),
+  assignedSupervisorId: uuid('assigned_supervisor_id').references(() => users.id),
+});
+
+// Per-Shift Attendance Logs
+export const attendanceLogs = pgTable('attendance_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  guardId: uuid('guard_id').references(() => guardProfiles.id).notNull(),
+  supervisorId: uuid('supervisor_id').references(() => users.id).notNull(),
+  date: date('date').notNull(),
+  shift: shiftTypeEnum('shift').notNull(),
+  status: attendanceStatusEnum('status').notNull(),
+  absenceCategory: absenceCategoryEnum('absence_category'),
+  allowedDays: integer('allowed_days'),
+  reason: text('reason'),
+  documentUrl: text('document_url'), // Firebase File URL for Sick Notes
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Guard Transfers Table
+export const transferRequests = pgTable('transfer_requests', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  guardId: uuid('guard_id').references(() => guardProfiles.id).notNull(),
+  fromSupervisorId: uuid('from_supervisor_id').references(() => users.id).notNull(),
+  toSupervisorId: uuid('to_supervisor_id').references(() => users.id).notNull(),
+  requestedBy: uuid('requested_by').references(() => users.id).notNull(),
+  approvedBy: uuid('approved_by').references(() => users.id),
+  status: transferStatusEnum('status').default('PENDING').notNull(),
+  reason: text('reason').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});</code></pre>
+                </div>
+            </section>
+
+            <!-- Section 7: REST API Spec -->
+            <section id="api-spec" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">7.</span> Backend REST API Specifications
+                    </h2>
+                </div>
+
+                <div class="space-y-3 font-mono text-xs">
+                    <!-- API Endpoint 1 -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-100 p-2.5 flex items-center gap-2 border-b border-slate-200 font-bold">
+                            <span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px]">GET</span>
+                            <span class="text-slate-800">/api/v1/attendance/shift-sheet</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 space-y-1">
+                            <p class="text-slate-600"><strong>Query Params:</strong> <code>supervisorId</code>, <code>date</code>, <code>shift (DAY|NIGHT)</code></p>
+                            <p class="text-slate-600"><strong>Auth:</strong> Supervisor, Senior Supervisor, Admin</p>
+                        </div>
+                    </div>
+
+                    <!-- API Endpoint 2 -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-100 p-2.5 flex items-center gap-2 border-b border-slate-200 font-bold">
+                            <span class="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px]">POST</span>
+                            <span class="text-slate-800">/api/v1/attendance/log</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 space-y-1">
+                            <p class="text-slate-600"><strong>Payload:</strong> <code>{ guardId, shift, status, absenceCategory?, allowedDays?, reason?, documentUrl? }</code></p>
+                            <p class="text-slate-600"><strong>Auth:</strong> Supervisor, Senior Supervisor</p>
+                        </div>
+                    </div>
+
+                    <!-- API Endpoint 3 -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-100 p-2.5 flex items-center gap-2 border-b border-slate-200 font-bold">
+                            <span class="bg-purple-600 text-white px-2 py-0.5 rounded text-[10px]">PUT</span>
+                            <span class="text-slate-800">/api/v1/transfers/:id/action</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 space-y-1">
+                            <p class="text-slate-600"><strong>Payload:</strong> <code>{ action: "APPROVE" | "REJECT", reviewerNotes?: string }</code></p>
+                            <p class="text-slate-600"><strong>Auth:</strong> Super Admin, HR Personnel Only</p>
+                        </div>
+                    </div>
+
+                    <!-- API Endpoint 4 -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-100 p-2.5 flex items-center gap-2 border-b border-slate-200 font-bold">
+                            <span class="bg-amber-600 text-white px-2 py-0.5 rounded text-[10px]">GET</span>
+                            <span class="text-slate-800">/api/v1/reports/pdf</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 space-y-1">
+                            <p class="text-slate-600"><strong>Query Params:</strong> <code>startDate</code>, <code>endDate</code>, <code>supervisorId?</code>, <code>format=pdf</code></p>
+                            <p class="text-slate-600"><strong>Auth:</strong> Bursar, HR, Super Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Developer Guide -->
+            <section id="developer-guide" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="text-brand-600">8.</span> Developer Setup & Integration Guide
+                    </h2>
+                </div>
+
+                <div class="space-y-4 text-xs">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                        <h3 class="font-bold text-slate-800 text-sm">1. Environment Configuration (.env.local)</h3>
+                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono">
+                            DATABASE_URL="postgres://user:pass@ep-cool-db.neon.tech/hkb_ams"<br>
+                            UPSTASH_REDIS_REST_URL="https://cool-redis.upstash.io"<br>
+                            UPSTASH_REDIS_REST_TOKEN="AXXX..."<br>
+                            NEXTAUTH_SECRET="super-secret-key"<br>
+                            GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"<br>
+                            GOOGLE_CLIENT_SECRET="GOCSPX-xxx"<br>
+                            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="hkb-ams.appspot.com"
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                        <h3 class="font-bold text-slate-800 text-sm">2. PDF Report Generation via `@react-pdf/renderer`</h3>
+                        <p class="text-slate-600">
+                            Reports must render server-side using React Server Components or Edge API routes, streaming standard PDF buffers directly to client endpoints without relying on client browser print functions.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="text-center text-xs text-slate-400 py-6 border-t border-slate-200">
+                <p>© 2026 HKB Protection and Management Company. All rights reserved.</p>
+                <p class="mt-1">Software Requirements Specification & System Architecture Document v1.1</p>
+            </footer>
+
+        </main>
+    </div>
+
+</body>
+</html>
