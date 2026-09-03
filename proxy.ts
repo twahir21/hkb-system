@@ -3,11 +3,29 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 /**
+ * Mirror Auth.js's own `useSecureCookies ?? url.protocol === "https:"` decision
+ * (auth.ts writes a `__Secure-`/Secure session cookie when AUTH_URL is https,
+ * so the proxy MUST read the same cookie name or the gate always sees no token).
+ */
+const isSecureCookies = (): boolean => {
+  const url = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "";
+  try {
+    return new URL(url).protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Next.js 16 renamed middleware → proxy. This is a lightweight UX gate only;
  * all real authorization is re-verified server-side in lib/auth/dal.ts.
  */
 export async function proxy(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+    secureCookie: isSecureCookies(),
+  });
   const { pathname } = request.nextUrl;
 
   const isBypassed =

@@ -11,8 +11,8 @@ export const env = createEnv({
 
     // NextAuth / Google OAuth
     AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
-    AUTH_GOOGLE_ID: z.string().min(1, "AUTH_GOOGLE_ID is required"),
-    AUTH_GOOGLE_SECRET: z.string().min(1, "AUTH_GOOGLE_SECRET is required"),
+    AUTH_GOOGLE_ID: z.string().optional(),
+    AUTH_GOOGLE_SECRET: z.string().optional(),
 
     // Upstash Redis (rate limiting + shift-session locks)
     UPSTASH_REDIS_REST_URL: z.string().url().optional(),

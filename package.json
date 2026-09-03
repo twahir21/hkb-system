@@ -8,16 +8,17 @@
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "bun run lib/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx lib/db/seed.ts"
+    "db:seed": "bun run lib/db/seed.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@react-pdf/renderer": "^4.9.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@upstash/redis": "^1.38.3",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "firebase-admin": "^14.3.0",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

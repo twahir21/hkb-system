@@ -31,7 +31,9 @@ export const transferStatusEnum = pgEnum("transfer_status", ["PENDING", "APPROVE
 // Core Users Table
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
-  googleId: varchar("google_id", { length: 255 }).notNull().unique(),
+  username: varchar("username", { length: 100 }).unique(),
+  passwordHash: text("password_hash"),
+  googleId: varchar("google_id", { length: 255 }).unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
   avatarUrl: varchar("avatar_url", { length: 512 }),

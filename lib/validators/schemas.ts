@@ -3,6 +3,11 @@ import { z } from "zod";
 export const shiftTypeSchema = z.enum(["DAY", "NIGHT"]);
 export const absenceCategorySchema = z.enum(["SICK", "PERMITTED_REASON", "NOT_PERMITTED"]);
 
+export const loginSchema = z.object({
+  identifier: z.string().trim().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
 export const markAttendanceSchema = z
   .object({
     guardId: z.string().uuid(),
