@@ -1,11 +1,20 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { getShiftSheet } from "@/modules/attendance/queries/attendance";
-import { getSupervisors } from "@/modules/hr/queries/guards";
-import { ShiftSheet, type ShiftSheetRowDTO } from "@/modules/attendance/components/ShiftSheet";
+import { getShiftSheet } from "@/features/attendance/queries/attendance";
+import { getSupervisors } from "@/features/hr/queries/guards";
+import {
+  ShiftSheet,
+  type ShiftSheetRowDTO,
+} from "@/features/attendance/components/ShiftSheet";
 import { todayISO } from "@/lib/utils";
 
-type PageProps = { searchParams: Promise<{ date?: string; shift?: string; supervisorId?: string }> };
+type PageProps = {
+  searchParams: Promise<{
+    date?: string;
+    shift?: string;
+    supervisorId?: string;
+  }>;
+};
 
 export default async function AttendancePage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
@@ -28,7 +37,8 @@ export default async function AttendancePage({ searchParams }: PageProps) {
   const requestedSupervisor = sp.supervisorId;
 
   // A plain supervisor only ever sees their own assigned guards.
-  const scopeSupervisor = user.role === "SUPERVISOR" ? user.userId : requestedSupervisor;
+  const scopeSupervisor =
+    user.role === "SUPERVISOR" ? user.userId : requestedSupervisor;
 
   const sheet = await getShiftSheet(date, shift, scopeSupervisor, canPii);
   const supervisors = user.role === "SUPERVISOR" ? [] : await getSupervisors();
@@ -58,7 +68,8 @@ export default async function AttendancePage({ searchParams }: PageProps) {
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Shift Sheet</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Per-shift clock-in for {user.role === "SUPERVISOR" ? "your assigned guards" : "guards"}.
+          Per-shift clock-in for{" "}
+          {user.role === "SUPERVISOR" ? "your assigned guards" : "guards"}.
         </p>
       </div>
 

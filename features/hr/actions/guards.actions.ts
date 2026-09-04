@@ -6,13 +6,16 @@ import { db } from "@/lib/db";
 import { guardProfiles, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
-import { guardSchema } from "@/modules/hr/validators/guard.schema";
-import type { ActionState } from "@/modules/attendance/actions/attendance.actions";
+import { guardSchema } from "@/features/hr/validators/guard.schema";
+import type { ActionState } from "@/features/attendance/actions/attendance.actions";
 
 export type GuardState = ActionState & { guardId?: string };
 
 /** Create a guard: links/stamps the user row and inserts their profile (PII). */
-export async function createGuard(_prev: GuardState, formData: FormData): Promise<GuardState> {
+export async function createGuard(
+  _prev: GuardState,
+  formData: FormData,
+): Promise<GuardState> {
   const actor = await requirePermission("GUARD_MANAGE");
 
   const parsed = guardSchema.safeParse({
@@ -31,7 +34,10 @@ export async function createGuard(_prev: GuardState, formData: FormData): Promis
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid guard data" };
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid guard data",
+    };
   }
   const v = parsed.data;
 
@@ -44,7 +50,12 @@ export async function createGuard(_prev: GuardState, formData: FormData): Promis
   } else {
     const [created] = await db
       .insert(users)
-      .values({ googleId: "", email: v.email, fullName: v.fullName, role: "GUARD" })
+      .values({
+        googleId: "",
+        email: v.email,
+        fullName: v.fullName,
+        role: "GUARD",
+      })
       .returning({ id: users.id });
     userId = created.id;
   }
@@ -81,7 +92,10 @@ export async function createGuard(_prev: GuardState, formData: FormData): Promis
 }
 
 /** Update a guard profile (PII + supervisor assignment). */
-export async function updateGuard(_prev: GuardState, formData: FormData): Promise<GuardState> {
+export async function updateGuard(
+  _prev: GuardState,
+  formData: FormData,
+): Promise<GuardState> {
   const actor = await requirePermission("GUARD_MANAGE");
 
   const id = formData.get("id");
@@ -100,7 +114,10 @@ export async function updateGuard(_prev: GuardState, formData: FormData): Promis
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid update" };
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid update",
+    };
   }
   const v = parsed.data;
 

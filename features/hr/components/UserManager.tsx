@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { UserPlus, Upload, Pencil, Trash2, KeyRound, Globe, Loader2 } from "lucide-react";
+import {
+  UserPlus,
+  Upload,
+  Pencil,
+  Trash2,
+  KeyRound,
+  Globe,
+  Loader2,
+} from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
-import type { UserRow } from "@/modules/hr/queries/users";
+import type { UserRow } from "@/features/hr/queries/users";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import { UserForm } from "./UserForm";
 import { BulkUserModal } from "./BulkUserModal";
-import { deleteUser } from "@/modules/hr/actions/users.actions";
+import { deleteUser } from "@/features/hr/actions/users.actions";
 import { formatDate } from "@/lib/utils";
 import type { Role } from "@/lib/db/schema";
 
@@ -40,7 +48,11 @@ export function UserManager({
   });
 
   const handleDelete = (userId: string, fullName: string) => {
-    if (!confirm(`Are you sure you want to delete account for "${fullName}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete account for "${fullName}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
     setActionError(null);
@@ -96,7 +108,9 @@ export function UserManager({
     {
       key: "role",
       header: "System Role",
-      cell: (r) => <Badge tone={getRoleBadgeTone(r.role)}>{ROLE_LABELS[r.role]}</Badge>,
+      cell: (r) => (
+        <Badge tone={getRoleBadgeTone(r.role)}>{ROLE_LABELS[r.role]}</Badge>
+      ),
     },
     {
       key: "auth",
@@ -120,7 +134,9 @@ export function UserManager({
             </span>
           )}
           {!r.hasPassword && !r.hasGoogle && (
-            <span className="text-[11px] text-amber-600">Pending initial sign-in</span>
+            <span className="text-[11px] text-amber-600">
+              Pending initial sign-in
+            </span>
           )}
         </div>
       ),
@@ -129,7 +145,9 @@ export function UserManager({
       key: "createdAt",
       header: "Registered",
       cell: (r) => (
-        <span className="text-xs text-slate-500">{formatDate(r.createdAt.toISOString())}</span>
+        <span className="text-xs text-slate-500">
+          {formatDate(r.createdAt.toISOString())}
+        </span>
       ),
     },
     {
@@ -197,10 +215,7 @@ export function UserManager({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            onClick={() => setBulkOpen(true)}
-          >
+          <Button variant="secondary" onClick={() => setBulkOpen(true)}>
             <Upload className="h-4 w-4" /> Bulk Import (CSV)
           </Button>
           <Button
@@ -215,13 +230,21 @@ export function UserManager({
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
-        <DataTable columns={columns} rows={filtered} empty="No user accounts found matching your criteria." />
+        <DataTable
+          columns={columns}
+          rows={filtered}
+          empty="No user accounts found matching your criteria."
+        />
       </div>
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={editing ? `Edit Account — ${editing.fullName}` : "Register New System User"}
+        title={
+          editing
+            ? `Edit Account — ${editing.fullName}`
+            : "Register New System User"
+        }
       >
         <UserForm
           key={editing?.id ?? "new"}
@@ -230,10 +253,7 @@ export function UserManager({
         />
       </Modal>
 
-      <BulkUserModal
-        open={bulkOpen}
-        onClose={() => setBulkOpen(false)}
-      />
+      <BulkUserModal open={bulkOpen} onClose={() => setBulkOpen(false)} />
     </div>
   );
 }

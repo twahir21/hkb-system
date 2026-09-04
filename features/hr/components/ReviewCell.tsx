@@ -6,13 +6,13 @@ import { Button } from "@/components/ui";
 import {
   approveOrRejectTransfer,
   type ActionState,
-} from "@/modules/hr/actions/transfers.actions";
+} from "@/features/hr/actions/transfers.actions";
 
 export function ReviewCell({ requestId }: { requestId: string }) {
   const [action, setAction] = useState<"APPROVE" | "REJECT">("APPROVE");
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     approveOrRejectTransfer,
-    { ok: false }
+    { ok: false },
   );
 
   return (

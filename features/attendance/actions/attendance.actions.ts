@@ -5,16 +5,21 @@ import { db } from "@/lib/db";
 import { attendanceLogs } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
-import { markAttendanceSchema } from "@/modules/attendance/validators/attendance.schema";
+import { markAttendanceSchema } from "@/features/attendance/validators/attendance.schema";
 import { tryAcquireShiftLock, releaseShiftLock } from "@/lib/redis";
-import { getSupervisorIdForGuard } from "@/modules/hr/queries/guards";
+import { getSupervisorIdForGuard } from "@/features/hr/queries/guards";
 import { uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
 
-export type ActionState = { ok: boolean; error?: string; message?: string; url?: string };
+export type ActionState = {
+  ok: boolean;
+  error?: string;
+  message?: string;
+  url?: string;
+};
 
 export async function markAttendance(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const user = await requirePermission("ATTENDANCE_RECORD");
 
@@ -24,14 +29,21 @@ export async function markAttendance(
     shift: formData.get("shift") ?? undefined,
     status: formData.get("status") ?? undefined,
     absenceCategory: formData.get("absenceCategory") || undefined,
-    allowedDays: formData.get("allowedDays") ? Number(formData.get("allowedDays")) : undefined,
-    minutesLate: formData.get("minutesLate") ? Number(formData.get("minutesLate")) : undefined,
+    allowedDays: formData.get("allowedDays")
+      ? Number(formData.get("allowedDays"))
+      : undefined,
+    minutesLate: formData.get("minutesLate")
+      ? Number(formData.get("minutesLate"))
+      : undefined,
     reason: formData.get("reason") || undefined,
     documentUrl: formData.get("documentUrl") || undefined,
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
   }
   const v = parsed.data;
 
@@ -46,7 +58,10 @@ export async function markAttendance(
   const lockKey = `shift-lock:${v.guardId}:${v.date}:${v.shift}`;
   const acquired = await tryAcquireShiftLock(lockKey, 300);
   if (!acquired) {
-    return { ok: false, error: "This shift is already being processed — try again shortly." };
+    return {
+      ok: false,
+      error: "This shift is already being processed — try again shortly.",
+    };
   }
 
   try {
@@ -65,7 +80,11 @@ export async function markAttendance(
         documentUrl: v.documentUrl ?? null,
       })
       .onConflictDoUpdate({
-        target: [attendanceLogs.guardId, attendanceLogs.date, attendanceLogs.shift],
+        target: [
+          attendanceLogs.guardId,
+          attendanceLogs.date,
+          attendanceLogs.shift,
+        ],
         set: {
           supervisorId: user.userId,
           status: v.status,
@@ -109,7 +128,7 @@ export async function markPresentOnly(formData: FormData): Promise<void> {
 /** Server-side sick-note upload via Firebase Admin. Returns the public URL. */
 export async function uploadSickNote(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   await requirePermission("ATTENDANCE_RECORD");
 
@@ -127,7 +146,10 @@ export async function uploadSickNote(
   const buffer = Buffer.from(await file.arrayBuffer());
   const url = await uploadFileToStorage(buffer, file.name, file.type);
   if (!url) {
-    return { ok: false, error: "Document storage is not configured on the server." };
+    return {
+      ok: false,
+      error: "Document storage is not configured on the server.",
+    };
   }
   return { ok: true, url, message: "Document uploaded." };
 }

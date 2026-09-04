@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
-import type { LogRow } from "@/modules/attendance/queries/attendance";
+import type { LogRow } from "@/features/attendance/queries/attendance";
 
 const ABSENCE_LABEL: Record<string, string> = {
   SICK: "Sick",
@@ -27,44 +27,90 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
   }, [logs, q, status]);
 
   const columns: Column<LogRow>[] = [
-    { key: "date", header: "Date", cell: (r) => <span className="whitespace-nowrap text-slate-700">{r.date}</span> },
-    { key: "shift", header: "Shift", cell: (r) => (
-      <Badge tone={r.shift === "DAY" ? "amber" : "slate"}>{r.shift}</Badge>
-    ) },
-    { key: "guard", header: "Guard", cell: (r) => (
-      <div>
-        <p className="font-medium text-slate-800">{r.guardName}</p>
-        <p className="font-mono text-xs text-slate-400">{r.employeeId}</p>
-      </div>
-    ) },
-    { key: "status", header: "Status", cell: (r) => (
-      <Badge tone={statusTone(r.status)}>
-        {r.status}
-        {r.status === "LATE" && r.minutesLate ? ` (+${r.minutesLate}m)` : ""}
-      </Badge>
-    ) },
-    { key: "absence", header: "Absence / Delay", cell: (r) =>
-      r.absenceCategory ? (
+    {
+      key: "date",
+      header: "Date",
+      cell: (r) => (
+        <span className="whitespace-nowrap text-slate-700">{r.date}</span>
+      ),
+    },
+    {
+      key: "shift",
+      header: "Shift",
+      cell: (r) => (
+        <Badge tone={r.shift === "DAY" ? "amber" : "slate"}>{r.shift}</Badge>
+      ),
+    },
+    {
+      key: "guard",
+      header: "Guard",
+      cell: (r) => (
         <div>
-          <Badge tone={statusTone(r.absenceCategory)}>{ABSENCE_LABEL[r.absenceCategory] ?? r.absenceCategory}</Badge>
-          {r.allowedDays && <p className="mt-1 text-xs text-slate-400">{r.allowedDays} allowed days</p>}
+          <p className="font-medium text-slate-800">{r.guardName}</p>
+          <p className="font-mono text-xs text-slate-400">{r.employeeId}</p>
         </div>
-      ) : r.status === "LATE" && r.reason ? (
-        <span className="text-xs text-slate-600 max-w-[150px] truncate block" title={r.reason}>
-          {r.reason}
-        </span>
-      ) : (
-        <span className="text-xs text-slate-400">—</span>
-      ) },
-    { key: "supervisor", header: "Recorded by", cell: (r) => <span className="text-slate-600">{r.supervisorName || "—"}</span> },
-    { key: "doc", header: "Doc", cell: (r) =>
-      r.documentUrl ? (
-        <a href={r.documentUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">
-          View
-        </a>
-      ) : (
-        <span className="text-xs text-slate-400">—</span>
-      ) },
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (r) => (
+        <Badge tone={statusTone(r.status)}>
+          {r.status}
+          {r.status === "LATE" && r.minutesLate ? ` (+${r.minutesLate}m)` : ""}
+        </Badge>
+      ),
+    },
+    {
+      key: "absence",
+      header: "Absence / Delay",
+      cell: (r) =>
+        r.absenceCategory ? (
+          <div>
+            <Badge tone={statusTone(r.absenceCategory)}>
+              {ABSENCE_LABEL[r.absenceCategory] ?? r.absenceCategory}
+            </Badge>
+            {r.allowedDays && (
+              <p className="mt-1 text-xs text-slate-400">
+                {r.allowedDays} allowed days
+              </p>
+            )}
+          </div>
+        ) : r.status === "LATE" && r.reason ? (
+          <span
+            className="text-xs text-slate-600 max-w-37.5 truncate block"
+            title={r.reason}
+          >
+            {r.reason}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        ),
+    },
+    {
+      key: "supervisor",
+      header: "Recorded by",
+      cell: (r) => (
+        <span className="text-slate-600">{r.supervisorName || "—"}</span>
+      ),
+    },
+    {
+      key: "doc",
+      header: "Doc",
+      cell: (r) =>
+        r.documentUrl ? (
+          <a
+            href={r.documentUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-brand-600 hover:underline"
+          >
+            View
+          </a>
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        ),
+    },
   ];
 
   return (
@@ -97,7 +143,11 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
         </div>
       </div>
 
-      <DataTable columns={columns} rows={filtered} empty="No attendance records match your filters." />
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        empty="No attendance records match your filters."
+      />
       <p className="text-xs text-slate-400">
         Showing {filtered.length} of {logs.length} records
       </p>

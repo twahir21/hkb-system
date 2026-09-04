@@ -3,7 +3,10 @@
 import { useActionState, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
-import { submitTransfer, type ActionState } from "@/modules/hr/actions/transfers.actions";
+import {
+  submitTransfer,
+  type ActionState,
+} from "@/features/hr/actions/transfers.actions";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 type GuardOpt = { id: string; name: string; employeeId: string };
@@ -21,9 +24,12 @@ export function RequestTransferModal({
   currentUserId: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction, pending] = useActionState<ActionState, FormData>(submitTransfer, {
-    ok: false,
-  });
+  const [state, formAction, pending] = useActionState<ActionState, FormData>(
+    submitTransfer,
+    {
+      ok: false,
+    },
+  );
 
   return (
     <>
@@ -31,13 +37,22 @@ export function RequestTransferModal({
         <Plus className="h-4 w-4" /> Request transfer
       </Button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Request a guard transfer">
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Request a guard transfer"
+      >
         <form action={formAction} className="space-y-4">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
               Guard
             </span>
-            <select name="guardId" required className={inputCls} defaultValue="">
+            <select
+              name="guardId"
+              required
+              className={inputCls}
+              defaultValue=""
+            >
               <option value="" disabled>
                 Select guard…
               </option>
@@ -53,7 +68,12 @@ export function RequestTransferModal({
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
               Transfer to supervisor
             </span>
-            <select name="toSupervisorId" required className={inputCls} defaultValue="">
+            <select
+              name="toSupervisorId"
+              required
+              className={inputCls}
+              defaultValue=""
+            >
               <option value="" disabled>
                 Select supervisor…
               </option>
@@ -80,7 +100,9 @@ export function RequestTransferModal({
             />
           </label>
 
-          {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
+          {state.error && (
+            <p className="text-sm text-rose-600">{state.error}</p>
+          )}
           {state.ok && state.message && (
             <p className="rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700">
               {state.message}
@@ -88,7 +110,12 @@ export function RequestTransferModal({
           )}
 
           <div className="flex justify-end gap-2">
-            <Button variant="secondary" size="sm" onClick={() => setOpen(false)} type="button">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setOpen(false)}
+              type="button"
+            >
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={pending}>

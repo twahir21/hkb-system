@@ -5,7 +5,7 @@ import { CalendarDays, Sun, Moon } from "lucide-react";
 import { Badge, Button, statusTone } from "@/components/ui";
 import { AbsentModal } from "./AbsentModal";
 import { LateModal } from "./LateModal";
-import { markPresentOnly } from "@/modules/attendance/actions/attendance.actions";
+import { markPresentOnly } from "@/features/attendance/actions/attendance.actions";
 import type { ShiftType } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
 
@@ -57,7 +57,9 @@ export function ShiftSheet({
 
   const update = (patch: Record<string, string>) => {
     const next = new URLSearchParams(sp.toString());
-    Object.entries(patch).forEach(([k, v]) => (v ? next.set(k, v) : next.delete(k)));
+    Object.entries(patch).forEach(([k, v]) =>
+      v ? next.set(k, v) : next.delete(k),
+    );
     router.replace(`/attendance?${next.toString()}`);
   };
 
@@ -125,7 +127,8 @@ export function ShiftSheet({
         </div>
 
         <p className="text-sm font-medium text-slate-600">
-          {formatDate(date)} · {shift === "DAY" ? "Day" : "Night"} shift · {rows.length} guards
+          {formatDate(date)} · {shift === "DAY" ? "Day" : "Night"} shift ·{" "}
+          {rows.length} guards
         </p>
       </div>
 
@@ -140,7 +143,9 @@ export function ShiftSheet({
               <th className="px-4 py-3 font-semibold">Supervisor</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Absence / Delay</th>
-              {canRecord && <th className="px-4 py-3 font-semibold text-right">Actions</th>}
+              {canRecord && (
+                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -150,20 +155,39 @@ export function ShiftSheet({
               const isLate = row.log?.status === "LATE";
               const absentCat = row.log?.absenceCategory ?? null;
               return (
-                <tr key={row.id} className="transition-colors hover:bg-slate-50">
-                  <td className="px-4 py-3 font-mono text-xs text-slate-500">{row.employeeId}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">{row.fullName}</td>
-                  <td className="px-4 py-3 text-slate-600">{row.workLocation}</td>
-                  {canPii && <td className="px-4 py-3 text-slate-600">{row.homeLocation ?? "—"}</td>}
-                  <td className="px-4 py-3 text-slate-600">{row.supervisorName ?? "—"}</td>
+                <tr
+                  key={row.id}
+                  className="transition-colors hover:bg-slate-50"
+                >
+                  <td className="px-4 py-3 font-mono text-xs text-slate-500">
+                    {row.employeeId}
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-slate-800">
+                    {row.fullName}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {row.workLocation}
+                  </td>
+                  {canPii && (
+                    <td className="px-4 py-3 text-slate-600">
+                      {row.homeLocation ?? "—"}
+                    </td>
+                  )}
+                  <td className="px-4 py-3 text-slate-600">
+                    {row.supervisorName ?? "—"}
+                  </td>
                   <td className="px-4 py-3">
                     {hasLog ? (
                       <Badge tone={statusTone(row.log!.status)}>
                         {row.log!.status}
-                        {isLate && row.log!.minutesLate ? ` (+${row.log!.minutesLate}m)` : ""}
+                        {isLate && row.log!.minutesLate
+                          ? ` (+${row.log!.minutesLate}m)`
+                          : ""}
                       </Badge>
                     ) : (
-                      <span className="text-xs text-slate-400">Not recorded</span>
+                      <span className="text-xs text-slate-400">
+                        Not recorded
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -172,7 +196,10 @@ export function ShiftSheet({
                         {ABSENCE_LABEL[absentCat] ?? absentCat}
                       </Badge>
                     ) : isLate && row.log?.reason ? (
-                      <span className="text-xs text-slate-500 max-w-37.5 truncate block" title={row.log.reason}>
+                      <span
+                        className="text-xs text-slate-500 max-w-37.5 truncate block"
+                        title={row.log.reason}
+                      >
                         {row.log.reason}
                       </span>
                     ) : (
@@ -184,10 +211,18 @@ export function ShiftSheet({
                       <div className="flex items-center justify-end gap-2">
                         {(!hasLog || !isPresent) && (
                           <form action={markPresentOnly}>
-                            <input type="hidden" name="guardId" value={row.id} />
+                            <input
+                              type="hidden"
+                              name="guardId"
+                              value={row.id}
+                            />
                             <input type="hidden" name="date" value={date} />
                             <input type="hidden" name="shift" value={shift} />
-                            <input type="hidden" name="status" value="PRESENT" />
+                            <input
+                              type="hidden"
+                              name="status"
+                              value="PRESENT"
+                            />
                             <Button type="submit" variant="success" size="sm">
                               Present
                             </Button>

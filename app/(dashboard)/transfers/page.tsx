@@ -1,8 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { listTransfers } from "@/modules/hr/queries/transfers";
-import { getSupervisors, listGuards } from "@/modules/hr/queries/guards";
-import { TransfersView } from "@/modules/hr/components/TransfersView";
+import { listTransfers } from "@/features/hr/queries/transfers";
+import { getSupervisors, listGuards } from "@/features/hr/queries/guards";
+import { TransfersView } from "@/features/hr/components/TransfersView";
 
 export default async function TransfersPage() {
   const user = await getCurrentUser();
@@ -35,8 +35,16 @@ export default async function TransfersPage() {
       </div>
       <TransfersView
         transfers={transfers}
-        supervisors={supervisors.map((s) => ({ id: s.id, name: s.fullName, role: s.role }))}
-        guards={guards.map((g) => ({ id: g.id, name: g.fullName, employeeId: g.employeeId }))}
+        supervisors={supervisors.map((s) => ({
+          id: s.id,
+          name: s.fullName,
+          role: s.role,
+        }))}
+        guards={guards.map((g) => ({
+          id: g.id,
+          name: g.fullName,
+          employeeId: g.employeeId,
+        }))}
         canRequest={canRequest}
         canApprove={canApprove}
         currentUserId={user.userId}

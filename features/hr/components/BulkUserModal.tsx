@@ -1,9 +1,20 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
-import { Download, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
+import {
+  Download,
+  Upload,
+  FileSpreadsheet,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Loader2,
+} from "lucide-react";
 import { Button, Modal } from "@/components/ui";
-import { bulkImportUsers, type BulkImportResult } from "@/modules/hr/actions/users.actions";
+import {
+  bulkImportUsers,
+  type BulkImportResult,
+} from "@/features/hr/actions/users.actions";
 
 export function BulkUserModal({
   open,
@@ -54,7 +65,12 @@ export function BulkUserModal({
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Bulk Register Users via CSV" wide>
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="Bulk Register Users via CSV"
+      wide
+    >
       <div className="space-y-5">
         {/* Instructions Box */}
         <div className="rounded-xl border border-brand-500/20 bg-brand-50/50 p-4 text-xs text-slate-700 space-y-2.5">
@@ -72,24 +88,30 @@ export function BulkUserModal({
           </div>
 
           <p className="leading-relaxed text-slate-600">
-            Ensure your CSV file contains the following columns in the first row (header):
+            Ensure your CSV file contains the following columns in the first row
+            (header):
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] bg-white p-3 rounded-lg border border-brand-200">
             <div>
-              <span className="font-bold text-slate-900">fullName:</span> e.g. John Doe
+              <span className="font-bold text-slate-900">fullName:</span> e.g.
+              John Doe
             </div>
             <div>
-              <span className="font-bold text-slate-900">email:</span> e.g. john@hkb.co
+              <span className="font-bold text-slate-900">email:</span> e.g.
+              john@hkb.co
             </div>
             <div>
-              <span className="font-bold text-slate-900">username:</span> e.g. jdoe
+              <span className="font-bold text-slate-900">username:</span> e.g.
+              jdoe
             </div>
             <div>
-              <span className="font-bold text-slate-900">password:</span> Min. 6 characters
+              <span className="font-bold text-slate-900">password:</span> Min. 6
+              characters
             </div>
             <div className="sm:col-span-2">
-              <span className="font-bold text-slate-900">role:</span> Must be one of:{" "}
+              <span className="font-bold text-slate-900">role:</span> Must be
+              one of:{" "}
               <span className="text-brand-700 font-semibold">
                 SUPER_ADMIN, SENIOR_SUPERVISOR, SUPERVISOR, HR, BURSAR, GUARD
               </span>
@@ -143,7 +165,8 @@ export function BulkUserModal({
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                     <span className="text-sm font-bold text-slate-900">
-                      Import Results: {result.imported} of {result.total} users registered
+                      Import Results: {result.imported} of {result.total} users
+                      registered
                     </span>
                   </div>
 
@@ -156,7 +179,10 @@ export function BulkUserModal({
                       <ul className="max-h-40 overflow-y-auto space-y-1 text-xs text-amber-900 divide-y divide-amber-200/60">
                         {result.errors.map((err, i) => (
                           <li key={i} className="pt-1 first:pt-0">
-                            <span className="font-mono font-bold">Row {err.row}</span> ({err.identifier}):{" "}
+                            <span className="font-mono font-bold">
+                              Row {err.row}
+                            </span>{" "}
+                            ({err.identifier}):{" "}
                             <span className="text-rose-700">{err.reason}</span>
                           </li>
                         ))}
@@ -169,7 +195,12 @@ export function BulkUserModal({
           )}
 
           <div className="flex items-center justify-end gap-2 pt-2">
-            <Button variant="secondary" size="sm" onClick={handleClose} type="button">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleClose}
+              type="button"
+            >
               {result ? "Close" : "Cancel"}
             </Button>
             <Button type="submit" size="sm" disabled={isPending || !file}>

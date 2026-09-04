@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { UserPlus, Pencil } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
-import type { GuardRow } from "@/modules/hr/queries/guards";
+import type { GuardRow } from "@/features/hr/queries/guards";
 import { GuardForm } from "./GuardForm";
 
 type Supervisor = { id: string; name: string; role: string };
@@ -23,7 +23,7 @@ export function GuardManager({
     (g) =>
       !q ||
       g.fullName.toLowerCase().includes(q.toLowerCase()) ||
-      g.employeeId.toLowerCase().includes(q.toLowerCase())
+      g.employeeId.toLowerCase().includes(q.toLowerCase()),
   );
 
   const columns: Column<GuardRow>[] = [
@@ -37,7 +37,11 @@ export function GuardManager({
         </div>
       ),
     },
-    { key: "age", header: "Age", cell: (r) => <span className="text-slate-600">{r.age}</span> },
+    {
+      key: "age",
+      header: "Age",
+      cell: (r) => <span className="text-slate-600">{r.age}</span>,
+    },
     {
       key: "contact",
       header: "Contact",
@@ -119,7 +123,11 @@ export function GuardManager({
         </Button>
       </div>
 
-      <DataTable columns={columns} rows={filtered} empty="No guards match your search." />
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        empty="No guards match your search."
+      />
 
       <Modal
         open={open}

@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Clock, CheckCircle2 } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
-import { markAttendance } from "@/modules/attendance/actions/attendance.actions";
+import { markAttendance } from "@/features/attendance/actions/attendance.actions";
 import type { ShiftType } from "@/lib/db/schema";
 
 const PRESET_MINUTES = [15, 30, 45, 60, 90, 120];
@@ -22,8 +22,12 @@ export function LateModal({
   currentMinutesLate?: number | null;
 }) {
   const [open, setOpen] = useState(false);
-  const [minutesLate, setMinutesLate] = useState<number>(currentMinutesLate || 15);
-  const [state, formAction, pending] = useActionState(markAttendance, { ok: false });
+  const [minutesLate, setMinutesLate] = useState<number>(
+    currentMinutesLate || 15,
+  );
+  const [state, formAction, pending] = useActionState(markAttendance, {
+    ok: false,
+  });
 
   const close = () => {
     setOpen(false);
@@ -41,7 +45,11 @@ export function LateModal({
         Late
       </Button>
 
-      <Modal open={open} onClose={close} title={`Mark Late Arrival — ${guardName}`}>
+      <Modal
+        open={open}
+        onClose={close}
+        title={`Mark Late Arrival — ${guardName}`}
+      >
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="guardId" value={guardId} />
           <input type="hidden" name="date" value={date} />
@@ -82,7 +90,9 @@ export function LateModal({
                 min={1}
                 max={720}
                 value={minutesLate}
-                onChange={(e) => setMinutesLate(Math.max(1, Number(e.target.value) || 1))}
+                onChange={(e) =>
+                  setMinutesLate(Math.max(1, Number(e.target.value) || 1))
+                }
                 required
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />

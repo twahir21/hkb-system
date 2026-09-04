@@ -6,8 +6,8 @@ import {
   createGuard,
   updateGuard,
   type GuardState,
-} from "@/modules/hr/actions/guards.actions";
-import type { GuardRow } from "@/modules/hr/queries/guards";
+} from "@/features/hr/actions/guards.actions";
+import type { GuardRow } from "@/features/hr/queries/guards";
 
 type Supervisor = { id: string; name: string; role: string };
 
@@ -56,7 +56,7 @@ export function GuardForm({
 }) {
   const [state, formAction, pending] = useActionState<GuardState, FormData>(
     editing ? updateGuard : createGuard,
-    { ok: false }
+    { ok: false },
   );
 
   return (
@@ -66,14 +66,41 @@ export function GuardForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {!editing && (
           <>
-            <Field label="Email" name="email" type="email" required className="sm:col-span-2" />
-            <Field label="Full name" name="fullName" required className="sm:col-span-2" />
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              required
+              className="sm:col-span-2"
+            />
+            <Field
+              label="Full name"
+              name="fullName"
+              required
+              className="sm:col-span-2"
+            />
             <Field label="Employee ID" name="employeeId" required />
-            <Field label="Registration date" name="registrationDate" type="date" required />
+            <Field
+              label="Registration date"
+              name="registrationDate"
+              type="date"
+              required
+            />
           </>
         )}
-        <Field label="Age" name="age" type="number" defaultValue={editing?.age} required />
-        <Field label="Phone" name="phone" defaultValue={editing?.phone} required />
+        <Field
+          label="Age"
+          name="age"
+          type="number"
+          defaultValue={editing?.age}
+          required
+        />
+        <Field
+          label="Phone"
+          name="phone"
+          defaultValue={editing?.phone}
+          required
+        />
         <Field
           label="Work location"
           name="workLocation"
@@ -88,9 +115,24 @@ export function GuardForm({
           required
           className="sm:col-span-2"
         />
-        <Field label="Next of kin name" name="kinName" defaultValue={editing?.kinName} required />
-        <Field label="Kin relation" name="kinRelation" defaultValue={editing?.kinRelation} required />
-        <Field label="Kin phone" name="kinPhone" defaultValue={editing?.kinPhone} required />
+        <Field
+          label="Next of kin name"
+          name="kinName"
+          defaultValue={editing?.kinName}
+          required
+        />
+        <Field
+          label="Kin relation"
+          name="kinRelation"
+          defaultValue={editing?.kinRelation}
+          required
+        />
+        <Field
+          label="Kin phone"
+          name="kinPhone"
+          defaultValue={editing?.kinPhone}
+          required
+        />
       </div>
 
       <label className="block">

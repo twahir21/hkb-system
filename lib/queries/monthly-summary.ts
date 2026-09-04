@@ -3,8 +3,11 @@ import "server-only";
 import { and, gte, inArray, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attendanceLogs } from "@/lib/db/schema";
-import { listGuards } from "@/modules/hr/queries/guards";
-import { listLogs, type LogRow } from "@/modules/attendance/queries/attendance";
+import { listGuards } from "@/features/hr/queries/guards";
+import {
+  listLogs,
+  type LogRow,
+} from "@/features/attendance/queries/attendance";
 
 export type GuardMonthlyStat = {
   guardId: string;
@@ -65,7 +68,7 @@ export async function getMonthlyAttendanceSummary(
   year: number,
   month: number,
   supervisorId?: string,
-  includePii = false
+  includePii = false,
 ): Promise<OverallMonthlySummary> {
   // Format start and end date (e.g. 2026-09-01 to 2026-09-30)
   const paddedMonth = String(month).padStart(2, "0");
@@ -88,8 +91,8 @@ export async function getMonthlyAttendanceSummary(
           and(
             gte(attendanceLogs.date, startDate),
             lte(attendanceLogs.date, endDate),
-            inArray(attendanceLogs.guardId, guardIds)
-          )
+            inArray(attendanceLogs.guardId, guardIds),
+          ),
         )
     : [];
 
@@ -143,7 +146,8 @@ export async function getMonthlyAttendanceSummary(
     totalNotPermitted += notPermitted;
     totalLateMins += lateMinutes;
 
-    const attendancePct = total > 0 ? Math.round(((present + late) / total) * 1000) / 10 : 0;
+    const attendancePct =
+      total > 0 ? Math.round(((present + late) / total) * 1000) / 10 : 0;
     const onTimePct = total > 0 ? Math.round((present / total) * 1000) / 10 : 0;
 
     let tier: GuardMonthlyStat["performanceTier"] = "NO_DATA";
@@ -177,7 +181,9 @@ export async function getMonthlyAttendanceSummary(
 
   const totalShifts = logs.length;
   const overallAttendancePct =
-    totalShifts > 0 ? Math.round(((totalPresent + totalLate) / totalShifts) * 1000) / 10 : 0;
+    totalShifts > 0
+      ? Math.round(((totalPresent + totalLate) / totalShifts) * 1000) / 10
+      : 0;
   const overallOnTimePct =
     totalShifts > 0 ? Math.round((totalPresent / totalShifts) * 1000) / 10 : 0;
 
@@ -237,7 +243,7 @@ export type GuardMonthlyDetail = {
 export async function getGuardMonthlyDetail(
   guardId: string,
   year: number,
-  month: number
+  month: number,
 ): Promise<GuardMonthlyDetail | null> {
   const paddedMonth = String(month).padStart(2, "0");
   const startDate = `${year}-${paddedMonth}-01`;
@@ -248,7 +254,12 @@ export async function getGuardMonthlyDetail(
   const guard = allGuards.find((g) => g.id === guardId);
   if (!guard) return null;
 
-  const logs = await listLogs({ guardId, fromDate: startDate, toDate: endDate, limit: 200 });
+  const logs = await listLogs({
+    guardId,
+    fromDate: startDate,
+    toDate: endDate,
+    limit: 200,
+  });
 
   let present = 0;
   let late = 0;
@@ -273,7 +284,8 @@ export async function getGuardMonthlyDetail(
   }
 
   const total = logs.length;
-  const attendancePct = total > 0 ? Math.round(((present + late) / total) * 1000) / 10 : 0;
+  const attendancePct =
+    total > 0 ? Math.round(((present + late) / total) * 1000) / 10 : 0;
   const onTimePct = total > 0 ? Math.round((present / total) * 1000) / 10 : 0;
 
   let tier: GuardMonthlyDetail["performanceTier"] = "NO_DATA";
@@ -312,4 +324,3 @@ export async function getGuardMonthlyDetail(
     logs,
   };
 }
-

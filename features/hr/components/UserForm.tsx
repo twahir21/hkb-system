@@ -2,8 +2,12 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui";
-import { createUser, updateUser, type UserActionState } from "@/modules/hr/actions/users.actions";
-import type { UserRow } from "@/modules/hr/queries/users";
+import {
+  createUser,
+  updateUser,
+  type UserActionState,
+} from "@/features/hr/actions/users.actions";
+import type { UserRow } from "@/features/hr/queries/users";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import type { Role } from "@/lib/db/schema";
 
@@ -26,10 +30,10 @@ export function UserForm({
   editing: UserRow | null;
   onDone: () => void;
 }) {
-  const [state, formAction, pending] = useActionState<UserActionState, FormData>(
-    editing ? updateUser : createUser,
-    { ok: false }
-  );
+  const [state, formAction, pending] = useActionState<
+    UserActionState,
+    FormData
+  >(editing ? updateUser : createUser, { ok: false });
 
   return (
     <form action={formAction} className="space-y-4">
@@ -103,7 +107,9 @@ export function UserForm({
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-            {editing ? "New Password (leave blank to keep current)" : "Password"}
+            {editing
+              ? "New Password (leave blank to keep current)"
+              : "Password"}
           </label>
           <input
             name="password"

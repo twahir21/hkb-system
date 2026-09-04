@@ -4,19 +4,19 @@ import { and, desc, eq, gte, inArray, lte, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
 import { attendanceLogs, guardProfiles, users } from "@/lib/db/schema";
-import { listGuards, type GuardRow } from "@/modules/hr/queries/guards";
+import { listGuards, type GuardRow } from "@/features/hr/queries/guards";
 
 const supervisor = alias(users, "supervisor");
 
 export type ShiftSheetRow = GuardRow & {
-  log: (typeof attendanceLogs.$inferSelect) | null;
+  log: typeof attendanceLogs.$inferSelect | null;
 };
 
 export async function getShiftSheet(
   date: string,
   shift: "DAY" | "NIGHT",
   supervisorId?: string,
-  includePii = false
+  includePii = false,
 ): Promise<ShiftSheetRow[]> {
   const guards = await listGuards(includePii);
   const scoped = supervisorId
@@ -33,9 +33,9 @@ export async function getShiftSheet(
             eq(attendanceLogs.shift, shift),
             inArray(
               attendanceLogs.guardId,
-              scoped.map((g) => g.id)
-            )
-          )
+              scoped.map((g) => g.id),
+            ),
+          ),
         )
     : [];
 
@@ -75,9 +75,11 @@ export async function listLogs(filters: {
   if (filters.toDate) conds.push(lte(attendanceLogs.date, filters.toDate));
   if (filters.shift) conds.push(eq(attendanceLogs.shift, filters.shift));
   if (filters.status) conds.push(eq(attendanceLogs.status, filters.status));
-  if (filters.supervisorId) conds.push(eq(attendanceLogs.supervisorId, filters.supervisorId));
+  if (filters.supervisorId)
+    conds.push(eq(attendanceLogs.supervisorId, filters.supervisorId));
   if (filters.guardId) conds.push(eq(attendanceLogs.guardId, filters.guardId));
-  if (filters.guardIds?.length) conds.push(inArray(attendanceLogs.guardId, filters.guardIds));
+  if (filters.guardIds?.length)
+    conds.push(inArray(attendanceLogs.guardId, filters.guardIds));
 
   const rows = await db
     .select({

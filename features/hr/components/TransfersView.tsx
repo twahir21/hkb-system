@@ -2,7 +2,7 @@
 
 import { ArrowLeftRight } from "lucide-react";
 import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
-import type { TransferRow } from "@/modules/hr/queries/transfers";
+import type { TransferRow } from "@/features/hr/queries/transfers";
 import { RequestTransferModal } from "./RequestModal";
 import { ReviewCell } from "./ReviewCell";
 
@@ -46,8 +46,16 @@ export function TransfersView({
         </p>
       ),
     },
-    { key: "reason", header: "Reason", cell: (r) => <span className="text-slate-600">{r.reason}</span> },
-    { key: "status", header: "Status", cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge> },
+    {
+      key: "reason",
+      header: "Reason",
+      cell: (r) => <span className="text-slate-600">{r.reason}</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge>,
+    },
     {
       key: "meta",
       header: "Requested",
@@ -55,7 +63,9 @@ export function TransfersView({
         <div className="text-xs text-slate-500">
           <p>by {r.requestedBy}</p>
           <p>{new Date(r.createdAt).toLocaleDateString("en-GB")}</p>
-          {r.reviewerNotes && <p className="text-slate-400">Note: {r.reviewerNotes}</p>}
+          {r.reviewerNotes && (
+            <p className="text-slate-400">Note: {r.reviewerNotes}</p>
+          )}
         </div>
       ),
     },
@@ -66,14 +76,20 @@ export function TransfersView({
       key: "action",
       header: "Review",
       cell: (r) =>
-        r.status === "PENDING" ? <ReviewCell requestId={r.id} /> : <span className="text-xs text-slate-400">—</span>,
+        r.status === "PENDING" ? (
+          <ReviewCell requestId={r.id} />
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        ),
     });
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-600">{transfers.length} transfer requests</p>
+        <p className="text-sm font-medium text-slate-600">
+          {transfers.length} transfer requests
+        </p>
         {canRequest && (
           <RequestTransferModal
             guards={guards}
@@ -82,7 +98,11 @@ export function TransfersView({
           />
         )}
       </div>
-      <DataTable columns={columns} rows={transfers} empty="No transfer requests yet." />
+      <DataTable
+        columns={columns}
+        rows={transfers}
+        empty="No transfer requests yet."
+      />
     </div>
   );
 }

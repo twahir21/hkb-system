@@ -6,14 +6,20 @@ import { db } from "@/lib/db";
 import { guardProfiles, transferRequests } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
-import { transferActionSchema, transferSchema } from "@/modules/hr/validators/transfer.schema";
+import {
+  transferActionSchema,
+  transferSchema,
+} from "@/features/hr/validators/transfer.schema";
 import { redis } from "@/lib/redis";
-import type { ActionState } from "@/modules/attendance/actions/attendance.actions";
+import type { ActionState } from "@/features/attendance/actions/attendance.actions";
 
-export type { ActionState } from "@/modules/attendance/actions/attendance.actions";
+export type { ActionState } from "@/features/attendance/actions/attendance.actions";
 
 /** Supervisor / Senior Supervisor submits a transfer request. */
-export async function submitTransfer(_prev: ActionState, formData: FormData): Promise<ActionState> {
+export async function submitTransfer(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const actor = await requirePermission("TRANSFER_INITIATE");
 
   const parsed = transferSchema.safeParse({
@@ -22,7 +28,10 @@ export async function submitTransfer(_prev: ActionState, formData: FormData): Pr
     reason: formData.get("reason") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid transfer" };
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid transfer",
+    };
   }
   const v = parsed.data;
 
@@ -46,7 +55,10 @@ export async function submitTransfer(_prev: ActionState, formData: FormData): Pr
 
   // Publish a lightweight event so an external worker/emailer can pick it up.
   if (redis) {
-    await redis.publish("transfer-events", JSON.stringify({ id: request.id, event: "CREATED" }));
+    await redis.publish(
+      "transfer-events",
+      JSON.stringify({ id: request.id, event: "CREATED" }),
+    );
   }
 
   await writeAuditLog({
@@ -65,7 +77,7 @@ export async function submitTransfer(_prev: ActionState, formData: FormData): Pr
 /** Super Admin / HR approve or reject a transfer. */
 export async function approveOrRejectTransfer(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const actor = await requirePermission("TRANSFER_APPROVE");
 
@@ -77,7 +89,10 @@ export async function approveOrRejectTransfer(
     reviewerNotes: formData.get("reviewerNotes") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid action" };
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid action",
+    };
   }
   const { action, reviewerNotes } = parsed.data;
 

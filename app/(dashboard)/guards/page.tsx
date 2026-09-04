@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { listGuards, getSupervisors } from "@/modules/hr/queries/guards";
-import { GuardManager } from "@/modules/hr/components/GuardManager";
+import { listGuards, getSupervisors } from "@/features/hr/queries/guards";
+import { GuardManager } from "@/features/hr/components/GuardManager";
 
 export default async function GuardsPage() {
   const user = await getCurrentUser();
@@ -27,7 +27,11 @@ export default async function GuardsPage() {
       </div>
       <GuardManager
         guards={guards}
-        supervisors={supervisors.map((s) => ({ id: s.id, name: s.fullName, role: s.role }))}
+        supervisors={supervisors.map((s) => ({
+          id: s.id,
+          name: s.fullName,
+          role: s.role,
+        }))}
       />
     </div>
   );

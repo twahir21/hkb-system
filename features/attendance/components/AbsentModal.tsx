@@ -3,15 +3,26 @@
 import { useActionState, useState } from "react";
 import { UploadCloud, CheckCircle2 } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
-import { markAttendance, uploadSickNote } from "@/modules/attendance/actions/attendance.actions";
+import {
+  markAttendance,
+  uploadSickNote,
+} from "@/features/attendance/actions/attendance.actions";
 import type { ShiftType } from "@/lib/db/schema";
 
 type Category = "SICK" | "PERMITTED_REASON" | "NOT_PERMITTED";
 
 const CATEGORIES: { value: Category; label: string; hint: string }[] = [
   { value: "SICK", label: "Sick", hint: "Medical leave with doctor's note" },
-  { value: "PERMITTED_REASON", label: "Permitted", hint: "Funeral / family emergency" },
-  { value: "NOT_PERMITTED", label: "Not Permitted", hint: "Unauthorized — payroll flag" },
+  {
+    value: "PERMITTED_REASON",
+    label: "Permitted",
+    hint: "Funeral / family emergency",
+  },
+  {
+    value: "NOT_PERMITTED",
+    label: "Not Permitted",
+    hint: "Unauthorized — payroll flag",
+  },
 ];
 
 export function AbsentModal({
@@ -30,10 +41,15 @@ export function AbsentModal({
   const [documentUrl, setDocumentUrl] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
 
-  const [state, formAction, pending] = useActionState(markAttendance, { ok: false });
-  const [uploadState, uploadAction, uploadPending] = useActionState(uploadSickNote, {
+  const [state, formAction, pending] = useActionState(markAttendance, {
     ok: false,
   });
+  const [uploadState, uploadAction, uploadPending] = useActionState(
+    uploadSickNote,
+    {
+      ok: false,
+    },
+  );
 
   const close = () => {
     setOpen(false);
@@ -54,7 +70,9 @@ export function AbsentModal({
           <input type="hidden" name="shift" value={shift} />
           <input type="hidden" name="status" value="ABSENT" />
           <input type="hidden" name="absenceCategory" value={category} />
-          {documentUrl && <input type="hidden" name="documentUrl" value={documentUrl} />}
+          {documentUrl && (
+            <input type="hidden" name="documentUrl" value={documentUrl} />
+          )}
 
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -119,7 +137,9 @@ export function AbsentModal({
                   Use uploaded document
                 </button>
               )}
-              {uploadState.error && <p className="text-xs text-rose-600">{uploadState.error}</p>}
+              {uploadState.error && (
+                <p className="text-xs text-rose-600">{uploadState.error}</p>
+              )}
             </div>
           )}
           <div>
@@ -127,7 +147,8 @@ export function AbsentModal({
               htmlFor="allowedDays"
               className="text-xs font-semibold uppercase tracking-wide text-slate-500"
             >
-              Allowed days {category === "PERMITTED_REASON" ? "(required)" : "(optional)"}
+              Allowed days{" "}
+              {category === "PERMITTED_REASON" ? "(required)" : "(optional)"}
             </label>
             <input
               type="number"
@@ -153,7 +174,9 @@ export function AbsentModal({
             />
           </div>
 
-          {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
+          {state.error && (
+            <p className="text-sm text-rose-600">{state.error}</p>
+          )}
           {state.ok && state.message && (
             <p className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700">
               <CheckCircle2 className="h-4 w-4" /> {state.message}
