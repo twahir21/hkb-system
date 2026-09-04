@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { listUsers } from "@/lib/queries";
-import { UserManager } from "@/components/users/UserManager";
+import { listUsers } from "@/modules/hr/queries/users";
+import { UserManager } from "@/modules/hr/components/UserManager";
 
 export default async function UsersPage() {
   const user = await getCurrentUser();

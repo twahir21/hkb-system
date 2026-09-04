@@ -3,8 +3,8 @@ import "server-only";
 import { and, gte, inArray, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attendanceLogs } from "@/lib/db/schema";
-import { listGuards } from "./guards";
-import { listLogs, type LogRow } from "./attendance";
+import { listGuards } from "@/modules/hr/queries/guards";
+import { listLogs, type LogRow } from "@/modules/attendance/queries/attendance";
 
 export type GuardMonthlyStat = {
   guardId: string;

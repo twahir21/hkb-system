@@ -1,0 +1,2 @@
+// attendance module placeholder
+export {}

@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { listGuards, getSupervisors } from "@/lib/queries";
-import { GuardManager } from "@/components/guards/GuardManager";
+import { listGuards, getSupervisors } from "@/modules/hr/queries/guards";
+import { GuardManager } from "@/modules/hr/components/GuardManager";
 
 export default async function GuardsPage() {
   const user = await getCurrentUser();

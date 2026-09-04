@@ -1,0 +1,2 @@
+// bursar module placeholder
+export {}

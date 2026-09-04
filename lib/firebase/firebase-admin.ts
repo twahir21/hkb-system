@@ -35,8 +35,8 @@ function getFirebaseApp() {
   return app;
 }
 
-/** Upload a buffer to Firebase Storage and return its public URL. */
-export async function uploadSickNote(
+/** Upload a buffer to Firebase Storage and return its public URL. Shared module infrastructure. */
+export async function uploadFile(
   buffer: Buffer,
   filename: string,
   contentType = "application/pdf"

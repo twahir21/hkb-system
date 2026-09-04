@@ -1,7 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { getShiftSheet, getSupervisors } from "@/lib/queries";
-import { ShiftSheet, type ShiftSheetRowDTO } from "@/components/attendance/ShiftSheet";
+import { getShiftSheet } from "@/modules/attendance/queries/attendance";
+import { getSupervisors } from "@/modules/hr/queries/guards";
+import { ShiftSheet, type ShiftSheetRowDTO } from "@/modules/attendance/components/ShiftSheet";
 import { todayISO } from "@/lib/utils";
 
 type PageProps = { searchParams: Promise<{ date?: string; shift?: string; supervisorId?: string }> };

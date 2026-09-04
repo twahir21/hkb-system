@@ -1,7 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
-import { listTransfers, getSupervisors, listGuards } from "@/lib/queries";
-import { TransfersView } from "@/components/transfers/TransfersView";
+import { listTransfers } from "@/modules/hr/queries/transfers";
+import { getSupervisors, listGuards } from "@/modules/hr/queries/guards";
+import { TransfersView } from "@/modules/hr/components/TransfersView";
 
 export default async function TransfersPage() {
   const user = await getCurrentUser();

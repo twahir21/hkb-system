@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
-import type { LogRow } from "@/lib/queries/attendance";
+import type { LogRow } from "@/modules/attendance/queries/attendance";
 
 const ABSENCE_LABEL: Record<string, string> = {
   SICK: "Sick",
