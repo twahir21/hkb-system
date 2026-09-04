@@ -15,6 +15,13 @@
       "when": 1788436874142,
       "tag": "0001_sour_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788513408781,
+      "tag": "0002_wakeful_nick_fury",
+      "breakpoints": true
     }
   ]
 }
