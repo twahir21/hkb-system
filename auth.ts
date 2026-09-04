@@ -76,6 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   pages: {
     signIn: "/login",
+    error: "/access-denied",
   },
   callbacks: {
     // Google OAuth: only allow users pre-registered by Super Admin or in ADMIN_EMAILS

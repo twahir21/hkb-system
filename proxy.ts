@@ -30,6 +30,7 @@ export async function proxy(request: NextRequest) {
 
   const isBypassed =
     pathname === "/login" ||
+    pathname === "/access-denied" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next");
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { UserPlus, Upload, Pencil, Trash2, Shield, KeyRound, Globe, Loader2 } from "lucide-react";
+import { UserPlus, Upload, Pencil, Trash2, KeyRound, Globe, Loader2 } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
 import type { UserRow } from "@/lib/queries/users";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
