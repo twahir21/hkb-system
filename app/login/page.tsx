@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -26,7 +27,11 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(
-    urlError === "CredentialsSignin" ? "Invalid username/email or password." : null
+    urlError === "CredentialsSignin"
+      ? "Invalid username/email or password."
+      : urlError === "AccessDenied"
+      ? "Access Denied: Your account is not registered in the system. Only personnel registered by a Super Admin can sign in."
+      : null
   );
   const [isPending, startTransition] = useTransition();
 
@@ -64,15 +69,30 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 sm:px-6">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8 sm:px-6">
       <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl lg:grid-cols-2">
         {/* Brand panel */}
-        <div className="hidden flex-col justify-between bg-slate-900 p-10 text-white lg:flex">
+        <div className="hidden flex-col justify-between bg-slate-950 p-10 text-white lg:flex border-r border-slate-900">
           <div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-base font-black tracking-wider text-white shadow-lg shadow-blue-500/30">
-              HKB
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-brand-500/30 bg-slate-900 p-1 shadow-lg shadow-brand-500/10">
+                <Image
+                  src="/logo.jpg"
+                  alt="HKB Logo"
+                  width={56}
+                  height={56}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-brand-400">
+                  Security &amp; Logistics
+                </span>
+                <h3 className="text-lg font-black tracking-wide text-white">H.K.B</h3>
+              </div>
             </div>
-            <h2 className="mt-6 text-2xl font-bold leading-tight">
+            <h2 className="mt-8 text-2xl font-bold leading-tight text-slate-100">
               HKB Protection &amp; Management Co.
             </h2>
             <p className="mt-2 text-sm text-slate-400">
@@ -81,13 +101,13 @@ function LoginForm() {
           </div>
           <ul className="space-y-4 text-sm text-slate-300">
             <li className="flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-blue-400" /> Role-based access control (RBAC)
+              <ShieldCheck className="h-5 w-5 text-brand-400" /> Role-based access control (RBAC)
             </li>
             <li className="flex items-center gap-3">
-              <CalendarClock className="h-5 w-5 text-blue-400" /> Day &amp; Night shift attendance tracking
+              <CalendarClock className="h-5 w-5 text-brand-400" /> Day &amp; Night shift attendance tracking
             </li>
             <li className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-blue-400" /> Strict PDF reporting &amp; audit trail
+              <FileText className="h-5 w-5 text-brand-400" /> Strict PDF reporting &amp; audit trail
             </li>
           </ul>
           <div className="text-xs text-slate-500">
@@ -98,7 +118,22 @@ function LoginForm() {
         {/* Sign-in card */}
         <div className="flex flex-col justify-center p-8 sm:p-10">
           <div className="mb-6">
-            <p className="text-xs font-bold uppercase tracking-widest text-blue-600">
+            <div className="mb-3 flex items-center gap-2 lg:hidden">
+              <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-brand-500/30 bg-slate-950 p-0.5">
+                <Image
+                  src="/logo.jpg"
+                  alt="HKB Logo"
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+                HKB Protection
+              </span>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-widest text-brand-600">
               HKB Security Portal
             </p>
             <h1 className="mt-1 text-2xl font-extrabold text-slate-900">Sign in to your account</h1>
@@ -110,7 +145,7 @@ function LoginForm() {
           {errorMsg && (
             <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-              <div className="flex-1">{errorMsg}</div>
+              <div className="flex-1 leading-snug">{errorMsg}</div>
             </div>
           )}
 
@@ -131,7 +166,7 @@ function LoginForm() {
                   autoComplete="username"
                   required
                   disabled={isPending}
-                  className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60"
+                  className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:opacity-60"
                 />
               </div>
             </div>
@@ -152,7 +187,7 @@ function LoginForm() {
                   autoComplete="current-password"
                   required
                   disabled={isPending}
-                  className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60"
+                  className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:opacity-60"
                 />
                 <button
                   type="button"
@@ -168,7 +203,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:opacity-60"
+              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-600/40 disabled:opacity-60"
             >
               {isPending ? (
                 <>
@@ -208,7 +243,7 @@ function LoginForm() {
           </button>
 
           <p className="mt-6 text-center text-xs text-slate-400">
-            Access is restricted to authorized employees of HKB Protection &amp; Management Co.
+            Access is strictly restricted to authorized employees registered by an administrator.
           </p>
         </div>
       </div>

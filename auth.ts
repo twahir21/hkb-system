@@ -78,38 +78,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
-    // Bootstrap / upsert the user row on Google sign-in.
+    // Google OAuth: only allow users pre-registered by Super Admin or in ADMIN_EMAILS
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         if (!user.email) return false;
 
+        const email = user.email.toLowerCase();
         const existing = await db.query.users.findFirst({
-          where: eq(users.email, user.email),
+          where: eq(sql`lower(${users.email})`, email),
         });
 
         const googleId = account?.providerAccountId ?? user.id ?? "";
-        const allowListedAdmin = isAdminEmail(user.email);
+        const allowListedAdmin = isAdminEmail(email);
 
+        // If the user does not exist in the system and is NOT an allow-listed Super Admin: REJECT
         if (!existing) {
+          if (!allowListedAdmin) {
+            return false; // Deny access: stranger / not registered by Super Admin
+          }
+
+          // Bootstrap allowlisted Super Admin
           await db
             .insert(users)
             .values({
               googleId,
-              email: user.email,
-              fullName: user.name ?? user.email,
+              email,
+              fullName: user.name ?? email,
               avatarUrl: user.image ?? null,
-              role: allowListedAdmin ? ("SUPER_ADMIN" as Role) : "GUARD",
+              role: "SUPER_ADMIN" as Role,
             })
             .onConflictDoNothing();
         } else {
+          // Link/update pre-registered user
           await db
             .update(users)
             .set({
-              fullName: user.name ?? existing.fullName,
+              fullName: existing.fullName || user.name || email,
               avatarUrl: user.image ?? existing.avatarUrl,
               googleId: existing.googleId || googleId,
-              // Never downgrade an allow-listed admin; otherwise keep DB role.
+              // Never downgrade an allow-listed admin; otherwise keep DB role
               role: allowListedAdmin ? ("SUPER_ADMIN" as Role) : existing.role,
+              updatedAt: new Date(),
             })
             .where(eq(users.id, existing.id));
         }

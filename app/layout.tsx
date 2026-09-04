@@ -8,7 +8,12 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const metadata: Metadata = {
   title: "HKB Attendance Management System",
   description:
-    "Shift-based attendance management for HKB Protection & Management Co. — Google OAuth, per-shift clock-in, PDF reports.",
+    "Shift-based attendance management for HKB Protection & Management Co. — Shift clock-in, guard registry, leave processing, PDF reports.",
+  icons: {
+    icon: "/logo.jpg",
+    shortcut: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
