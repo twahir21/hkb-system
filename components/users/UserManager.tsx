@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { UserPlus, Pencil, Trash2, Shield, KeyRound, Globe, Loader2 } from "lucide-react";
+import { UserPlus, Upload, Pencil, Trash2, Shield, KeyRound, Globe, Loader2 } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
 import type { UserRow } from "@/lib/queries/users";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import { UserForm } from "./UserForm";
+import { BulkUserModal } from "./BulkUserModal";
 import { deleteUser } from "@/app/actions/users.actions";
 import { formatDate } from "@/lib/utils";
 import type { Role } from "@/lib/db/schema";
@@ -20,6 +21,7 @@ export function UserManager({
   const [q, setQ] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [editing, setEditing] = useState<UserRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleting, startDeleteTransition] = useTransition();
@@ -111,10 +113,10 @@ export function UserManager({
           )}
           {r.hasGoogle && (
             <span
-              className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 font-medium text-blue-700"
+              className="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-0.5 font-medium text-amber-800"
               title="Google OAuth linked"
             >
-              <Globe className="h-3 w-3 text-blue-600" /> Google
+              <Globe className="h-3 w-3 text-amber-700" /> Google
             </span>
           )}
           {!r.hasPassword && !r.hasGoogle && (
@@ -194,14 +196,22 @@ export function UserManager({
           </select>
         </div>
 
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
-        >
-          <UserPlus className="h-4 w-4" /> Register New User
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => setBulkOpen(true)}
+          >
+            <Upload className="h-4 w-4" /> Bulk Import (CSV)
+          </Button>
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+          >
+            <UserPlus className="h-4 w-4" /> Register New User
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
@@ -219,6 +229,11 @@ export function UserManager({
           onDone={() => setOpen(false)}
         />
       </Modal>
+
+      <BulkUserModal
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+      />
     </div>
   );
 }

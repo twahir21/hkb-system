@@ -180,3 +180,232 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
   revalidatePath("/guards");
   return { ok: true, message: "User deleted successfully." };
 }
+
+export type BulkImportRowError = {
+  row: number;
+  identifier: string;
+  reason: string;
+};
+
+export type BulkImportResult = {
+  ok: boolean;
+  total: number;
+  imported: number;
+  failed: number;
+  errors: BulkImportRowError[];
+  message?: string;
+  error?: string;
+};
+
+function parseCsv(text: string): Record<string, string>[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length === 0) return [];
+
+  const parseLine = (line: string): string[] => {
+    const values: string[] = [];
+    let cur = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (c === "," && !inQuotes) {
+        values.push(cur.trim());
+        cur = "";
+      } else {
+        cur += c;
+      }
+    }
+    values.push(cur.trim());
+    return values;
+  };
+
+  const headers = parseLine(lines[0]).map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, ""));
+  const rows: Record<string, string>[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const rawValues = parseLine(lines[i]);
+    if (rawValues.every((v) => v === "")) continue;
+    const rowObj: Record<string, string> = {};
+    headers.forEach((h, idx) => {
+      rowObj[h] = rawValues[idx] ?? "";
+    });
+    rows.push(rowObj);
+  }
+
+  return rows;
+}
+
+/** Bulk register users from a CSV file */
+export async function bulkImportUsers(formData: FormData): Promise<BulkImportResult> {
+  const actor = await requirePermission("USER_MANAGE");
+
+  const file = formData.get("file") as File | null;
+  if (!file) {
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "No CSV file provided." };
+  }
+
+  const csvContent = await file.text();
+  const rows = parseCsv(csvContent);
+
+  if (rows.length === 0) {
+    return {
+      ok: false,
+      total: 0,
+      imported: 0,
+      failed: 0,
+      errors: [],
+      error: "The uploaded CSV file is empty or does not contain valid data rows.",
+    };
+  }
+
+  // Fetch all existing emails and usernames for fast collision check
+  const allExistingUsers = await db
+    .select({ email: users.email, username: users.username })
+    .from(users);
+
+  const existingEmails = new Set(allExistingUsers.map((u) => u.email.toLowerCase()));
+  const existingUsernames = new Set(
+    allExistingUsers.map((u) => (u.username ? u.username.toLowerCase() : "")).filter(Boolean)
+  );
+
+  const seenInBatchEmails = new Set<string>();
+  const seenInBatchUsernames = new Set<string>();
+
+  const validEntries: {
+    fullName: string;
+    email: string;
+    username: string;
+    role: Role;
+    passwordHash: string;
+  }[] = [];
+
+  const errors: BulkImportRowError[] = [];
+
+  for (let idx = 0; idx < rows.length; idx++) {
+    const rowNum = idx + 2; // account for 1-based index & header row
+    const row = rows[idx];
+
+    const fullName = (row.fullname || row.name || "").trim();
+    const email = (row.email || "").toLowerCase().trim();
+    const username = (row.username || "").trim();
+    const roleRaw = (row.role || "").toUpperCase().trim();
+    const password = (row.password || "").trim();
+
+    const identifier = email || username || fullName || `Row #${rowNum}`;
+
+    if (!fullName || fullName.length < 2) {
+      errors.push({ row: rowNum, identifier, reason: "Full name is missing or less than 2 characters" });
+      continue;
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.push({ row: rowNum, identifier, reason: `Invalid email address: '${email}'` });
+      continue;
+    }
+
+    if (!username || username.length < 3) {
+      errors.push({ row: rowNum, identifier, reason: "Username must be at least 3 characters" });
+      continue;
+    }
+
+    if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: "Username contains invalid characters (letters, numbers, dots, dashes, underscores only)",
+      });
+      continue;
+    }
+
+    const validRoles = roleEnum.enumValues as readonly string[];
+    if (!validRoles.includes(roleRaw)) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Invalid role '${roleRaw}'. Must be one of: ${validRoles.join(", ")}`,
+      });
+      continue;
+    }
+
+    if (!password || password.length < 6) {
+      errors.push({ row: rowNum, identifier, reason: "Password must be at least 6 characters" });
+      continue;
+    }
+
+    // Check collisions with DB
+    if (existingEmails.has(email)) {
+      errors.push({ row: rowNum, identifier, reason: `Email '${email}' is already registered in the system` });
+      continue;
+    }
+
+    if (existingUsernames.has(username.toLowerCase())) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Username '${username}' is already taken by another account`,
+      });
+      continue;
+    }
+
+    // Check collisions inside the CSV batch itself
+    if (seenInBatchEmails.has(email)) {
+      errors.push({ row: rowNum, identifier, reason: `Duplicate email '${email}' found in the same CSV` });
+      continue;
+    }
+
+    if (seenInBatchUsernames.has(username.toLowerCase())) {
+      errors.push({ row: rowNum, identifier, reason: `Duplicate username '${username}' found in the same CSV` });
+      continue;
+    }
+
+    seenInBatchEmails.add(email);
+    seenInBatchUsernames.add(username.toLowerCase());
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    validEntries.push({
+      fullName,
+      email,
+      username,
+      role: roleRaw as Role,
+      passwordHash,
+    });
+  }
+
+  // Insert valid users
+  if (validEntries.length > 0) {
+    await db.insert(users).values(validEntries);
+
+    await writeAuditLog({
+      actorId: actor.userId,
+      action: "USER_BULK_IMPORT",
+      entity: "users",
+      metadata: {
+        totalRows: rows.length,
+        importedCount: validEntries.length,
+        failedCount: errors.length,
+      },
+    });
+
+    revalidatePath("/users");
+    revalidatePath("/guards");
+    revalidatePath("/dashboard");
+  }
+
+  return {
+    ok: validEntries.length > 0,
+    total: rows.length,
+    imported: validEntries.length,
+    failed: errors.length,
+    errors,
+    message: `Successfully registered ${validEntries.length} user(s). ${
+      errors.length > 0 ? `${errors.length} row(s) skipped due to errors.` : ""
+    }`,
+  };
+}

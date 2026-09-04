@@ -1,0 +1,7 @@
+fullName,email,username,role,password
+John Doe,john.doe@hkb.co,jdoe,SUPERVISOR,TemporaryPass123!
+Sarah Connor,sarah.connor@hkb.co,sconnor,HR,TemporaryPass123!
+Michael Chang,michael.chang@hkb.co,mchang,BURSAR,TemporaryPass123!
+David Kim,david.kim@hkb.co,dkim,SENIOR_SUPERVISOR,TemporaryPass123!
+James Wilson,james.wilson@hkb.co,jwilson,GUARD,TemporaryPass123!
+Admin Supervisor,admin.sec@hkb.co,adminsec,SUPER_ADMIN,TemporaryPass123!
