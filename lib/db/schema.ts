@@ -20,7 +20,7 @@ export const roleEnum = pgEnum("user_role", [
 ]);
 
 export const shiftTypeEnum = pgEnum("shift_type", ["DAY", "NIGHT"]);
-export const attendanceStatusEnum = pgEnum("attendance_status", ["PRESENT", "ABSENT"]);
+export const attendanceStatusEnum = pgEnum("attendance_status", ["PRESENT", "ABSENT", "LATE"]);
 export const absenceCategoryEnum = pgEnum("absence_category", [
   "SICK",
   "PERMITTED_REASON",
@@ -78,6 +78,7 @@ export const attendanceLogs = pgTable(
     status: attendanceStatusEnum("status").notNull(),
     absenceCategory: absenceCategoryEnum("absence_category"),
     allowedDays: integer("allowed_days"),
+    minutesLate: integer("minutes_late"),
     reason: text("reason"),
     documentUrl: text("document_url"), // Firebase file URL for sick notes
     createdAt: timestamp("created_at").defaultNow().notNull(),

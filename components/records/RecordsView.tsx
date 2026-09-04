@@ -37,13 +37,22 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
         <p className="font-mono text-xs text-slate-400">{r.employeeId}</p>
       </div>
     ) },
-    { key: "status", header: "Status", cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge> },
-    { key: "absence", header: "Absence", cell: (r) =>
+    { key: "status", header: "Status", cell: (r) => (
+      <Badge tone={statusTone(r.status)}>
+        {r.status}
+        {r.status === "LATE" && r.minutesLate ? ` (+${r.minutesLate}m)` : ""}
+      </Badge>
+    ) },
+    { key: "absence", header: "Absence / Delay", cell: (r) =>
       r.absenceCategory ? (
         <div>
           <Badge tone={statusTone(r.absenceCategory)}>{ABSENCE_LABEL[r.absenceCategory] ?? r.absenceCategory}</Badge>
           {r.allowedDays && <p className="mt-1 text-xs text-slate-400">{r.allowedDays} allowed days</p>}
         </div>
+      ) : r.status === "LATE" && r.reason ? (
+        <span className="text-xs text-slate-600 max-w-[150px] truncate block" title={r.reason}>
+          {r.reason}
+        </span>
       ) : (
         <span className="text-xs text-slate-400">—</span>
       ) },
@@ -71,14 +80,14 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
           />
         </div>
         <div className="flex gap-2">
-          {["ALL", "PRESENT", "ABSENT"].map((s) => (
+          {["ALL", "PRESENT", "LATE", "ABSENT"].map((s) => (
             <button
               key={s}
               onClick={() => setStatus(s)}
               className={
                 "rounded-lg border px-3 py-2 text-sm font-medium " +
                 (status === s
-                  ? "border-brand-500 bg-brand-50 text-brand-700"
+                  ? "border-brand-500 bg-brand-50 text-brand-700 font-semibold"
                   : "border-slate-300 text-slate-600 hover:bg-slate-50")
               }
             >

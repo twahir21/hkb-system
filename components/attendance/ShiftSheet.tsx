@@ -4,15 +4,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarDays, Sun, Moon } from "lucide-react";
 import { Badge, Button, statusTone } from "@/components/ui";
 import { AbsentModal } from "./AbsentModal";
+import { LateModal } from "./LateModal";
 import { markPresentOnly } from "@/app/actions/attendance.actions";
 import type { ShiftType } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
 
 export type LogDTO = {
   id: string;
-  status: "PRESENT" | "ABSENT";
+  status: "PRESENT" | "ABSENT" | "LATE";
   absenceCategory: string | null;
   allowedDays: number | null;
+  minutesLate: number | null;
   reason: string | null;
   documentUrl: string | null;
 };
@@ -82,7 +84,7 @@ export function ShiftSheet({
               className={
                 "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium " +
                 (shift === "DAY"
-                  ? "bg-amber-100 text-amber-800"
+                  ? "bg-amber-100 text-amber-800 font-semibold"
                   : "bg-white text-slate-600 hover:bg-slate-50")
               }
             >
@@ -93,7 +95,7 @@ export function ShiftSheet({
               className={
                 "inline-flex items-center gap-2 border-l border-slate-300 px-4 py-2 text-sm font-medium " +
                 (shift === "NIGHT"
-                  ? "bg-slate-900 text-white"
+                  ? "bg-slate-900 text-white font-semibold"
                   : "bg-white text-slate-600 hover:bg-slate-50")
               }
             >
@@ -126,7 +128,8 @@ export function ShiftSheet({
           {formatDate(date)} · {shift === "DAY" ? "Day" : "Night"} shift · {rows.length} guards
         </p>
       </div>
-<div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full min-w-max text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
@@ -136,14 +139,15 @@ export function ShiftSheet({
               {canPii && <th className="px-4 py-3 font-semibold">Home</th>}
               <th className="px-4 py-3 font-semibold">Supervisor</th>
               <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Absence</th>
+              <th className="px-4 py-3 font-semibold">Absence / Delay</th>
               {canRecord && <th className="px-4 py-3 font-semibold text-right">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {rows.map((row) => {
               const hasLog = Boolean(row.log);
-              const present = row.log?.status === "PRESENT";
+              const isPresent = row.log?.status === "PRESENT";
+              const isLate = row.log?.status === "LATE";
               const absentCat = row.log?.absenceCategory ?? null;
               return (
                 <tr key={row.id} className="transition-colors hover:bg-slate-50">
@@ -154,7 +158,10 @@ export function ShiftSheet({
                   <td className="px-4 py-3 text-slate-600">{row.supervisorName ?? "—"}</td>
                   <td className="px-4 py-3">
                     {hasLog ? (
-                      <Badge tone={statusTone(row.log!.status)}>{row.log!.status}</Badge>
+                      <Badge tone={statusTone(row.log!.status)}>
+                        {row.log!.status}
+                        {isLate && row.log!.minutesLate ? ` (+${row.log!.minutesLate}m)` : ""}
+                      </Badge>
                     ) : (
                       <span className="text-xs text-slate-400">Not recorded</span>
                     )}
@@ -164,6 +171,10 @@ export function ShiftSheet({
                       <Badge tone={statusTone(absentCat)}>
                         {ABSENCE_LABEL[absentCat] ?? absentCat}
                       </Badge>
+                    ) : isLate && row.log?.reason ? (
+                      <span className="text-xs text-slate-500 max-w-37.5 truncate block" title={row.log.reason}>
+                        {row.log.reason}
+                      </span>
                     ) : (
                       <span className="text-xs text-slate-400">—</span>
                     )}
@@ -171,7 +182,7 @@ export function ShiftSheet({
                   {canRecord && (
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        {(!hasLog || !present) && (
+                        {(!hasLog || !isPresent) && (
                           <form action={markPresentOnly}>
                             <input type="hidden" name="guardId" value={row.id} />
                             <input type="hidden" name="date" value={date} />
@@ -182,6 +193,13 @@ export function ShiftSheet({
                             </Button>
                           </form>
                         )}
+                        <LateModal
+                          guardId={row.id}
+                          guardName={row.fullName}
+                          date={date}
+                          shift={shift}
+                          currentMinutesLate={row.log?.minutesLate}
+                        />
                         <AbsentModal
                           guardId={row.id}
                           guardName={row.fullName}

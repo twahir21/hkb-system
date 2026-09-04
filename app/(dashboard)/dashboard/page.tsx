@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ClipboardCheck, FileText, Users, ArrowLeftRight } from "lucide-react";
+import { ClipboardCheck, FileText, Users, ArrowLeftRight, Clock, Award } from "lucide-react";
 import { requireAuth } from "@/lib/auth/dal";
-import { getDashboardCounts, listLogs } from "@/lib/queries";
+import { getDashboardCounts, listLogs, getMonthlyAttendanceSummary } from "@/lib/queries";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { hasPermission } from "@/lib/auth/rbac";
@@ -52,7 +52,15 @@ export default async function DashboardPage() {
   const today = todayISO();
   const todaysLogs = await listLogs({ date: today, limit: 2000 });
   const present = todaysLogs.filter((l) => l.status === "PRESENT").length;
+  const late = todaysLogs.filter((l) => l.status === "LATE").length;
   const absent = todaysLogs.filter((l) => l.status === "ABSENT").length;
+
+  const now = new Date();
+  const monthlySummary = await getMonthlyAttendanceSummary(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    role === "SUPERVISOR" ? userId : undefined
+  );
 
   const canRecord = hasPermission(role, "ATTENDANCE_RECORD");
   const canSeeTransfers = hasPermission(role, "TRANSFER_APPROVE");
@@ -68,11 +76,17 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat label="Registered Guards" value={counts.totalGuards} icon={<Users className="h-5 w-5" />} href={canSeeGuards ? "/guards" : undefined} />
-        <Stat label="Total Logs Recorded" value={counts.totalLogs} icon={<FileText className="h-5 w-5" />} href="/records" />
-        <Stat label="Present Today" value={present} icon={<ClipboardCheck className="h-5 w-5" />} href="/attendance" />
+        <Stat label="Present Today" value={present} icon={<ClipboardCheck className="h-5 w-5 text-emerald-600" />} href="/attendance" />
+        <Stat label="Late Today" value={late} icon={<Clock className="h-5 w-5 text-amber-600" />} href="/attendance" />
         <Stat label="Absent Today" value={absent} icon={<ClipboardCheck className="h-5 w-5 text-rose-500" />} href="/records" />
+        <Stat
+          label={`${monthlySummary.monthName} Rate`}
+          value={`${monthlySummary.overallAttendancePercentage}%`}
+          icon={<Award className="h-5 w-5 text-brand-600" />}
+          href="/reports"
+        />
       </div>
 
       {canSeeTransfers && (

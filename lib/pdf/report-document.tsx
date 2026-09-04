@@ -10,6 +10,7 @@ export type ReportRow = {
   supervisorName: string;
   absenceCategory: AbsenceCategory | null;
   allowedDays: number | null;
+  minutesLate: number | null;
   reason: string | null;
 };
 
@@ -25,19 +26,20 @@ export type ReportData = {
 const styles = StyleSheet.create({
   page: { padding: 36, fontSize: 9, fontFamily: "Helvetica", color: "#0f172a" },
   header: { marginBottom: 16 },
-  company: { fontSize: 14, fontWeight: "bold", marginBottom: 2 },
-  title: { fontSize: 11, color: "#0369a1" },
+  company: { fontSize: 14, fontWeight: "bold", marginBottom: 2, color: "#0f172a" },
+  title: { fontSize: 11, color: "#9f7223", fontWeight: "bold" },
   meta: { fontSize: 8, color: "#64748b", marginTop: 4 },
   rule: { borderBottomWidth: 1, borderBottomColor: "#cbd5e1", marginVertical: 10 },
-  summaryRow: { flexDirection: "row", gap: 12, marginBottom: 4 },
-  summaryLabel: { width: 160, color: "#475569" },
+  summaryGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 6 },
+  summaryRow: { flexDirection: "row", gap: 6, width: "30%", marginBottom: 4 },
+  summaryLabel: { color: "#475569" },
   summaryValue: { fontWeight: "bold" },
   tableHead: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#0f172a", paddingVertical: 4, fontWeight: "bold" },
   cellEmp: { width: 70 },
   cellName: { width: 130 },
   cellDate: { width: 70 },
-  cellShift: { width: 60 },
-  cellStatus: { width: 70 },
+  cellShift: { width: 55 },
+  cellStatus: { width: 75 },
   cellCat: { width: 110 },
   cellSup: { width: 130 },
   row: { flexDirection: "row", paddingVertical: 3, borderBottomWidth: 0.5, borderBottomColor: "#e2e8f0" },
@@ -47,10 +49,17 @@ const styles = StyleSheet.create({
 export function ReportDocument({ data }: { data: ReportData }) {
   const total = data.rows.length;
   const present = data.rows.filter((r) => r.status === "PRESENT").length;
-  const absent = total - present;
+  const late = data.rows.filter((r) => r.status === "LATE").length;
+  const absent = data.rows.filter((r) => r.status === "ABSENT").length;
   const sick = data.rows.filter((r) => r.absenceCategory === "SICK").length;
   const permitted = data.rows.filter((r) => r.absenceCategory === "PERMITTED_REASON").length;
   const notPermitted = data.rows.filter((r) => r.absenceCategory === "NOT_PERMITTED").length;
+  const totalLateMinutes = data.rows.reduce((sum, r) => sum + (r.minutesLate || 0), 0);
+
+  const attendancePct =
+    total > 0 ? (Math.round(((present + late) / total) * 1000) / 10).toFixed(1) : "0.0";
+  const onTimePct =
+    total > 0 ? (Math.round((present / total) * 1000) / 10).toFixed(1) : "0.0";
 
   return (
     <Document>
@@ -65,29 +74,43 @@ export function ReportDocument({ data }: { data: ReportData }) {
 
         <View style={styles.rule} />
 
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Shifts recorded</Text>
-          <Text style={styles.summaryValue}>{total}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Present</Text>
-          <Text style={styles.summaryValue}>{present}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Absent</Text>
-          <Text style={styles.summaryValue}>{absent}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Sick (doc-backed)</Text>
-          <Text style={styles.summaryValue}>{sick}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Permitted reason</Text>
-          <Text style={styles.summaryValue}>{permitted}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Not permitted (payroll flag)</Text>
-          <Text style={styles.summaryValue}>{notPermitted}</Text>
+        <View style={styles.summaryGrid}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Overall Attendance Rate:</Text>
+            <Text style={styles.summaryValue}>{attendancePct}%</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>On-Time Rate:</Text>
+            <Text style={styles.summaryValue}>{onTimePct}%</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Total Shifts Recorded:</Text>
+            <Text style={styles.summaryValue}>{total}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Present (On-Time):</Text>
+            <Text style={styles.summaryValue}>{present}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Late Arrivals:</Text>
+            <Text style={styles.summaryValue}>{late} ({totalLateMinutes}m delay)</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Total Absences:</Text>
+            <Text style={styles.summaryValue}>{absent}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Sick (doc-backed):</Text>
+            <Text style={styles.summaryValue}>{sick}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Permitted Reason:</Text>
+            <Text style={styles.summaryValue}>{permitted}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Not Permitted (payroll flag):</Text>
+            <Text style={styles.summaryValue}>{notPermitted}</Text>
+          </View>
         </View>
 
         <View style={styles.rule} />
@@ -98,7 +121,7 @@ export function ReportDocument({ data }: { data: ReportData }) {
           <Text style={styles.cellDate}>Date</Text>
           <Text style={styles.cellShift}>Shift</Text>
           <Text style={styles.cellStatus}>Status</Text>
-          <Text style={styles.cellCat}>Absence</Text>
+          <Text style={styles.cellCat}>Absence / Delay</Text>
           <Text style={styles.cellSup}>Supervisor</Text>
         </View>
 
@@ -108,8 +131,8 @@ export function ReportDocument({ data }: { data: ReportData }) {
             <Text style={styles.cellName}>{r.guardName}</Text>
             <Text style={styles.cellDate}>{r.date}</Text>
             <Text style={styles.cellShift}>{r.shift}</Text>
-            <Text style={styles.cellStatus}>{r.status}</Text>
-            <Text style={styles.cellCat}>{r.absenceCategory ?? "—"}{r.allowedDays ? ` (${r.allowedDays}d)` : ""}</Text>
+            <Text style={styles.cellStatus}>{r.status}{r.status === "LATE" && r.minutesLate ? ` (+${r.minutesLate}m)` : ""}</Text>
+            <Text style={styles.cellCat}>{r.absenceCategory ? `${r.absenceCategory}${r.allowedDays ? ` (${r.allowedDays}d)` : ""}` : (r.reason ?? "—")}</Text>
             <Text style={styles.cellSup}>{r.supervisorName}</Text>
           </View>
         ))}

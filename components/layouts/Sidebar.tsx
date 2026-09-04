@@ -11,6 +11,7 @@ import {
   ArrowLeftRight,
   FileText,
   ShieldCheck,
+  CalendarCheck,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: "Attendance Records",
         icon: FileText,
         roles: ["SUPER_ADMIN", "SENIOR_SUPERVISOR", "SUPERVISOR", "HR", "BURSAR", "GUARD"],
+      },
+      {
+        href: "/my-summary",
+        label: "My Summary",
+        icon: CalendarCheck,
+        roles: ["GUARD"],
       },
     ],
   },

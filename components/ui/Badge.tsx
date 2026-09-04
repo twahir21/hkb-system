@@ -41,6 +41,8 @@ export function statusTone(
     case "PRESENT":
     case "APPROVED":
       return "emerald";
+    case "LATE":
+      return "amber";
     case "ABSENT":
     case "NOT_PERMITTED":
     case "REJECTED":

@@ -8,14 +8,17 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const attendanceStatusSchema = z.enum(["PRESENT", "ABSENT", "LATE"]);
+
 export const markAttendanceSchema = z
   .object({
     guardId: z.string().uuid(),
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD"),
     shift: shiftTypeSchema,
-    status: z.enum(["PRESENT", "ABSENT"]),
+    status: attendanceStatusSchema,
     absenceCategory: absenceCategorySchema.optional(),
     allowedDays: z.coerce.number().int().min(1).max(365).optional(),
+    minutesLate: z.coerce.number().int().min(1).max(720).optional(),
     reason: z.string().trim().max(2000).optional(),
     documentUrl: z.string().url().optional(),
   })

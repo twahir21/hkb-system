@@ -25,6 +25,7 @@ export async function markAttendance(
     status: formData.get("status") ?? undefined,
     absenceCategory: formData.get("absenceCategory") || undefined,
     allowedDays: formData.get("allowedDays") ? Number(formData.get("allowedDays")) : undefined,
+    minutesLate: formData.get("minutesLate") ? Number(formData.get("minutesLate")) : undefined,
     reason: formData.get("reason") || undefined,
     documentUrl: formData.get("documentUrl") || undefined,
   });
@@ -59,6 +60,7 @@ export async function markAttendance(
         status: v.status,
         absenceCategory: v.absenceCategory ?? null,
         allowedDays: v.allowedDays ?? null,
+        minutesLate: v.minutesLate ?? null,
         reason: v.reason ?? null,
         documentUrl: v.documentUrl ?? null,
       })
@@ -69,6 +71,7 @@ export async function markAttendance(
           status: v.status,
           absenceCategory: v.absenceCategory ?? null,
           allowedDays: v.allowedDays ?? null,
+          minutesLate: v.minutesLate ?? null,
           reason: v.reason ?? null,
           documentUrl: v.documentUrl ?? null,
           updatedAt: new Date(),
@@ -83,7 +86,13 @@ export async function markAttendance(
     action: "ATTENDANCE_UPSERT",
     entity: "attendance_logs",
     entityId: v.guardId,
-    metadata: { date: v.date, shift: v.shift, status: v.status, category: v.absenceCategory },
+    metadata: {
+      date: v.date,
+      shift: v.shift,
+      status: v.status,
+      category: v.absenceCategory,
+      minutesLate: v.minutesLate,
+    },
   });
 
   revalidatePath("/attendance");

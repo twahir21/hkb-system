@@ -45,6 +45,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
           status: g.log.status,
           absenceCategory: g.log.absenceCategory,
           allowedDays: g.log.allowedDays,
+          minutesLate: g.log.minutesLate,
           reason: g.log.reason,
           documentUrl: g.log.documentUrl,
         }

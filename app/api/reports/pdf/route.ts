@@ -59,6 +59,7 @@ export async function GET(request: Request) {
       supervisorName: r.supervisorName,
       absenceCategory: r.absenceCategory,
       allowedDays: r.allowedDays,
+      minutesLate: r.minutesLate,
       reason: r.reason,
     })),
   };

@@ -47,9 +47,10 @@ export type LogRow = {
   id: string;
   date: string;
   shift: "DAY" | "NIGHT";
-  status: "PRESENT" | "ABSENT";
+  status: "PRESENT" | "ABSENT" | "LATE";
   absenceCategory: (typeof attendanceLogs.$inferSelect)["absenceCategory"];
   allowedDays: number | null;
+  minutesLate: number | null;
   reason: string | null;
   documentUrl: string | null;
   guardName: string;
@@ -62,7 +63,7 @@ export async function listLogs(filters: {
   fromDate?: string;
   toDate?: string;
   shift?: "DAY" | "NIGHT";
-  status?: "PRESENT" | "ABSENT";
+  status?: "PRESENT" | "ABSENT" | "LATE";
   supervisorId?: string;
   guardId?: string;
   guardIds?: string[];
@@ -100,6 +101,7 @@ export async function listLogs(filters: {
     status: r.log.status,
     absenceCategory: r.log.absenceCategory,
     allowedDays: r.log.allowedDays,
+    minutesLate: r.log.minutesLate,
     reason: r.log.reason,
     documentUrl: r.log.documentUrl,
     guardName: r.guardName,
