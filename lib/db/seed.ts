@@ -60,6 +60,13 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     password: "Password123!",
   },
   {
+    username: "storekeeper",
+    email: "storekeeper@hkb.co",
+    fullName: "Storekeeper Foxtrot",
+    role: "STOREKEEPER",
+    password: "Password123!",
+  },
+  {
     username: "guard",
     email: "guard@hkb.co",
     fullName: "Officer Echo",

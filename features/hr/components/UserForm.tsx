@@ -17,6 +17,7 @@ const ROLES: Role[] = [
   "SUPERVISOR",
   "HR",
   "BURSAR",
+  "STOREKEEPER",
   "GUARD",
 ];
 

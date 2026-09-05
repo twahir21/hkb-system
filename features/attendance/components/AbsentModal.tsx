@@ -44,17 +44,36 @@ export function AbsentModal({
   const [state, formAction, pending] = useActionState(markAttendance, {
     ok: false,
   });
-  const [uploadState, uploadAction, uploadPending] = useActionState(
-    uploadSickNote,
-    {
-      ok: false,
-    },
-  );
+  const [uploadPending, setUploadPending] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleUpload = async () => {
+    if (!file) return;
+    setUploadError(null);
+    setUploadPending(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await uploadSickNote({ ok: false }, fd);
+      if (!res.ok) {
+        setUploadError(res.error || "Upload failed.");
+      } else if (res.url) {
+        setDocumentUrl(res.url);
+      }
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "Failed to upload document.",
+      );
+    } finally {
+      setUploadPending(false);
+    }
+  };
 
   const close = () => {
     setOpen(false);
     setDocumentUrl("");
     setFile(null);
+    setUploadError(null);
   };
 
   return (
@@ -105,40 +124,47 @@ export function AbsentModal({
               </p>
 
               {documentUrl ? (
-                <p className="flex items-center gap-2 text-sm font-medium text-emerald-700">
-                  <CheckCircle2 className="h-4 w-4" /> Document attached
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="flex items-center gap-2 text-sm font-medium text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4" /> Document attached
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDocumentUrl("");
+                      setFile(null);
+                    }}
+                    className="text-xs text-rose-600 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
               ) : (
-                <form action={uploadAction} className="space-y-2">
+                <div className="space-y-2">
                   <input
                     type="file"
                     name="file"
                     accept="application/pdf,image/*"
                     className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-brand-700"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                    onChange={(e) => {
+                      setFile(e.target.files?.[0] ?? null);
+                      setUploadError(null);
+                    }}
                   />
                   <Button
-                    type="submit"
+                    type="button"
                     variant="secondary"
                     size="sm"
                     disabled={uploadPending || !file}
+                    onClick={handleUpload}
                   >
                     <UploadCloud className="h-4 w-4" />
                     {uploadPending ? "Uploading…" : "Upload document"}
                   </Button>
-                </form>
+                </div>
               )}
-              {uploadState.ok && uploadState.url && !documentUrl && (
-                <button
-                  type="button"
-                  className="text-xs font-medium text-brand-600 hover:underline"
-                  onClick={() => setDocumentUrl(uploadState.url!)}
-                >
-                  Use uploaded document
-                </button>
-              )}
-              {uploadState.error && (
-                <p className="text-xs text-rose-600">{uploadState.error}</p>
+              {uploadError && (
+                <p className="text-xs text-rose-600">{uploadError}</p>
               )}
             </div>
           )}

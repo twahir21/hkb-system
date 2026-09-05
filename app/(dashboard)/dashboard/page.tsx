@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardCheck, FileText, Users, ArrowLeftRight, Clock, Award } from "lucide-react";
+import { ClipboardCheck, Users, ArrowLeftRight, Clock, Award } from "lucide-react";
 import { requireAuth } from "@/lib/auth/dal";
 import { getDashboardCounts, listLogs, getMonthlyAttendanceSummary } from "@/lib/queries";
 import { Card } from "@/components/ui/Card";

@@ -12,6 +12,10 @@ import {
   FileText,
   ShieldCheck,
   CalendarCheck,
+  Boxes,
+  ScrollText,
+  Package,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -47,6 +51,47 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: "My Summary",
         icon: CalendarCheck,
         roles: ["GUARD"],
+      },
+    ],
+  },
+  {
+    title: "Store",
+    items: [
+      {
+        href: "/store",
+        label: "Stock Holdings",
+        icon: Boxes,
+        roles: ["SUPER_ADMIN", "STOREKEEPER", "BURSAR", "HR", "SENIOR_SUPERVISOR", "SUPERVISOR"],
+      },
+      {
+        href: "/store/ledger",
+        label: "Stock Ledger",
+        icon: ScrollText,
+        roles: ["SUPER_ADMIN", "STOREKEEPER", "BURSAR", "HR", "SENIOR_SUPERVISOR", "SUPERVISOR"],
+      },
+      {
+        href: "/store/transfers",
+        label: "Stock Transfers",
+        icon: ArrowLeftRight,
+        roles: ["SUPER_ADMIN", "STOREKEEPER", "SENIOR_SUPERVISOR", "SUPERVISOR"],
+      },
+      {
+        href: "/store/reports",
+        label: "Stock Reports",
+        icon: FileText,
+        roles: ["SUPER_ADMIN", "STOREKEEPER", "BURSAR", "HR", "SENIOR_SUPERVISOR", "SUPERVISOR"],
+      },
+      {
+        href: "/store/items",
+        label: "Store Items",
+        icon: Package,
+        roles: ["SUPER_ADMIN", "STOREKEEPER"],
+      },
+      {
+        href: "/store/locations",
+        label: "Regions & Stations",
+        icon: MapPin,
+        roles: ["SUPER_ADMIN", "STOREKEEPER"],
       },
     ],
   },
