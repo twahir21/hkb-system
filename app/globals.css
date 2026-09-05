@@ -1,30 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #1e293b;
+  --background: #F8F9FA; /* paper */
+  --foreground: #111315; /* ink */
 }
 
-/* Brand palette lifted from official HKB Protection & Management emblem (gold & slate) */
+/*
+ * HKB approved palette — the ONLY colors used across the app:
+ *   ink      #111315   primary dark / text
+ *   brass    #C59B4E   accent / authority mark
+ *   paper    #F8F9FA   light surface / text on dark
+ *   charcoal #212529   secondary surfaces
+ *
+ * Legacy tokens (slate / brand / rose / emerald / amber / white) are remapped
+ * below so every existing utility class resolves to this palette.
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-brand-50: #fbf8ee;
-  --color-brand-100: #f5eed4;
-  --color-brand-200: #ebdaa9;
-  --color-brand-300: #dfc075;
-  --color-brand-400: #d1a646;
-  --color-brand-500: #b88a2e;
-  --color-brand-600: #9f7223;
-  --color-brand-700: #7f561f;
-  --color-brand-800: #68451f;
-  --color-brand-900: #563a1d;
-  --color-brand-950: #311e0c;
   --color-ink: #111315;
   --color-brass: #C59B4E;
   --color-paper: #F8F9FA;
   --color-charcoal: #212529;
+
+  /* Legacy brand scale → brass */
+  --color-brand-50: color-mix(in srgb, var(--color-brass) 10%, var(--color-paper));
+  --color-brand-100: color-mix(in srgb, var(--color-brass) 18%, var(--color-paper));
+  --color-brand-200: color-mix(in srgb, var(--color-brass) 30%, var(--color-paper));
+  --color-brand-300: color-mix(in srgb, var(--color-brass) 60%, var(--color-paper));
+  --color-brand-400: var(--color-brass);
+  --color-brand-500: var(--color-brass);
+  --color-brand-600: color-mix(in srgb, var(--color-brass) 88%, var(--color-ink));
+  --color-brand-700: color-mix(in srgb, var(--color-brass) 72%, var(--color-ink));
+  --color-brand-800: color-mix(in srgb, var(--color-brass) 40%, var(--color-ink));
+  --color-brand-900: color-mix(in srgb, var(--color-brass) 22%, var(--color-ink));
+  --color-brand-950: color-mix(in srgb, var(--color-brass) 10%, var(--color-ink));
+
+  /* Legacy slate scale → paper / charcoal / ink */
+  --color-slate-50: var(--color-paper);
+  --color-slate-100: color-mix(in srgb, var(--color-charcoal) 6%, var(--color-paper));
+  --color-slate-200: color-mix(in srgb, var(--color-charcoal) 14%, var(--color-paper));
+  --color-slate-300: color-mix(in srgb, var(--color-charcoal) 28%, var(--color-paper));
+  --color-slate-400: color-mix(in srgb, var(--color-charcoal) 52%, var(--color-paper));
+  --color-slate-500: color-mix(in srgb, var(--color-charcoal) 66%, var(--color-paper));
+  --color-slate-600: color-mix(in srgb, var(--color-ink) 72%, var(--color-paper));
+  --color-slate-700: color-mix(in srgb, var(--color-ink) 85%, var(--color-paper));
+  --color-slate-800: var(--color-charcoal);
+  --color-slate-900: var(--color-ink);
+  --color-slate-950: var(--color-ink);
+
+  /* Semantic states — monochrome, expressed by tint & weight, not hue */
+  --color-rose-50: color-mix(in srgb, var(--color-ink) 5%, var(--color-paper));
+  --color-rose-100: color-mix(in srgb, var(--color-ink) 10%, var(--color-paper));
+  --color-rose-200: color-mix(in srgb, var(--color-ink) 20%, var(--color-paper));
+  --color-rose-400: color-mix(in srgb, var(--color-brass) 45%, var(--color-ink));
+  --color-rose-500: var(--color-ink);
+  --color-rose-600: var(--color-ink);
+  --color-rose-700: var(--color-ink);
+  --color-rose-800: var(--color-charcoal);
+  --color-rose-900: var(--color-charcoal);
+
+  --color-emerald-50: color-mix(in srgb, var(--color-brass) 8%, var(--color-paper));
+  --color-emerald-100: color-mix(in srgb, var(--color-brass) 14%, var(--color-paper));
+  --color-emerald-200: color-mix(in srgb, var(--color-brass) 26%, var(--color-paper));
+  --color-emerald-400: var(--color-brass);
+  --color-emerald-500: var(--color-brass);
+  --color-emerald-600: color-mix(in srgb, var(--color-brass) 88%, var(--color-ink));
+  --color-emerald-700: color-mix(in srgb, var(--color-brass) 72%, var(--color-ink));
+  --color-emerald-800: color-mix(in srgb, var(--color-brass) 40%, var(--color-ink));
+  --color-emerald-900: color-mix(in srgb, var(--color-brass) 22%, var(--color-ink));
+
+  --color-amber-50: color-mix(in srgb, var(--color-brass) 10%, var(--color-paper));
+  --color-amber-100: color-mix(in srgb, var(--color-brass) 18%, var(--color-paper));
+  --color-amber-200: color-mix(in srgb, var(--color-brass) 30%, var(--color-paper));
+  --color-amber-500: var(--color-brass);
+  --color-amber-600: color-mix(in srgb, var(--color-brass) 88%, var(--color-ink));
+  --color-amber-700: color-mix(in srgb, var(--color-brass) 72%, var(--color-ink));
+  --color-amber-800: color-mix(in srgb, var(--color-brass) 40%, var(--color-ink));
+  --color-amber-900: color-mix(in srgb, var(--color-brass) 22%, var(--color-ink));
+
+  /* White utilities resolve to paper */
+  --color-white: var(--color-paper);
 
   --font-display: var(--font-display-var), sans-serif;
   --font-body: var(--font-body-var), sans-serif;
@@ -37,4 +94,31 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* Shared grid fields — the signature HKB texture */
+@utility bg-grid-ink {
+  background-image: linear-gradient(
+      color-mix(in srgb, var(--color-paper) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-paper) 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+}
+
+@utility bg-grid-paper {
+  background-image: linear-gradient(
+      color-mix(in srgb, var(--color-ink) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ink) 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
 }

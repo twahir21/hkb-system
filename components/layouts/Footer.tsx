@@ -39,12 +39,7 @@ const EMPTY_SUBSCRIBE = () => () => {};
 const getCurrentYear = () => new Date().getFullYear();
 const getStaticYear = () => 2026;
 
-/* Hero's grid field — inverted for the dark panel */
-const INK_GRID = {
-  backgroundImage:
-    "linear-gradient(#F8F9FA 1px, transparent 1px), linear-gradient(90deg, #F8F9FA 1px, transparent 1px)",
-  backgroundSize: "56px 56px",
-} as const;
+/* Hero's grid field — now shared as the `bg-grid-ink` utility in globals.css */
 
 const QUICK_LINKS = [
   { label: "Home", href: "#home" },
@@ -184,7 +179,7 @@ export default function Footer() {
     <footer className="relative overflow-hidden bg-ink text-paper">
       {/* Hero grid field + brass ambient glow */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 opacity-[0.06]" style={INK_GRID} />
+        <div className="absolute inset-0 opacity-[0.06] bg-grid-ink" />
         <div className="absolute left-1/2 top-[-10%] h-105 w-195 -translate-x-1/2 rounded-full bg-brass/10 blur-[140px]" />
         <div className="absolute bottom-[-10%] right-[-10%] h-75 w-75 rounded-full bg-brass/5 blur-[100px]" />
       </div>

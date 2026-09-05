@@ -159,7 +159,19 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   },
 ];
 
-export function Sidebar({ role, name, email }: { role: Role; name: string; email: string }) {
+export function Sidebar({
+  role,
+  name,
+  email,
+  mobileOpen = false,
+  onMobileClose,
+}: {
+  role: Role;
+  name: string;
+  email: string;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}) {
   const pathname = usePathname();
 
   const groups = NAV_GROUPS.map((g) => ({
@@ -167,62 +179,105 @@ export function Sidebar({ role, name, email }: { role: Role; name: string; email
     items: g.items.filter((i) => i.roles.includes(role)),
   })).filter((g) => g.items.length > 0);
 
-  return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
-      <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
-        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-brand-500/20 bg-slate-950 p-1 shadow-sm">
-          <Image
-            src="/logo.jpg"
-            alt="HKB Logo"
-            width={36}
-            height={36}
-            className="h-full w-full object-contain"
-            priority
-          />
-        </div>
-        <div className="leading-tight">
-          <p className="text-sm font-bold text-slate-900">HKB Attendance</p>
-          <p className="text-[11px] text-slate-400">Protection &amp; Management</p>
-        </div>
-      </div>
-
-      <nav className="flex-1 space-y-6 overflow-y-auto p-4">
-        {groups.map((group) => (
-          <div key={group.title}>
-            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              {group.title}
-            </p>
-            <div className="space-y-1">
-              {group.items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      active
-                        ? "bg-brand-50 text-brand-700 font-semibold"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    )}
-                  >
-                    <Icon className={cn("h-4 w-4", active ? "text-brand-600" : "text-slate-400")} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
+  const nav = (onNavigate?: () => void) => (
+    <nav className="flex-1 space-y-6 overflow-y-auto p-4">
+      {groups.map((group) => (
+        <div key={group.title}>
+          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            {group.title}
+          </p>
+          <div className="space-y-1">
+            {group.items.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-brand-50 text-brand-700 font-semibold"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4", active ? "text-brand-600" : "text-slate-400")} />
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
-        ))}
-      </nav>
+        </div>
+      ))}
+    </nav>
+  );
 
-      <div className="border-t border-slate-200 p-4">
-        <p className="truncate text-sm font-semibold text-slate-800">{name}</p>
-        <p className="truncate text-xs text-slate-400">
-          {ROLE_LABELS[role]} · {email}
-        </p>
+  const header = (
+    <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
+      <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-brand-500/20 bg-slate-950 p-1 shadow-sm">
+        <Image
+          src="/logo.jpg"
+          alt="HKB Logo"
+          width={36}
+          height={36}
+          className="h-full w-full object-contain"
+          priority
+        />
       </div>
-    </aside>
+      <div className="leading-tight">
+        <p className="text-sm font-bold text-slate-900">HKB Attendance</p>
+        <p className="text-[11px] text-slate-400">Protection &amp; Management</p>
+      </div>
+    </div>
+  );
+
+  const footer = (
+    <div className="border-t border-slate-200 p-4">
+      <p className="truncate text-sm font-semibold text-slate-800">{name}</p>
+      <p className="truncate text-xs text-slate-400">
+        {ROLE_LABELS[role]} · {email}
+      </p>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
+        {header}
+        {nav()}
+        {footer}
+      </aside>
+
+      {/* Mobile drawer */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 lg:hidden",
+          mobileOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+        aria-hidden={!mobileOpen}
+      >
+        {/* Backdrop */}
+        <div
+          onClick={onMobileClose}
+          className={cn(
+            "absolute inset-0 bg-ink/60 backdrop-blur-sm transition-opacity duration-300",
+            mobileOpen ? "opacity-100" : "opacity-0"
+          )}
+        />
+        {/* Panel */}
+        <aside
+          className={cn(
+            "absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-white shadow-2xl transition-transform duration-300 ease-out",
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          {header}
+          {nav(onMobileClose)}
+          {footer}
+        </aside>
+      </div>
+    </>
   );
 }

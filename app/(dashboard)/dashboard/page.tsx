@@ -70,8 +70,10 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Welcome back, {name.split(" ")[0]}.</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
+          Welcome back, {name.split(" ")[0]}.
+        </h2>
+        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
           Overview for {today} · role: <span className="font-semibold">{role}</span>
         </p>
       </div>

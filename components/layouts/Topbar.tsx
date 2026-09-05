@@ -1,14 +1,32 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { logout } from "@/app/actions/auth.actions";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import type { Role } from "@/lib/db/schema";
 
-export function Topbar({ name, role }: { name: string; role: Role }) {
+export function Topbar({
+  name,
+  role,
+  onMenuToggle,
+}: {
+  name: string;
+  role: Role;
+  onMenuToggle?: () => void;
+}) {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-6">
-      <div>
-        <h1 className="text-base font-bold text-slate-900">HKB Attendance</h1>
-        <p className="text-xs text-slate-400">{ROLE_LABELS[role]}</p>
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          aria-label="Open navigation menu"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="min-w-0">
+          <h1 className="truncate text-base font-bold text-slate-900">HKB Attendance</h1>
+          <p className="truncate text-xs text-slate-400 sm:hidden">{ROLE_LABELS[role]}</p>
+        </div>
       </div>
       <div className="flex items-center gap-3">
         <div className="hidden items-center gap-3 sm:flex">
