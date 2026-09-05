@@ -16,6 +16,10 @@ import {
   ScrollText,
   Package,
   MapPin,
+  HandCoins,
+  CalendarX,
+  Store,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -92,6 +96,35 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: "Regions & Stations",
         icon: MapPin,
         roles: ["SUPER_ADMIN", "STOREKEEPER"],
+      },
+    ],
+  },
+  {
+    title: "Office",
+    items: [
+      {
+        href: "/office/credit",
+        label: "Guard Debts",
+        icon: HandCoins,
+        roles: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER", "HR"],
+      },
+      {
+        href: "/office/credit/settlement",
+        label: "Salary Deductions",
+        icon: CalendarX,
+        roles: ["SUPER_ADMIN", "BURSAR"],
+      },
+      {
+        href: "/office/business",
+        label: "Business Tracking",
+        icon: Store,
+        roles: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER", "HR"],
+      },
+      {
+        href: "/my-credits",
+        label: "My Debts",
+        icon: Wallet,
+        roles: ["GUARD"],
       },
     ],
   },

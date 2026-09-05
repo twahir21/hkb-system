@@ -41,6 +41,15 @@ export const PERMISSIONS = {
   // PII / sensitive data
   PII_VIEW: ["SUPER_ADMIN", "HR"],
 
+  // Office credit (guard debts: fish, maize flour, medical)
+  CREDIT_RECORD: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
+  CREDIT_SETTLE: ["SUPER_ADMIN", "BURSAR"],
+  CREDIT_VIEW_OWN: ["GUARD"],
+
+  // Office businesses (fish & maize flour tracking)
+  BUSINESS_MANAGE: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
+  BUSINESS_VIEW: ["SUPER_ADMIN", "BURSAR", "HR", "STOREKEEPER"],
+
   // Reports
   REPORTS_FULL_PDF: ["SUPER_ADMIN", "HR", "BURSAR"],
   REPORTS_SUMMARY: ["SENIOR_SUPERVISOR", "SUPER_ADMIN"],

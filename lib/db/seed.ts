@@ -8,7 +8,7 @@
 import bcrypt from "bcryptjs";
 import { eq, or } from "drizzle-orm";
 import { db } from "./index";
-import { users, type Role } from "./schema";
+import { users, businesses, type Role } from "./schema";
 
 const SUPERADMIN_USERNAME = process.env.SUPERADMIN_USERNAME || "admin";
 const SUPERADMIN_EMAIL = (process.env.SUPERADMIN_EMAIL || "admin@hkb.co").toLowerCase();
@@ -168,6 +168,22 @@ async function main() {
       });
     }
   }
+
+  // Office businesses (fish & maize flour) used by the credit/tracking features.
+  const seedBusinesses = [
+    { name: "Fish", unit: "kg", buyPrice: "8000", sellPrice: "10000" },
+    { name: "Maize Flour", unit: "kg", buyPrice: "1500", sellPrice: "2000" },
+  ];
+  for (const b of seedBusinesses) {
+    const existing = await db.query.businesses.findFirst({
+      where: eq(businesses.name, b.name),
+    });
+    if (!existing) {
+      await db.insert(businesses).values(b);
+      console.log(`  ✚ Business seeded: ${b.name}`);
+    }
+  }
+
 
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("                     HKB SYSTEM SEED ACCOUNTS READY");

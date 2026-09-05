@@ -36,6 +36,13 @@
       "when": 1788599014515,
       "tag": "0004_optimal_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788604213820,
+      "tag": "0005_mixed_scalphunter",
+      "breakpoints": true
     }
   ]
 }

@@ -40,6 +40,23 @@ export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
   "TRANSFER", // Station ↔ station / region ↔ region transfer
   "ADJUSTMENT", // Stock-take correction
 ]);
+export const creditTypeEnum = pgEnum("credit_type", [
+  "FISH", // Fish taken from the office fish business
+  "MAIZE_FLOUR", // Maize flour taken from the office flour business
+  "MEDICAL", // Medical treatment given on credit
+  "OTHER", // Anything else lent on credit
+]);
+export const creditStatusEnum = pgEnum("credit_status", [
+  "OUTSTANDING", // Still owed — will be deducted from salary
+  "DEDUCTED", // Cut from salary by the bursar
+  "WRITTEN_OFF", // Cancelled (e.g. approved by the office)
+]);
+export const saleTypeEnum = pgEnum("sale_type", ["CASH", "CREDIT_GUARD"]);
+export const expenseCategoryEnum = pgEnum("expense_category", [
+  "RESTOCK", // Buying new stock for the business
+  "TRANSPORT",
+  "OTHER",
+]);
 
 
 // Core Users Table
@@ -257,6 +274,122 @@ export const stockBalances = pgTable(
   ]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Office Businesses (fish & maize flour) + Guard Credit / Debts
+// ─────────────────────────────────────────────────────────────────────────────
+
+// A business run by the office (e.g. Fish, Maize Flour). Guards can take goods
+// or medical treatment on credit; the office tracks sales/expenses/profit.
+export const businesses = pgTable("businesses", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 150 }).notNull().unique(),
+  unit: varchar("unit", { length: 50 }).notNull().default("pcs"),
+  buyPrice: numeric("buy_price", { precision: 12, scale: 2 }).notNull().default("0"),
+  sellPrice: numeric("sell_price", { precision: 12, scale: 2 }).notNull().default("0"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Denormalized on-hand quantity per business (kept in sync by sales/restocks).
+export const businessStock = pgTable(
+  "business_stock",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .references(() => businesses.id, { onDelete: "cascade" })
+      .notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull().default("0"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("business_stock_business_unique").on(table.businessId)]
+);
+
+// Every credit entry owed by a guard — goods taken from an office business
+// (FISH / MAIZE_FLOUR) or medical treatment given on credit. At month end the
+// bursar deducts OUTSTANDING amounts from the guard's salary.
+export const guardCredits = pgTable(
+  "guard_credits",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    guardId: uuid("guard_id")
+      .references(() => guardProfiles.id, { onDelete: "cascade" })
+      .notNull(),
+    type: creditTypeEnum("type").notNull(),
+    description: varchar("description", { length: 500 }).notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }), // goods only
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    date: date("date").notNull(),
+    status: creditStatusEnum("status").notNull().default("OUTSTANDING"),
+    deductionMonth: varchar("deduction_month", { length: 7 }), // "YYYY-MM" when deducted
+    deductedBy: uuid("deducted_by").references(() => users.id, { onDelete: "set null" }),
+    deductedAt: timestamp("deducted_at"),
+    notes: text("notes"),
+    documentUrl: text("document_url"), // optional medical receipt / doctor's note
+    businessId: uuid("business_id").references(() => businesses.id, { onDelete: "set null" }),
+    recordedBy: uuid("recorded_by")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("guard_credits_guard_status_idx").on(table.guardId, table.status),
+    index("guard_credits_status_idx").on(table.status),
+    index("guard_credits_deduction_month_idx").on(table.deductionMonth),
+  ]
+);
+
+// Sales ledger for office businesses. CREDIT_GUARD sales also create a
+// guard_credits debt (linked via guardCreditId).
+export const businessSales = pgTable(
+  "business_sales",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .references(() => businesses.id, { onDelete: "restrict" })
+      .notNull(),
+    date: date("date").notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+    totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).notNull(),
+    saleType: saleTypeEnum("sale_type").notNull().default("CASH"),
+    guardCreditId: uuid("guard_credit_id").references(() => guardCredits.id, {
+      onDelete: "set null",
+    }),
+    recordedBy: uuid("recorded_by")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("business_sales_business_date_idx").on(table.businessId, table.date),
+  ]
+);
+
+// Expense ledger: restock purchases (with optional quantity), transport, etc.
+export const businessExpenses = pgTable(
+  "business_expenses",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .references(() => businesses.id, { onDelete: "restrict" })
+      .notNull(),
+    date: date("date").notNull(),
+    category: expenseCategoryEnum("category").notNull(),
+    description: varchar("description", { length: 500 }).notNull(),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }), // restock only
+    recordedBy: uuid("recorded_by")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("business_expenses_business_date_idx").on(table.businessId, table.date),
+  ]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
 export type ShiftType = (typeof shiftTypeEnum.enumValues)[number];
 export type AttendanceStatus = (typeof attendanceStatusEnum.enumValues)[number];
@@ -269,3 +402,11 @@ export type StockTransfer = (typeof stockTransfers.$inferSelect);
 export type StockBalance = (typeof stockBalances.$inferSelect);
 export type Region = (typeof regions.$inferSelect);
 export type Station = (typeof stations.$inferSelect);
+export type Business = (typeof businesses.$inferSelect);
+export type GuardCredit = (typeof guardCredits.$inferSelect);
+export type BusinessSale = (typeof businessSales.$inferSelect);
+export type BusinessExpense = (typeof businessExpenses.$inferSelect);
+export type CreditType = (typeof creditTypeEnum.enumValues)[number];
+export type CreditStatus = (typeof creditStatusEnum.enumValues)[number];
+export type SaleType = (typeof saleTypeEnum.enumValues)[number];
+export type ExpenseCategory = (typeof expenseCategoryEnum.enumValues)[number];
