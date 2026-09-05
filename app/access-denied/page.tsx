@@ -34,7 +34,7 @@ function AccessDeniedContent() {
   return (
     <>
       <Navbar />
-      <main className="relative flex items-center justify-center bg-paper bg-grid-paper px-4 py-16 text-ink sm:px-6">
+      <main className="relative flex items-center justify-center bg-paper bg-grid-paper px-4 py-16 text-ink sm:px-6 mt-18">
         {/* Brass ambient glow */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-brass/10 blur-3xl" />

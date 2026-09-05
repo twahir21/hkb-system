@@ -74,7 +74,7 @@ function LoginForm() {
     <>
       <Navbar />
       <div className="flex min-h-screen items-center justify-center bg-ink bg-grid-ink px-4 py-8 sm:px-6">
-        <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-paper/15 bg-charcoal shadow-2xl lg:grid-cols-2">
+        <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-brass/30 bg-charcoal shadow-glow-brand lg:grid-cols-2">
           {/* Brand panel */}
           <div className="hidden flex-col justify-between bg-ink p-10 text-paper lg:flex border-r border-paper/10 bg-grid-ink">
             <div>
