@@ -21,6 +21,13 @@
   --color-brand-800: #68451f;
   --color-brand-900: #563a1d;
   --color-brand-950: #311e0c;
+  --color-ink: #111315;
+  --color-brass: #C59B4E;
+  --color-paper: #F8F9FA;
+  --color-charcoal: #212529;
+
+  --font-display: var(--font-display-var), sans-serif;
+  --font-body: var(--font-body-var), sans-serif;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
