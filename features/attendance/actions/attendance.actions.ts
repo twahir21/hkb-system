@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attendanceLogs } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
@@ -53,6 +55,24 @@ export async function markAttendance(
     if (assigned !== user.userId) {
       return { ok: false, error: "This guard is not assigned to you." };
     }
+  }
+
+  // Overwriting an existing log (correction) requires ATTENDANCE_EDIT.
+  // First-time marking only needs ATTENDANCE_RECORD.
+  const [existing] = await db
+    .select({ status: attendanceLogs.status })
+    .from(attendanceLogs)
+    .where(
+      and(
+        eq(attendanceLogs.guardId, v.guardId),
+        eq(attendanceLogs.date, v.date),
+        eq(attendanceLogs.shift, v.shift),
+      ),
+    )
+    .limit(1);
+
+  if (existing) {
+    await requirePermission("ATTENDANCE_EDIT");
   }
 
   const lockKey = `shift-lock:${v.guardId}:${v.date}:${v.shift}`;
@@ -120,9 +140,15 @@ export async function markAttendance(
   return { ok: true, message: "Attendance saved." };
 }
 
-/** Quick clock-in for PRESENT via a plain <form action>. */
+/** Quick clock-in for PRESENT via a plain <form action>. Redirects back with
+ *  an `?attendanceError=` param on failure (plain forms can't receive state). */
 export async function markPresentOnly(formData: FormData): Promise<void> {
-  await markAttendance({ ok: false }, formData);
+  const result = await markAttendance({ ok: false }, formData);
+  if (!result.ok) {
+    redirect(
+      `/attendance?attendanceError=${encodeURIComponent(result.error ?? "Could not mark attendance.")}`,
+    );
+  }
 }
 
 /** Server-side sick-note upload via Firebase Admin. Returns the public URL. */

@@ -13,6 +13,7 @@ type PageProps = {
     date?: string;
     shift?: string;
     supervisorId?: string;
+    attendanceError?: string;
   }>;
 };
 
@@ -65,6 +66,11 @@ export default async function AttendancePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
+      {sp.attendanceError && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {sp.attendanceError}
+        </div>
+      )}
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Shift Sheet</h2>
         <p className="mt-1 text-sm text-slate-500">

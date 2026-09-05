@@ -6,6 +6,7 @@ import {
   timestamp,
   date,
   text,
+  index,
   pgEnum,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -90,7 +91,9 @@ export const attendanceLogs = pgTable(
       table.date,
       table.shift
     ),
-    uniqueIndex("attendance_logs_date_shift_idx").on(table.date, table.shift),
+    // Non-unique: only speeds up per-shift lookups. (Was incorrectly UNIQUE,
+    // which allowed only ONE guard's log per shift per day.)
+    index("attendance_logs_date_shift_idx").on(table.date, table.shift),
   ]
 );
 
