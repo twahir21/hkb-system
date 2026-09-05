@@ -84,12 +84,12 @@ export async function getMonthlySummaries(
   const salesAgg = db
     .select({
       businessId: businessSales.businessId,
-      unitsSold: sql<number>`COALESCE(SUM(${businessSales.quantity}), 0)`,
-      revenue: sql<number>`COALESCE(SUM(${businessSales.totalAmount}), 0)`,
+      unitsSold: sql<number>`COALESCE(SUM(${businessSales.quantity}), 0)`.as("units_sold"),
+      revenue: sql<number>`COALESCE(SUM(${businessSales.totalAmount}), 0)`.as("revenue"),
       cashRevenue:
-        sql<number>`COALESCE(SUM(${businessSales.totalAmount}) FILTER (WHERE ${businessSales.saleType} = 'CASH'), 0)`,
+        sql<number>`COALESCE(SUM(${businessSales.totalAmount}) FILTER (WHERE ${businessSales.saleType} = 'CASH'), 0)`.as("cash_revenue"),
       creditRevenue:
-        sql<number>`COALESCE(SUM(${businessSales.totalAmount}) FILTER (WHERE ${businessSales.saleType} = 'CREDIT_GUARD'), 0)`,
+        sql<number>`COALESCE(SUM(${businessSales.totalAmount}) FILTER (WHERE ${businessSales.saleType} = 'CREDIT_GUARD'), 0)`.as("credit_revenue"),
     })
     .from(businessSales)
     .where(and(gte(businessSales.date, start), lte(businessSales.date, end)))
@@ -99,9 +99,9 @@ export async function getMonthlySummaries(
   const expenseAgg = db
     .select({
       businessId: businessExpenses.businessId,
-      expenses: sql<number>`COALESCE(SUM(${businessExpenses.amount}), 0)`,
+      expenses: sql<number>`COALESCE(SUM(${businessExpenses.amount}), 0)`.as("expenses"),
       restockSpend:
-        sql<number>`COALESCE(SUM(${businessExpenses.amount}) FILTER (WHERE ${businessExpenses.category} = 'RESTOCK'), 0)`,
+        sql<number>`COALESCE(SUM(${businessExpenses.amount}) FILTER (WHERE ${businessExpenses.category} = 'RESTOCK'), 0)`.as("restock_spend"),
     })
     .from(businessExpenses)
     .where(and(gte(businessExpenses.date, start), lte(businessExpenses.date, end)))

@@ -99,8 +99,14 @@ export async function listGuardOptions(): Promise<GuardOption[]> {
       guardId: guardProfiles.id,
       employeeId: guardProfiles.employeeId,
       guardName: users.fullName,
-      outstandingAmount: sql<number>`COALESCE(SUM(${guardCredits.amount}) FILTER (WHERE ${guardCredits.status} = 'OUTSTANDING'), 0)`,
-      outstandingCount: sql<number>`COUNT(*) FILTER (WHERE ${guardCredits.status} = 'OUTSTANDING')`,
+      outstandingAmount:
+        sql<number>`COALESCE(SUM(${guardCredits.amount}) FILTER (WHERE ${guardCredits.status} = 'OUTSTANDING'), 0)`.as(
+          "outstanding_amount",
+        ),
+      outstandingCount:
+        sql<number>`COUNT(*) FILTER (WHERE ${guardCredits.status} = 'OUTSTANDING')`.as(
+          "outstanding_count",
+        ),
     })
     .from(guardProfiles)
     .innerJoin(users, eq(guardProfiles.userId, users.id))
@@ -148,7 +154,7 @@ export async function getOutstandingByGuard(): Promise<GuardOutstanding[]> {
 
 export async function getGuardTotalOutstanding(guardId: string): Promise<number> {
   const [row] = await db
-    .select({ total: sql<number>`COALESCE(SUM(${guardCredits.amount}), 0)` })
+    .select({ total: sql<number>`COALESCE(SUM(${guardCredits.amount}), 0)`.as("total") })
     .from(guardCredits)
     .where(and(eq(guardCredits.guardId, guardId), eq(guardCredits.status, "OUTSTANDING")));
   return Number(row?.total ?? 0);
@@ -166,9 +172,9 @@ export async function listDeductionMonths(): Promise<DeductionMonthRow[]> {
   const rows = await db
     .select({
       deductionMonth: guardCredits.deductionMonth,
-      guards: sql<number>`COUNT(DISTINCT ${guardCredits.guardId})`,
-      entries: sql<number>`COUNT(*)`,
-      totalAmount: sql<number>`COALESCE(SUM(${guardCredits.amount}), 0)`,
+      guards: sql<number>`COUNT(DISTINCT ${guardCredits.guardId})`.as("guards"),
+      entries: sql<number>`COUNT(*)`.as("entries"),
+      totalAmount: sql<number>`COALESCE(SUM(${guardCredits.amount}), 0)`.as("total_amount"),
     })
     .from(guardCredits)
     .where(eq(guardCredits.status, "DEDUCTED"))
