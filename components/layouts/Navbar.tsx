@@ -38,15 +38,15 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
 import Image from "next/image";
-import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { mainSite } from "@/const/links.const";
 
 const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "News", href: "/news" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "About", href: "/about" },
-  { label: "FAQ", href: "/faq" },
+  { label: "Home", href: mainSite() },
+  { label: "News", href: mainSite("/news") },
+  { label: "Gallery", href: mainSite("/gallery") },
+  { label: "About", href: mainSite("/about") },
+  { label: "FAQ", href: mainSite("/faq") },
 ];
 
 export default function Navbar() {
@@ -116,7 +116,7 @@ export default function Navbar() {
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
           {/* Mark */}
           <a
-            href="#home"
+            href={mainSite()}
             className="flex items-center gap-3 group"
             aria-label="HKB Protection — Home"
           >
@@ -163,8 +163,8 @@ export default function Navbar() {
           </ul>
 
           {/* CTA — desktop */}
-          <Link
-            href="/contacts"
+          <a
+            href={mainSite("/contacts")}
             className="relative hidden overflow-hidden bg-brass px-5 py-2.5 font-body text-[12px] font-semibold uppercase tracking-[0.14em] text-ink transition-transform hover:-translate-y-0.5 md:inline-block"
             style={{
               clipPath:
@@ -172,7 +172,7 @@ export default function Navbar() {
             }}
           >
             Request Coverage
-          </Link>
+          </a>
 
           {/* Mobile trigger */}
           <button
@@ -237,8 +237,8 @@ export default function Navbar() {
               transition={{ delay: 0.5, duration: 0.4 }}
               className="px-6 pb-10"
             >
-              <Link
-                href="/contacts"
+              <a
+                href={mainSite("/contacts")}
                 onClick={() => setOpen(false)}
                 className="block bg-brass px-6 py-4 text-center font-body text-sm font-semibold uppercase tracking-[0.14em] text-ink"
                 style={{
@@ -247,7 +247,7 @@ export default function Navbar() {
                 }}
               >
                 Request Coverage
-              </Link>
+              </a>
               <p className="mt-4 text-center font-body text-[11px] uppercase tracking-[0.2em] text-paper/40">
                 Guarding · Event Security · Traffic Control — Tanzania
               </p>

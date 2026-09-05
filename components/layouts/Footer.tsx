@@ -29,7 +29,7 @@ import {
   Phone,
   ShieldAlert,
 } from "lucide-react";
-import { PHONE_TELS, PHONES } from "@/const/links.const";
+import { PHONE_TELS, PHONES, mainSite } from "@/const/links.const";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -42,12 +42,12 @@ const getStaticYear = () => 2026;
 /* Hero's grid field — now shared as the `bg-grid-ink` utility in globals.css */
 
 const QUICK_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
-  { label: "About Us", href: "#about" },
-  { label: "Training Program", href: "#training" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "Contact Us", href: "/contacts" },
+  { label: "Home", href: mainSite() },
+  { label: "Services", href: mainSite("/#services") },
+  { label: "About Us", href: mainSite("/#about") },
+  { label: "Training Program", href: mainSite("/#training") },
+  { label: "Testimonials", href: mainSite("/#testimonials") },
+  { label: "Contact Us", href: mainSite("/contacts") },
 ];
 
 const SERVICES = [
@@ -198,7 +198,7 @@ export default function Footer() {
             >
               {/* Mark */}
               <a
-                href="#home"
+                href={mainSite()}
                 className="group inline-flex items-center gap-3"
                 aria-label="HKB Protection — Home"
               >
@@ -356,7 +356,7 @@ export default function Footer() {
                 {SERVICES.slice(0, 8).map((service) => (
                   <li key={service}>
                     <a
-                      href="#services"
+                      href={mainSite("/#services")}
                       className="group flex items-center gap-2 font-body text-[13.5px] text-paper/60 transition-colors duration-300 hover:text-brass"
                     >
                       <span className="h-px w-3 bg-brass/30 transition-all duration-300 group-hover:w-5 group-hover:bg-brass" />
@@ -384,7 +384,7 @@ export default function Footer() {
                 {BUSINESS_LINES.slice(0, 6).map((line) => (
                   <li key={line}>
                     <a
-                      href="#business-diversification"
+                      href={mainSite("/#business-diversification")}
                       className="group flex items-center gap-2 font-body text-[13.5px] text-paper/60 transition-colors duration-300 hover:text-brass"
                     >
                       <span className="h-px w-3 bg-brass/30 transition-all duration-300 group-hover:w-5 group-hover:bg-brass" />
@@ -411,7 +411,7 @@ export default function Footer() {
               </span>
               <span className="hidden h-3 w-px bg-charcoal sm:block" />
               <a
-                href="/terms"
+                href={mainSite("/terms")}
                 className="font-body text-[11px] font-medium uppercase tracking-[0.14em] text-paper/40 transition-colors hover:text-brass"
               >
                 Terms and Condition

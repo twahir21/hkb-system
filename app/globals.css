@@ -126,7 +126,7 @@ body {
 /* Brand glow — brass halo, always visible (no hover required) */
 @utility shadow-glow-brand {
   box-shadow:
-    0 0 24px -4px color-mix(in srgb, var(--color-brass) 45%, transparent),
-    0 0 80px -12px color-mix(in srgb, var(--color-brass) 35%, transparent),
-    0 25px 50px -12px rgb(0 0 0 / 0.6);
+    0 0 14px -2px color-mix(in srgb, var(--color-brass) 45%, transparent),
+    0 0 40px -6px color-mix(in srgb, var(--color-brass) 35%, transparent),
+    0 13px 25px -6px rgb(0 0 0 / 0.6);
 }

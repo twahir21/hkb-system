@@ -13,3 +13,15 @@ export const PHONES = ["+255 62 600 6688", "+255 75 600 6679"];
 export const PHONE_TELS: string[] = PHONES.map((phone) =>
   `tel:${phone.replace(/[^\d+]/g, "")}`
 );
+
+/** Canonical main website (marketing site) — navbar/footer links point here. */
+export const MAIN_SITE_URL = "https://www.hkbprotection.co.tz";
+
+/**
+ * Build an absolute URL on the main website.
+ * mainSite()            → https://www.hkbprotection.co.tz
+ * mainSite("/contacts") → https://www.hkbprotection.co.tz/contacts
+ * mainSite("/#services")→ https://www.hkbprotection.co.tz/#services
+ */
+export const mainSite = (path = "/"): string =>
+  `${MAIN_SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
