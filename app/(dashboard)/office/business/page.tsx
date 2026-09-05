@@ -19,8 +19,18 @@ export default async function OfficeBusinessPage({ searchParams }: PageProps) {
 
   const sp = await searchParams;
   const now = new Date();
-  const year = sp.year ? Number(sp.year) : now.getFullYear();
-  const month = sp.month ? Number(sp.month) : now.getMonth() + 1;
+  let year = sp.year ? Number(sp.year) : now.getFullYear();
+  let month = now.getMonth() + 1;
+
+  if (sp.month) {
+    if (sp.month.includes("-")) {
+      const [y, m] = sp.month.split("-");
+      year = Number(y) || year;
+      month = Number(m) || month;
+    } else {
+      month = Number(sp.month) || month;
+    }
+  }
 
   const [summaries, guards] = await Promise.all([
     getMonthlySummaries(year, month),

@@ -129,11 +129,22 @@ export async function recordSale(
       .where(eq(businesses.id, v.businessId))
       .limit(1);
 
+    const bName = (business?.name ?? "").toLowerCase();
+    const creditType = bName.includes("fish") || bName.includes("samaki")
+      ? "FISH"
+      : bName.includes("maize") ||
+          bName.includes("flour") ||
+          bName.includes("unga") ||
+          bName.includes("sembe") ||
+          bName.includes("dona")
+        ? "MAIZE_FLOUR"
+        : "OTHER";
+
     const [credit] = await db
       .insert(guardCredits)
       .values({
         guardId: v.guardId!,
-        type: business?.name.toLowerCase().includes("fish") ? "FISH" : "MAIZE_FLOUR",
+        type: creditType,
         description: `${v.quantity} ${business?.unit ?? "unit"} ${business?.name ?? "goods"} — bought on credit`,
         quantity: String(v.quantity),
         amount: String(total),
