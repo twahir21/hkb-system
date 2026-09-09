@@ -38,6 +38,10 @@ export const PERMISSIONS = {
     "SUPERVISOR",
   ],
 
+  // Coverage requests (public website submissions)
+  COVERAGE_VIEW: ["SUPER_ADMIN", "HR", "BURSAR"],
+  COVERAGE_MANAGE: ["SUPER_ADMIN"],
+
   // PII / sensitive data
   PII_VIEW: ["SUPER_ADMIN", "HR"],
 

@@ -31,6 +31,13 @@ export const absenceCategoryEnum = pgEnum("absence_category", [
   "NOT_PERMITTED",
 ]);
 export const transferStatusEnum = pgEnum("transfer_status", ["PENDING", "APPROVED", "REJECTED"]);
+export const coverageRequestStatusEnum = pgEnum("coverage_request_status", [
+  "NEW",
+  "IN_REVIEW",
+  "APPROVED",
+  "REJECTED",
+  "ARCHIVED",
+]);
 export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
   "IN", // Stock bought / received into the main store
   "ISSUED", // Stock given to a station / storekeeper
@@ -69,6 +76,7 @@ export const users = pgTable("users", {
   fullName: varchar("full_name", { length: 255 }).notNull(),
   avatarUrl: varchar("avatar_url", { length: 512 }),
   role: roleEnum("role").notNull().default("GUARD"),
+  coverageRequestsLastSeenAt: timestamp("coverage_requests_last_seen_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -143,6 +151,33 @@ export const transferRequests = pgTable("transfer_requests", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Public "Request Coverage" submissions from the marketing website
+// (POST /api/request-coverage — unauthenticated). Contains public PII,
+// readable only by SUPER_ADMIN / HR / BURSAR.
+export const coverageRequests = pgTable(
+  "coverage_requests",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    fullName: varchar("full_name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    phone: varchar("phone", { length: 32 }).notNull(),
+    service: varchar("service", { length: 150 }).notNull(),
+    message: text("message").notNull(),
+    source: varchar("source", { length: 100 })
+      .notNull()
+      .default("website-contacts-page"),
+    status: coverageRequestStatusEnum("status").default("NEW").notNull(),
+    internalNotes: text("internal_notes"),
+    handledById: uuid("handled_by_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("coverage_requests_status_idx").on(table.status),
+    index("coverage_requests_created_at_idx").on(table.createdAt),
+  ]
+);
 
 // Audit trail for compliance / payroll dispute resolution
 export const auditLogs = pgTable("audit_logs", {
@@ -395,6 +430,8 @@ export type ShiftType = (typeof shiftTypeEnum.enumValues)[number];
 export type AttendanceStatus = (typeof attendanceStatusEnum.enumValues)[number];
 export type AbsenceCategory = (typeof absenceCategoryEnum.enumValues)[number];
 export type TransferStatus = (typeof transferStatusEnum.enumValues)[number];
+export type CoverageRequestStatus = (typeof coverageRequestStatusEnum.enumValues)[number];
+export type CoverageRequest = (typeof coverageRequests.$inferSelect);
 export type StockMovementType = (typeof stockMovementTypeEnum.enumValues)[number];
 export type StoreItem = (typeof storeItems.$inferSelect);
 export type StockMovement = (typeof stockMovements.$inferSelect);

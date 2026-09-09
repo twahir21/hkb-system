@@ -31,6 +31,7 @@ export async function proxy(request: NextRequest) {
   const isBypassed =
     pathname === "/login" ||
     pathname === "/access-denied" ||
+    pathname === "/api/request-coverage" || // public lead-capture endpoint
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next");
 

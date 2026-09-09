@@ -20,6 +20,7 @@ import {
   CalendarX,
   Store,
   Wallet,
+  BellRing,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -150,6 +151,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         roles: ["SUPER_ADMIN", "SENIOR_SUPERVISOR", "SUPERVISOR", "HR"],
       },
       {
+        href: "/coverage-requests",
+        label: "Coverage Requests",
+        icon: BellRing,
+        roles: ["SUPER_ADMIN", "HR", "BURSAR"],
+      },
+      {
         href: "/reports",
         label: "Reports",
         icon: ShieldCheck,
@@ -165,12 +172,14 @@ export function Sidebar({
   email,
   mobileOpen = false,
   onMobileClose,
+  newCoverageCount = 0,
 }: {
   role: Role;
   name: string;
   email: string;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  newCoverageCount?: number;
 }) {
   const pathname = usePathname();
 
@@ -204,6 +213,11 @@ export function Sidebar({
                 >
                   <Icon className={cn("h-4 w-4", active ? "text-brand-600" : "text-slate-400")} />
                   {item.label}
+                  {item.href === "/coverage-requests" && newCoverageCount > 0 && (
+                    <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                      {newCoverageCount > 99 ? "99+" : newCoverageCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
