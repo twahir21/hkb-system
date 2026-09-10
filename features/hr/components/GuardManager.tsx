@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus, Pencil } from "lucide-react";
+import { UserPlus, Pencil, Upload } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
 import type { GuardRow } from "@/features/hr/queries/guards";
 import { GuardForm } from "./GuardForm";
+import { BulkGuardModal } from "./BulkGuardModal";
 
 type Supervisor = { id: string; name: string; role: string };
 
@@ -17,6 +18,7 @@ export function GuardManager({
 }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [editing, setEditing] = useState<GuardRow | null>(null);
 
   const filtered = guards.filter(
@@ -113,14 +115,19 @@ export function GuardManager({
           placeholder="Search guards…"
           className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
-        >
-          <UserPlus className="h-4 w-4" /> Add guard
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={() => setBulkOpen(true)}>
+            <Upload className="h-4 w-4" /> Bulk Import (CSV)
+          </Button>
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+          >
+            <UserPlus className="h-4 w-4" /> Add guard
+          </Button>
+        </div>
       </div>
 
       <DataTable
@@ -142,6 +149,8 @@ export function GuardManager({
           onDone={() => setOpen(false)}
         />
       </Modal>
+
+      <BulkGuardModal open={bulkOpen} onClose={() => setBulkOpen(false)} />
     </div>
   );
 }
