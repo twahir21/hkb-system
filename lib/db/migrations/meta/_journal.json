@@ -50,6 +50,13 @@
       "when": 1788957009491,
       "tag": "0006_massive_raider",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789033573448,
+      "tag": "0007_guard_station",
+      "breakpoints": true
     }
   ]
 }

@@ -92,6 +92,7 @@ export const guardProfiles = pgTable("guard_profiles", {
   phone: varchar("phone", { length: 20 }).notNull(),
   homeLocation: varchar("home_location", { length: 255 }).notNull(),
   workLocation: varchar("work_location", { length: 255 }).notNull(),
+  stationId: uuid("station_id").references(() => stations.id, { onDelete: "set null" }),
   kinName: varchar("kin_name", { length: 255 }).notNull(),
   kinRelation: varchar("kin_relation", { length: 100 }).notNull(),
   kinPhone: varchar("kin_phone", { length: 20 }).notNull(),

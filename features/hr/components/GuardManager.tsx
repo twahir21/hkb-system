@@ -4,6 +4,7 @@ import { useState } from "react";
 import { UserPlus, Pencil, Upload } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
 import type { GuardRow } from "@/features/hr/queries/guards";
+import type { RegionOption, StationOption } from "./GuardForm";
 import { GuardForm } from "./GuardForm";
 import { BulkGuardModal } from "./BulkGuardModal";
 
@@ -12,9 +13,13 @@ type Supervisor = { id: string; name: string; role: string };
 export function GuardManager({
   guards,
   supervisors,
+  regions,
+  stations,
 }: {
   guards: GuardRow[];
   supervisors: Supervisor[];
+  regions: RegionOption[];
+  stations: StationOption[];
 }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
@@ -61,8 +66,15 @@ export function GuardManager({
         <div className="text-xs text-slate-600">
           <p>
             <span className="text-slate-400">Work:</span> {r.workLocation}
+            {!r.stationId && (
+              <span className="ml-1.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-700">
+                Unassigned site
+              </span>
+            )}
           </p>
-          <p className="text-slate-400">Home: {r.homeLocation}</p>
+          <p className="text-slate-400">
+            Region: {r.regionName ?? "—"} · Home: {r.homeLocation}
+          </p>
         </div>
       ),
     },
@@ -145,6 +157,8 @@ export function GuardManager({
         <GuardForm
           key={editing?.id ?? "new"}
           supervisors={supervisors}
+          regions={regions}
+          stations={stations}
           editing={editing}
           onDone={() => setOpen(false)}
         />

@@ -3,6 +3,8 @@ import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors } from "@/features/hr/queries/guards";
 import { listRegions, listStations } from "@/features/store/queries/stock";
 import { RegionForm, StationForm } from "@/features/store";
+import { getRegionSiteAnalytics } from "@/features/hr/queries/locations";
+import { RegionAnalyticsCard } from "@/features/hr/components/RegionAnalyticsCard";
 
 export default async function StoreLocationsPage() {
   const user = await getCurrentUser();
@@ -14,10 +16,11 @@ export default async function StoreLocationsPage() {
     );
   }
 
-  const [regions, stations, supervisors] = await Promise.all([
+  const [regions, stations, supervisors, analytics] = await Promise.all([
     listRegions(),
     listStations(),
     getSupervisors(),
+    getRegionSiteAnalytics(),
   ]);
 
   return (
@@ -28,6 +31,10 @@ export default async function StoreLocationsPage() {
           Where stock is held — regions group stations.
         </p>
       </div>
+      <RegionAnalyticsCard
+        regions={analytics.regions}
+        unassignedGuards={analytics.unassignedGuards}
+      />
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
           <RegionForm />

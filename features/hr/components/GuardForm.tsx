@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui";
 import {
   createGuard,
@@ -10,6 +10,9 @@ import {
 import type { GuardRow } from "@/features/hr/queries/guards";
 
 type Supervisor = { id: string; name: string; role: string };
+
+export type RegionOption = { id: string; name: string };
+export type StationOption = { id: string; name: string; regionId: string };
 
 const inputCls =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500";
@@ -47,10 +50,14 @@ function Field({
 
 export function GuardForm({
   supervisors,
+  regions,
+  stations,
   editing,
   onDone,
 }: {
   supervisors: Supervisor[];
+  regions: RegionOption[];
+  stations: StationOption[];
   editing: GuardRow | null;
   onDone: () => void;
 }) {
@@ -58,6 +65,13 @@ export function GuardForm({
     editing ? updateGuard : createGuard,
     { ok: false },
   );
+
+  // Editing guard's current region (if any) preselects the region dropdown.
+  const editingRegion = editing?.stationId
+    ? stations.find((s) => s.id === editing.stationId)?.regionId ?? ""
+    : "";
+  const [regionId, setRegionId] = useState(editingRegion);
+  const regionStations = stations.filter((s) => s.regionId === regionId);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -101,13 +115,52 @@ export function GuardForm({
           defaultValue={editing?.phone}
           required
         />
-        <Field
-          label="Work location"
-          name="workLocation"
-          defaultValue={editing?.workLocation}
-          required
-          className="sm:col-span-2"
-        />
+        <label className="block sm:col-span-2">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Work region
+          </span>
+          <select
+            name="regionPicker"
+            value={regionId}
+            onChange={(e) => setRegionId(e.target.value)}
+            required
+            className={inputCls}
+          >
+            <option value="">Select region…</option>
+            {regions.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Work site (station)
+          </span>
+          <select
+            name="stationId"
+            key={regionId}
+            defaultValue={editing?.stationId ?? ""}
+            required
+            disabled={!regionId}
+            className={inputCls}
+          >
+            <option value="">
+              {regionId ? "Select site…" : "Select a region first"}
+            </option>
+            {regionStations.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          {regionId && regionStations.length === 0 && (
+            <span className="mt-1 block text-xs text-amber-600">
+              No sites registered under this region yet — add one under Store → Regions &amp; Stations.
+            </span>
+          )}
+        </label>
         <Field
           label="Home location"
           name="homeLocation"

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { guardProfiles, users } from "@/lib/db/schema";
+import { guardProfiles, regions, stations, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { guardSchema } from "@/features/hr/validators/guard.schema";
@@ -13,6 +13,27 @@ export type { BulkImportRowError, BulkImportResult } from "@/lib/csv";
 import type { ActionState } from "@/features/attendance/actions/attendance.actions";
 
 export type GuardState = ActionState & { guardId?: string };
+
+/**
+ * Resolve a station UUID to { stationId, workLocation } where workLocation is
+ * derived server-side as "<Station> — <Region>" so the stored text always
+ * matches the linked station (single source of truth = stations table).
+ */
+async function resolveStation(stationId: string) {
+  const rows = await db
+    .select({
+      id: stations.id,
+      name: stations.name,
+      regionName: regions.name,
+    })
+    .from(stations)
+    .innerJoin(regions, eq(stations.regionId, regions.id))
+    .where(eq(stations.id, stationId))
+    .limit(1);
+  const s = rows[0];
+  if (!s) return null;
+  return { stationId: s.id, workLocation: `${s.name} — ${s.regionName}` };
+}
 
 /** Create a guard: links/stamps the user row and inserts their profile (PII). */
 export async function createGuard(
@@ -28,7 +49,7 @@ export async function createGuard(
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") ?? undefined,
     homeLocation: formData.get("homeLocation") ?? undefined,
-    workLocation: formData.get("workLocation") ?? undefined,
+    stationId: formData.get("stationId") ?? undefined,
     kinName: formData.get("kinName") ?? undefined,
     kinRelation: formData.get("kinRelation") ?? undefined,
     kinPhone: formData.get("kinPhone") ?? undefined,
@@ -44,6 +65,10 @@ export async function createGuard(
   }
   const v = parsed.data;
 
+  const station = await resolveStation(v.stationId);
+  if (!station) {
+    return { ok: false, error: "Selected work site no longer exists — pick another site." };
+  }
   let userId: string;
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, v.email),
@@ -71,7 +96,8 @@ export async function createGuard(
       age: v.age,
       phone: v.phone,
       homeLocation: v.homeLocation,
-      workLocation: v.workLocation,
+      workLocation: station.workLocation,
+      stationId: station.stationId,
       kinName: v.kinName,
       kinRelation: v.kinRelation,
       kinPhone: v.kinPhone,
@@ -109,7 +135,7 @@ export async function updateGuard(
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") || undefined,
     homeLocation: formData.get("homeLocation") || undefined,
-    workLocation: formData.get("workLocation") || undefined,
+    stationId: formData.get("stationId") || undefined,
     kinName: formData.get("kinName") || undefined,
     kinRelation: formData.get("kinRelation") || undefined,
     kinPhone: formData.get("kinPhone") || undefined,
@@ -124,13 +150,23 @@ export async function updateGuard(
   }
   const v = parsed.data;
 
+  // Resolve station → canonical workLocation text when the site is being changed.
+  let stationUpdate: { stationId: string; workLocation: string } | null = null;
+  if (v.stationId) {
+    stationUpdate = await resolveStation(v.stationId);
+    if (!stationUpdate) {
+      return { ok: false, error: "Selected work site no longer exists — pick another site." };
+    }
+  }
+
   await db
     .update(guardProfiles)
     .set({
       age: v.age,
       phone: v.phone,
       homeLocation: v.homeLocation,
-      workLocation: v.workLocation,
+      stationId: stationUpdate?.stationId,
+      workLocation: stationUpdate?.workLocation,
       kinName: v.kinName,
       kinRelation: v.kinRelation,
       kinPhone: v.kinPhone,
@@ -190,6 +226,19 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
   const seenInBatchEmails = new Set<string>();
   const errors: BulkImportRowError[] = [];
 
+  // Region/station lookup for CSV import — stations are the source of truth.
+  const stationRows = await db
+    .select({
+      id: stations.id,
+      name: stations.name,
+      regionName: regions.name,
+    })
+    .from(stations)
+    .innerJoin(regions, eq(stations.regionId, regions.id));
+  const stationByRegionAndName = new Map(
+    stationRows.map((s) => [`${s.regionName.toLowerCase()}|${s.name.toLowerCase()}`, s]),
+  );
+
   const validEntries: {
     email: string;
     fullName: string;
@@ -197,6 +246,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
     age: number;
     phone: string;
     homeLocation: string;
+    stationId: string;
     workLocation: string;
     kinName: string;
     kinRelation: string;
@@ -219,7 +269,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       age: (row.age || "").trim() || undefined,
       phone: (row.phone || "").trim() || undefined,
       homeLocation: (row.homelocation || "").trim() || undefined,
-      workLocation: (row.worklocation || "").trim() || undefined,
+      stationId: crypto.randomUUID(), // placeholder — resolved from region/station names below
       kinName: (row.kinname || "").trim() || undefined,
       kinRelation: (row.kinrelation || "").trim() || undefined,
       kinPhone: (row.kinphone || "").trim() || undefined,
@@ -237,6 +287,24 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       continue;
     }
     const v = parsed.data;
+
+    // Resolve work region + station names to a station row (mandatory).
+    const regionName = (row.region || "").trim();
+    const stationName = (row.station || row.worklocation || "").trim();
+    const matchedStation = regionName
+      ? stationByRegionAndName.get(`${regionName.toLowerCase()}|${stationName.toLowerCase()}`)
+      : undefined;
+    if (!matchedStation) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason:
+          regionName && stationName
+            ? `Work site '${stationName}' under region '${regionName}' not found — add it under Store → Regions & Stations first`
+            : "Missing 'region' and/or 'station' column — both are required",
+      });
+      continue;
+    }
 
     if (existingEmployeeIds.has(v.employeeId.toLowerCase())) {
       errors.push({ row: rowNum, identifier, reason: `Employee ID '${v.employeeId}' is already registered in the system` });
@@ -263,7 +331,8 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       age: v.age,
       phone: v.phone,
       homeLocation: v.homeLocation,
-      workLocation: v.workLocation,
+      stationId: matchedStation.id,
+      workLocation: `${matchedStation.name} — ${matchedStation.regionName}`,
       kinName: v.kinName,
       kinRelation: v.kinRelation,
       kinPhone: v.kinPhone,
@@ -298,6 +367,7 @@ async function insertImportedGuards(
     age: number;
     phone: string;
     homeLocation: string;
+    stationId: string;
     workLocation: string;
     kinName: string;
     kinRelation: string;
@@ -370,6 +440,7 @@ async function insertImportedGuards(
       phone: e.phone,
       homeLocation: e.homeLocation,
       workLocation: e.workLocation,
+      stationId: e.stationId,
       kinName: e.kinName,
       kinRelation: e.kinRelation,
       kinPhone: e.kinPhone,

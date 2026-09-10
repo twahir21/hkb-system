@@ -1,7 +1,10 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listGuards, getSupervisors } from "@/features/hr/queries/guards";
+import { getRegionSiteAnalytics } from "@/features/hr/queries/locations";
+import { listRegions, listStations } from "@/features/store/queries/stock";
 import { GuardManager } from "@/features/hr/components/GuardManager";
+import { RegionAnalyticsCard } from "@/features/hr/components/RegionAnalyticsCard";
 
 export default async function GuardsPage() {
   const user = await getCurrentUser();
@@ -14,8 +17,13 @@ export default async function GuardsPage() {
   }
 
   const canPii = hasPermission(user.role, "PII_VIEW");
-  const guards = await listGuards(canPii);
-  const supervisors = await getSupervisors();
+  const [guards, supervisors, regions, stations, analytics] = await Promise.all([
+    listGuards(canPii),
+    getSupervisors(),
+    listRegions(),
+    listStations(),
+    getRegionSiteAnalytics(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -25,6 +33,10 @@ export default async function GuardsPage() {
           Register guards, manage profiles and supervisor assignments.
         </p>
       </div>
+      <RegionAnalyticsCard
+        regions={analytics.regions}
+        unassignedGuards={analytics.unassignedGuards}
+      />
       <GuardManager
         guards={guards}
         supervisors={supervisors.map((s) => ({
@@ -32,6 +44,8 @@ export default async function GuardsPage() {
           name: s.fullName,
           role: s.role,
         }))}
+        regions={regions.map((r) => ({ id: r.id, name: r.name }))}
+        stations={stations.map((s) => ({ id: s.id, name: s.name, regionId: s.regionId }))}
       />
     </div>
   );
