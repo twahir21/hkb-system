@@ -13,6 +13,7 @@ type Supervisor = { id: string; name: string; role: string };
 
 export type RegionOption = { id: string; name: string };
 export type StationOption = { id: string; name: string; regionId: string };
+export type ClientOption = { id: string; name: string; isActive?: boolean };
 
 const inputCls =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500";
@@ -52,12 +53,14 @@ export function GuardForm({
   supervisors,
   regions,
   stations,
+  clients,
   editing,
   onDone,
 }: {
   supervisors: Supervisor[];
   regions: RegionOption[];
   stations: StationOption[];
+  clients: ClientOption[];
   editing: GuardRow | null;
   onDone: () => void;
 }) {
@@ -158,6 +161,30 @@ export function GuardForm({
           {regionId && regionStations.length === 0 && (
             <span className="mt-1 block text-xs text-amber-600">
               No sites registered under this region yet — add one under Store → Regions &amp; Stations.
+            </span>
+          )}
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Client (company)
+          </span>
+          <select
+            name="clientId"
+            defaultValue={editing?.clientId ?? ""}
+            required
+            className={inputCls}
+          >
+            <option value="">Select client…</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {c.isActive === false ? " (inactive)" : ""}
+              </option>
+            ))}
+          </select>
+          {clients.length === 0 && (
+            <span className="mt-1 block text-xs text-amber-600">
+              No clients registered yet — add one under Manage → Clients.
             </span>
           )}
         </label>

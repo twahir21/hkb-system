@@ -25,6 +25,7 @@ const CSV_COLUMNS: { name: string; example: string; required?: boolean }[] = [
   { name: "homeLocation", example: "Dar es Salaam", required: true },
   { name: "region", example: "Dar es Salaam", required: true },
   { name: "station", example: "Kariakoo Site", required: true },
+  { name: "client", example: "MOFAT", required: true },
   { name: "kinName", example: "Jane Doe", required: true },
   { name: "kinRelation", example: "Sister", required: true },
   { name: "kinPhone", example: "0723456789", required: true },

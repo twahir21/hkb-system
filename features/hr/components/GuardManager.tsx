@@ -4,7 +4,7 @@ import { useState } from "react";
 import { UserPlus, Pencil, Upload } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
 import type { GuardRow } from "@/features/hr/queries/guards";
-import type { RegionOption, StationOption } from "./GuardForm";
+import type { ClientOption, RegionOption, StationOption } from "./GuardForm";
 import { GuardForm } from "./GuardForm";
 import { BulkGuardModal } from "./BulkGuardModal";
 
@@ -15,11 +15,13 @@ export function GuardManager({
   supervisors,
   regions,
   stations,
+  clients,
 }: {
   guards: GuardRow[];
   supervisors: Supervisor[];
   regions: RegionOption[];
   stations: StationOption[];
+  clients: ClientOption[];
 }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
@@ -91,6 +93,16 @@ export function GuardManager({
       ),
     },
     {
+      key: "client",
+      header: "Client",
+      cell: (r) =>
+        r.clientName ? (
+          <Badge tone="brand">{r.clientName}</Badge>
+        ) : (
+          <span className="text-xs text-slate-400">Unassigned</span>
+        ),
+    },
+    {
       key: "supervisor",
       header: "Supervisor",
       cell: (r) =>
@@ -159,6 +171,7 @@ export function GuardManager({
           supervisors={supervisors}
           regions={regions}
           stations={stations}
+          clients={clients}
           editing={editing}
           onDone={() => setOpen(false)}
         />

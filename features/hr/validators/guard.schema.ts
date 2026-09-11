@@ -8,6 +8,7 @@ export const guardSchema = z.object({
   phone: z.string().trim().min(7).max(20),
   homeLocation: z.string().trim().min(1).max(255),
   stationId: z.string().uuid({ message: "Select a work region and site (station)" }),
+  clientId: z.string().uuid({ message: "Select the client (company) the guard works under" }),
   kinName: z.string().trim().min(1).max(255),
   kinRelation: z.string().trim().min(1).max(100),
   kinPhone: z.string().trim().min(7).max(20),

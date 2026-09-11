@@ -93,6 +93,7 @@ export const guardProfiles = pgTable("guard_profiles", {
   homeLocation: varchar("home_location", { length: 255 }).notNull(),
   workLocation: varchar("work_location", { length: 255 }).notNull(),
   stationId: uuid("station_id").references(() => stations.id, { onDelete: "set null" }),
+  clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
   kinName: varchar("kin_name", { length: 255 }).notNull(),
   kinRelation: varchar("kin_relation", { length: 100 }).notNull(),
   kinPhone: varchar("kin_phone", { length: 20 }).notNull(),
@@ -200,6 +201,18 @@ export const regions = pgTable("regions", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 150 }).notNull().unique(),
   description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Clients are the companies HKB serves (e.g. MOFAT, ZURI). A client is
+// deployment metadata — guards posted at the same station may work under
+// different clients, so client lives on the guard profile, not the station.
+export const clients = pgTable("clients", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 150 }).notNull().unique(),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -440,6 +453,7 @@ export type StockTransfer = (typeof stockTransfers.$inferSelect);
 export type StockBalance = (typeof stockBalances.$inferSelect);
 export type Region = (typeof regions.$inferSelect);
 export type Station = (typeof stations.$inferSelect);
+export type Client = (typeof clients.$inferSelect);
 export type Business = (typeof businesses.$inferSelect);
 export type GuardCredit = (typeof guardCredits.$inferSelect);
 export type BusinessSale = (typeof businessSales.$inferSelect);

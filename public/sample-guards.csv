@@ -1,3 +1,3 @@
-fullName,email,employeeId,age,phone,homeLocation,region,station,kinName,kinRelation,kinPhone,registrationDate,supervisorEmail
-John Doe,jdoe@hkb.co,HKB-001,28,0712345678,Dar es Salaam,Dar es Salaam,Kariakoo Site,Jane Doe,Sister,0723456789,2026-01-15,
-Sarah Connor,sconnor@hkb.co,HKB-002,31,0711111111,Morogoro,Tabora,Tabora Central Site,Maria Connor,Mother,0722222222,2026-02-01,sup@hkb.co
+fullName,email,employeeId,age,phone,homeLocation,region,station,client,kinName,kinRelation,kinPhone,registrationDate,supervisorEmail
+John Doe,jdoe@hkb.co,HKB-001,28,0712345678,Dar es Salaam,Dar es Salaam,Kariakoo Site,MOFAT,Jane Doe,Sister,0723456789,2026-01-15,
+Sarah Connor,sconnor@hkb.co,HKB-002,31,0711111111,Morogoro,Tabora,Tabora Central Site,ZURI,Maria Connor,Mother,0722222222,2026-02-01,sup@hkb.co

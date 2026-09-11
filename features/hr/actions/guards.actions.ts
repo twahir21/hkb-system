@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { guardProfiles, regions, stations, users } from "@/lib/db/schema";
+import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { guardSchema } from "@/features/hr/validators/guard.schema";
@@ -35,6 +35,19 @@ async function resolveStation(stationId: string) {
   return { stationId: s.id, workLocation: `${s.name} — ${s.regionName}` };
 }
 
+/**
+ * Resolve a client UUID to the client row (id + name). Keeps the stored
+ * client_id valid — the clients table is the single source of truth.
+ */
+async function resolveClient(clientId: string) {
+  const rows = await db
+    .select({ id: clients.id, name: clients.name })
+    .from(clients)
+    .where(eq(clients.id, clientId))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 /** Create a guard: links/stamps the user row and inserts their profile (PII). */
 export async function createGuard(
   _prev: GuardState,
@@ -50,6 +63,7 @@ export async function createGuard(
     phone: formData.get("phone") ?? undefined,
     homeLocation: formData.get("homeLocation") ?? undefined,
     stationId: formData.get("stationId") ?? undefined,
+    clientId: formData.get("clientId") ?? undefined,
     kinName: formData.get("kinName") ?? undefined,
     kinRelation: formData.get("kinRelation") ?? undefined,
     kinPhone: formData.get("kinPhone") ?? undefined,
@@ -68,6 +82,10 @@ export async function createGuard(
   const station = await resolveStation(v.stationId);
   if (!station) {
     return { ok: false, error: "Selected work site no longer exists — pick another site." };
+  }
+  const client = await resolveClient(v.clientId);
+  if (!client) {
+    return { ok: false, error: "Selected client no longer exists — pick another client." };
   }
   let userId: string;
   const existingUser = await db.query.users.findFirst({
@@ -98,6 +116,7 @@ export async function createGuard(
       homeLocation: v.homeLocation,
       workLocation: station.workLocation,
       stationId: station.stationId,
+      clientId: client.id,
       kinName: v.kinName,
       kinRelation: v.kinRelation,
       kinPhone: v.kinPhone,
@@ -136,6 +155,7 @@ export async function updateGuard(
     phone: formData.get("phone") || undefined,
     homeLocation: formData.get("homeLocation") || undefined,
     stationId: formData.get("stationId") || undefined,
+    clientId: formData.get("clientId") || undefined,
     kinName: formData.get("kinName") || undefined,
     kinRelation: formData.get("kinRelation") || undefined,
     kinPhone: formData.get("kinPhone") || undefined,
@@ -159,6 +179,16 @@ export async function updateGuard(
     }
   }
 
+  // Resolve client when it is being changed.
+  let clientUpdate: { clientId: string } | null = null;
+  if (v.clientId) {
+    const client = await resolveClient(v.clientId);
+    if (!client) {
+      return { ok: false, error: "Selected client no longer exists — pick another client." };
+    }
+    clientUpdate = { clientId: client.id };
+  }
+
   await db
     .update(guardProfiles)
     .set({
@@ -167,6 +197,7 @@ export async function updateGuard(
       homeLocation: v.homeLocation,
       stationId: stationUpdate?.stationId,
       workLocation: stationUpdate?.workLocation,
+      clientId: clientUpdate?.clientId,
       kinName: v.kinName,
       kinRelation: v.kinRelation,
       kinPhone: v.kinPhone,
@@ -239,6 +270,38 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
     stationRows.map((s) => [`${s.regionName.toLowerCase()}|${s.name.toLowerCase()}`, s]),
   );
 
+  // Client (company) lookup by name — the CSV 'client' column is matched
+  // case-insensitively; unknown client names are auto-created (see below).
+  const clientRows = await db.select({ id: clients.id, name: clients.name }).from(clients);
+  const clientByName = new Map(
+    clientRows.map((c) => [c.name.toLowerCase(), { id: c.id, name: c.name }]),
+  );
+  const newClientNames = [
+    ...new Set(
+      rows
+        .map((r) => (r.client || "").trim().toLowerCase())
+        .filter((name) => name && !clientByName.has(name)),
+    ),
+  ];
+  if (newClientNames.length > 0) {
+    await db
+      .insert(clients)
+      .values(newClientNames.map((name) => ({ name })))
+      .onConflictDoNothing();
+    const created = await db
+      .select({ id: clients.id, name: clients.name })
+      .from(clients)
+      .where(inArray(clients.name, newClientNames));
+    for (const c of created) clientByName.set(c.name.toLowerCase(), { id: c.id, name: c.name });
+    for (const name of newClientNames) {
+      errors.push({
+        row: 0,
+        identifier: name,
+        reason: `Client '${name}' did not exist — created automatically`,
+      });
+    }
+  }
+
   const validEntries: {
     email: string;
     fullName: string;
@@ -248,6 +311,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
     homeLocation: string;
     stationId: string;
     workLocation: string;
+    clientId: string;
     kinName: string;
     kinRelation: string;
     kinPhone: string;
@@ -270,6 +334,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       phone: (row.phone || "").trim() || undefined,
       homeLocation: (row.homelocation || "").trim() || undefined,
       stationId: crypto.randomUUID(), // placeholder — resolved from region/station names below
+      clientId: crypto.randomUUID(), // placeholder — resolved from client name below
       kinName: (row.kinname || "").trim() || undefined,
       kinRelation: (row.kinrelation || "").trim() || undefined,
       kinPhone: (row.kinphone || "").trim() || undefined,
@@ -306,6 +371,22 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       continue;
     }
 
+    // Resolve the client (company) the guard works under (mandatory).
+    const clientName = (row.client || "").trim();
+    const matchedClient = clientName
+      ? clientByName.get(clientName.toLowerCase())
+      : undefined;
+    if (!matchedClient) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: clientName
+          ? `Client '${clientName}' could not be registered — check the name and retry`
+          : "Missing 'client' column — the client (company) is required",
+      });
+      continue;
+    }
+
     if (existingEmployeeIds.has(v.employeeId.toLowerCase())) {
       errors.push({ row: rowNum, identifier, reason: `Employee ID '${v.employeeId}' is already registered in the system` });
       continue;
@@ -333,6 +414,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       homeLocation: v.homeLocation,
       stationId: matchedStation.id,
       workLocation: `${matchedStation.name} — ${matchedStation.regionName}`,
+      clientId: matchedClient.id,
       kinName: v.kinName,
       kinRelation: v.kinRelation,
       kinPhone: v.kinPhone,
@@ -369,6 +451,7 @@ async function insertImportedGuards(
     homeLocation: string;
     stationId: string;
     workLocation: string;
+    clientId: string;
     kinName: string;
     kinRelation: string;
     kinPhone: string;
@@ -441,6 +524,7 @@ async function insertImportedGuards(
       homeLocation: e.homeLocation,
       workLocation: e.workLocation,
       stationId: e.stationId,
+      clientId: e.clientId,
       kinName: e.kinName,
       kinRelation: e.kinRelation,
       kinPhone: e.kinPhone,

@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listGuards, getSupervisors } from "@/features/hr/queries/guards";
 import { getRegionSiteAnalytics } from "@/features/hr/queries/locations";
+import { listClients } from "@/features/hr/queries/clients";
 import { listRegions, listStations } from "@/features/store/queries/stock";
 import { GuardManager } from "@/features/hr/components/GuardManager";
 import { RegionAnalyticsCard } from "@/features/hr/components/RegionAnalyticsCard";
@@ -17,11 +18,12 @@ export default async function GuardsPage() {
   }
 
   const canPii = hasPermission(user.role, "PII_VIEW");
-  const [guards, supervisors, regions, stations, analytics] = await Promise.all([
+  const [guards, supervisors, regions, stations, clients, analytics] = await Promise.all([
     listGuards(canPii),
     getSupervisors(),
     listRegions(),
     listStations(),
+    listClients(),
     getRegionSiteAnalytics(),
   ]);
 
@@ -46,6 +48,7 @@ export default async function GuardsPage() {
         }))}
         regions={regions.map((r) => ({ id: r.id, name: r.name }))}
         stations={stations.map((s) => ({ id: s.id, name: s.name, regionId: s.regionId }))}
+        clients={clients.map((c) => ({ id: c.id, name: c.name, isActive: c.isActive }))}
       />
     </div>
   );

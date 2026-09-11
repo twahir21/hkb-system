@@ -16,6 +16,7 @@ import {
   ScrollText,
   Package,
   MapPin,
+  Building2,
   HandCoins,
   CalendarX,
   Store,
@@ -142,6 +143,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/guards",
         label: "Guard Registry",
         icon: Users,
+        roles: ["SUPER_ADMIN", "HR"],
+      },
+      {
+        href: "/clients",
+        label: "Clients",
+        icon: Building2,
         roles: ["SUPER_ADMIN", "HR"],
       },
       {

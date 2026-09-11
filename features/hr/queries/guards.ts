@@ -3,7 +3,7 @@ import "server-only";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
-import { guardProfiles, regions, stations, users } from "@/lib/db/schema";
+import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
 
 export type GuardRow = {
   id: string;
@@ -15,6 +15,8 @@ export type GuardRow = {
   workLocation: string;
   stationId: string | null;
   regionName: string | null;
+  clientId: string | null;
+  clientName: string | null;
   kinName: string;
   kinRelation: string;
   kinPhone: string;
@@ -36,11 +38,13 @@ export async function listGuards(includePii = false): Promise<GuardRow[]> {
       fullName: users.fullName,
       supervisorName: sql<string | null>`${supervisor.fullName}`.as("supervisor_name"),
       regionName: sql<string | null>`${regions.name}`.as("region_name"),
+      clientName: sql<string | null>`${clients.name}`.as("client_name"),
     })
     .from(guardProfiles)
     .innerJoin(users, eq(guardProfiles.userId, users.id))
     .leftJoin(stations, eq(guardProfiles.stationId, stations.id))
     .leftJoin(regions, eq(stations.regionId, regions.id))
+    .leftJoin(clients, eq(guardProfiles.clientId, clients.id))
     .leftJoin(
       supervisor,
       and(
@@ -60,6 +64,8 @@ export async function listGuards(includePii = false): Promise<GuardRow[]> {
     workLocation: r.guard.workLocation,
     stationId: r.guard.stationId,
     regionName: r.regionName ?? null,
+    clientId: r.guard.clientId,
+    clientName: r.clientName ?? null,
     kinName: includePii ? r.guard.kinName : "",
     kinRelation: includePii ? r.guard.kinRelation : "",
     kinPhone: includePii ? r.guard.kinPhone : "",
