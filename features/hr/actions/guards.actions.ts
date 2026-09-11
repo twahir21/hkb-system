@@ -109,7 +109,7 @@ export async function createGuard(
     const [created] = await db
       .insert(users)
       .values({
-        googleId: "",
+        googleId: null,
         email: v.email,
         fullName: v.fullName,
         role: "GUARD",
@@ -530,7 +530,7 @@ async function insertImportedGuards(
   const missingUsers = emails
     .filter((e) => !userIdByEmail.has(e))
     .map((e) => ({
-      googleId: "",
+      googleId: null,
       email: e,
       fullName: validEntries.find((x) => x.email === e)!.fullName,
       role: "GUARD" as const,

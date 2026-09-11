@@ -89,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: eq(sql`lower(${users.email})`, email),
         });
 
-        const googleId = account?.providerAccountId ?? user.id ?? "";
+        const googleId = account?.providerAccountId ?? user.id ?? null;
         const allowListedAdmin = isAdminEmail(email);
 
         // If the user does not exist in the system and is NOT an allow-listed Super Admin: REJECT
