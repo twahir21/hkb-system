@@ -14,10 +14,12 @@ import type { Role } from "@/lib/db/schema";
 const ROLES: Role[] = [
   "SUPER_ADMIN",
   "SENIOR_SUPERVISOR",
+  "OPERATION_OFFICER",
   "SUPERVISOR",
   "HR",
   "BURSAR",
   "STOREKEEPER",
+  "SECRETARY",
   "GUARD",
 ];
 

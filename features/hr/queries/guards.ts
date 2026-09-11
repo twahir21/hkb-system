@@ -47,10 +47,7 @@ export async function listGuards(includePii = false): Promise<GuardRow[]> {
     .leftJoin(clients, eq(guardProfiles.clientId, clients.id))
     .leftJoin(
       supervisor,
-      and(
-        eq(guardProfiles.assignedSupervisorId, supervisor.id),
-        eq(supervisor.role, "SUPERVISOR")
-      )
+      eq(guardProfiles.assignedSupervisorId, supervisor.id)
     )
     .orderBy(desc(guardProfiles.createdAt));
 
@@ -88,7 +85,14 @@ export async function getSupervisors() {
   return db
     .select({ id: users.id, fullName: users.fullName, role: users.role })
     .from(users)
-    .where(inArray(users.role, ["SUPERVISOR", "SENIOR_SUPERVISOR", "SUPER_ADMIN"]))
+    .where(
+      inArray(users.role, [
+        "SUPERVISOR",
+        "OPERATION_OFFICER",
+        "SENIOR_SUPERVISOR",
+        "SUPER_ADMIN",
+      ])
+    )
     .orderBy(users.fullName);
 }
 

@@ -252,7 +252,12 @@ export async function updateGuard(
   return { ok: true, guardId: id, message: "Guard updated." };
 }
 
-const SUPERVISOR_ROLES = ["SUPERVISOR", "SENIOR_SUPERVISOR", "SUPER_ADMIN"] as const;
+const SUPERVISOR_ROLES = [
+  "SUPERVISOR",
+  "OPERATION_OFFICER",
+  "SENIOR_SUPERVISOR",
+  "SUPER_ADMIN",
+] as const;
 
 /** Bulk register guards from a CSV file (mirrors bulkImportUsers). */
 export async function bulkImportGuards(formData: FormData): Promise<BulkImportResult> {

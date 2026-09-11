@@ -110,7 +110,7 @@ The Super Admin has **every permission** in the system and is responsible for se
 ### 4.1 Register system users
 1. In the sidebar go to **Manage → User Accounts**.
 2. Click **Add User** (or similar "Register User" button).
-3. Fill in the person's **full name**, **work email**, **username**, and select their **role**: `SUPER_ADMIN`, `SENIOR_SUPERVISOR`, `SUPERVISOR`, `HR`, `BURSAR`, `STOREKEEPER`, or `GUARD`.
+3. Fill in the person's **full name**, **work email**, **username**, and select their **role**: `SUPER_ADMIN`, `SENIOR_SUPERVISOR`, `OPERATION_OFFICER`, `SUPERVISOR`, `HR`, `BURSAR`, `STOREKEEPER`, `SECRETARY`, or `GUARD`.
 4. Save. The person can now sign in with that Google email.
 5. To add many users at once, use the **bulk CSV import** in the same page and follow the on-screen CSV format instructions (email, full name, username, role — one row per user).
 

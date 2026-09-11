@@ -76,9 +76,11 @@ export function UserManager({
       case "SUPER_ADMIN":
         return "brand" as const;
       case "SENIOR_SUPERVISOR":
+      case "OPERATION_OFFICER":
       case "SUPERVISOR":
         return "emerald" as const;
       case "HR":
+      case "SECRETARY":
         return "violet" as const;
       case "BURSAR":
         return "amber" as const;

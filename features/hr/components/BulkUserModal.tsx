@@ -113,7 +113,7 @@ export function BulkUserModal({
               <span className="font-bold text-slate-900">role:</span> Must be
               one of:{" "}
               <span className="text-brand-700 font-semibold">
-                SUPER_ADMIN, SENIOR_SUPERVISOR, SUPERVISOR, HR, BURSAR, GUARD
+                SUPER_ADMIN, SENIOR_SUPERVISOR, OPERATION_OFFICER, SUPERVISOR, HR, BURSAR, STOREKEEPER, SECRETARY, GUARD
               </span>
             </div>
           </div>

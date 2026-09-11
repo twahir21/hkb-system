@@ -6,9 +6,22 @@ import type { Role } from "@/lib/db/schema";
  */
 export const PERMISSIONS = {
   // Attendance
-  ATTENDANCE_RECORD: ["SUPERVISOR", "SENIOR_SUPERVISOR", "SUPER_ADMIN"],
+  ATTENDANCE_RECORD: [
+    "SUPERVISOR",
+    "OPERATION_OFFICER",
+    "SENIOR_SUPERVISOR",
+    "SUPER_ADMIN",
+  ],
   ATTENDANCE_EDIT: ["SENIOR_SUPERVISOR", "SUPER_ADMIN"],
-  ATTENDANCE_VIEW_ALL: ["SUPERVISOR", "SENIOR_SUPERVISOR", "SUPER_ADMIN", "HR", "BURSAR"],
+  ATTENDANCE_VIEW_ALL: [
+    "SUPERVISOR",
+    "OPERATION_OFFICER",
+    "SENIOR_SUPERVISOR",
+    "SUPER_ADMIN",
+    "HR",
+    "BURSAR",
+    "SECRETARY",
+  ],
   ATTENDANCE_VIEW_OWN: ["GUARD"],
   SICKNESS_DOC_AUDIT: ["SUPER_ADMIN", "HR"],
 
@@ -20,14 +33,25 @@ export const PERMISSIONS = {
   GUARD_ASSIGN_SUPERVISOR: ["SUPER_ADMIN", "HR"],
 
   // Transfers
-  TRANSFER_INITIATE: ["SUPERVISOR", "SENIOR_SUPERVISOR", "SUPER_ADMIN"],
+  TRANSFER_INITIATE: [
+    "SUPERVISOR",
+    "OPERATION_OFFICER",
+    "SENIOR_SUPERVISOR",
+    "SUPER_ADMIN",
+  ],
   TRANSFER_APPROVE: ["SUPER_ADMIN", "HR"],
 
   // Store
   STORE_MANAGE_ITEMS: ["SUPER_ADMIN", "STOREKEEPER"],
   STORE_LOCATIONS_MANAGE: ["SUPER_ADMIN", "STOREKEEPER"],
   STOCK_RECORD: ["SUPER_ADMIN", "STOREKEEPER"],
-  STOCK_TRANSFER_INITIATE: ["SUPER_ADMIN", "STOREKEEPER", "SENIOR_SUPERVISOR", "SUPERVISOR"],
+  STOCK_TRANSFER_INITIATE: [
+    "SUPER_ADMIN",
+    "STOREKEEPER",
+    "SENIOR_SUPERVISOR",
+    "OPERATION_OFFICER",
+    "SUPERVISOR",
+  ],
   STOCK_TRANSFER_APPROVE: ["SUPER_ADMIN", "STOREKEEPER"],
   STOCK_VIEW: [
     "SUPER_ADMIN",
@@ -35,11 +59,13 @@ export const PERMISSIONS = {
     "BURSAR",
     "HR",
     "SENIOR_SUPERVISOR",
+    "OPERATION_OFFICER",
     "SUPERVISOR",
+    "SECRETARY",
   ],
 
   // Coverage requests (public website submissions)
-  COVERAGE_VIEW: ["SUPER_ADMIN", "HR", "BURSAR"],
+  COVERAGE_VIEW: ["SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
   COVERAGE_MANAGE: ["SUPER_ADMIN"],
 
   // PII / sensitive data
@@ -52,11 +78,16 @@ export const PERMISSIONS = {
 
   // Office businesses (fish & maize flour tracking)
   BUSINESS_MANAGE: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
-  BUSINESS_VIEW: ["SUPER_ADMIN", "BURSAR", "HR", "STOREKEEPER"],
+  BUSINESS_VIEW: ["SUPER_ADMIN", "BURSAR", "HR", "STOREKEEPER", "SECRETARY"],
 
   // Reports
   REPORTS_FULL_PDF: ["SUPER_ADMIN", "HR", "BURSAR"],
-  REPORTS_SUMMARY: ["SENIOR_SUPERVISOR", "SUPER_ADMIN"],
+  REPORTS_SUMMARY: [
+    "SENIOR_SUPERVISOR",
+    "OPERATION_OFFICER",
+    "SECRETARY",
+    "SUPER_ADMIN",
+  ],
   PAYROLL_EXPORT: ["SUPER_ADMIN", "HR", "BURSAR"],
 } as const;
 
@@ -74,9 +105,11 @@ export function canViewPii(role: Role | undefined): boolean {
 export const ROLE_LABELS: Record<Role, string> = {
   SUPER_ADMIN: "Super Admin",
   SENIOR_SUPERVISOR: "Senior Supervisor",
+  OPERATION_OFFICER: "Operations Officer",
   SUPERVISOR: "Supervisor",
   HR: "HR Personnel",
   BURSAR: "Bursar / Finance",
   STOREKEEPER: "Storekeeper",
+  SECRETARY: "Secretary",
   GUARD: "Askari / Guard",
 };
