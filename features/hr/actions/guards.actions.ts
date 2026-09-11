@@ -87,6 +87,18 @@ export async function createGuard(
   if (!client) {
     return { ok: false, error: "Selected client no longer exists — pick another client." };
   }
+  // Reject duplicate employee IDs up front so the form shows a friendly
+  // message instead of the DB unique-constraint error breaking the page.
+  const existingProfile = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.employeeId, v.employeeId),
+  });
+  if (existingProfile) {
+    return {
+      ok: false,
+      error: `Employee ID "${v.employeeId}" is already registered to another guard. Use a different ID.`,
+    };
+  }
+
   let userId: string;
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, v.email),
@@ -106,24 +118,42 @@ export async function createGuard(
     userId = created.id;
   }
 
-  const [profile] = await db
-    .insert(guardProfiles)
-    .values({
-      userId,
-      employeeId: v.employeeId,
-      age: v.age,
-      phone: v.phone,
-      homeLocation: v.homeLocation,
-      workLocation: station.workLocation,
-      stationId: station.stationId,
-      clientId: client.id,
-      kinName: v.kinName,
-      kinRelation: v.kinRelation,
-      kinPhone: v.kinPhone,
-      registrationDate: v.registrationDate,
-      assignedSupervisorId: v.assignedSupervisorId ?? null,
-    })
-    .returning({ id: guardProfiles.id });
+  let profile: { id: string } | undefined;
+  try {
+    [profile] = await db
+      .insert(guardProfiles)
+      .values({
+        userId,
+        employeeId: v.employeeId,
+        age: v.age,
+        phone: v.phone,
+        homeLocation: v.homeLocation,
+        workLocation: station.workLocation,
+        stationId: station.stationId,
+        clientId: client.id,
+        kinName: v.kinName,
+        kinRelation: v.kinRelation,
+        kinPhone: v.kinPhone,
+        registrationDate: v.registrationDate,
+        assignedSupervisorId: v.assignedSupervisorId ?? null,
+      })
+      .returning({ id: guardProfiles.id });
+  } catch (err) {
+    // Race-condition duplicate (unique violation, PG code 23505): keep the
+    // modal open and surface the reason instead of throwing a digest error.
+    const code = (err as { code?: string } | null)?.code;
+    const constraint = (err as { constraint?: string } | null)?.constraint;
+    if (code === "23505") {
+      if (constraint === "guard_profiles_employee_id_unique") {
+        return {
+          ok: false,
+          error: `Employee ID "${v.employeeId}" is already registered to another guard. Use a different ID.`,
+        };
+      }
+      return { ok: false, error: "A guard with these details already exists." };
+    }
+    throw err;
+  }
 
   await writeAuditLog({
     actorId: actor.userId,
