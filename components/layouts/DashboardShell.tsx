@@ -9,11 +9,13 @@ export function DashboardShell({
   role,
   name,
   email,
+  newCoverageCount = 0,
   children,
 }: {
   role: Role;
   name: string;
   email: string;
+  newCoverageCount?: number;
   children: React.ReactNode;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,6 +34,7 @@ export function DashboardShell({
         role={role}
         name={name}
         email={email}
+        newCoverageCount={newCoverageCount}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
       />

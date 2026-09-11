@@ -199,6 +199,31 @@ export function IssueModal({ items, stations, users }: { items: ItemOpt[]; stati
 
 export function ReturnModal({ stations, openIssues }: { stations: StationOpt[]; openIssues: OpenIssueRow[] }) {
   const [open, setOpen] = useState(false);
+  // The inner form component keeps its own state. Because <Modal> unmounts its
+  // children while closed, the active stock selection and prior submission
+  // feedback are fully reset every time the modal opens — so switching between
+  // store elements never carries over a stale selection.
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setOpen(true)}>
+        <Undo2 className="h-4 w-4" /> Return stock
+      </Button>
+      <Modal open={open} onClose={() => setOpen(false)} title="Return stock to the store">
+        <ReturnModalInner stations={stations} openIssues={openIssues} onClose={() => setOpen(false)} />
+      </Modal>
+    </>
+  );
+}
+
+function ReturnModalInner({
+  stations,
+  openIssues,
+  onClose,
+}: {
+  stations: StationOpt[];
+  openIssues: OpenIssueRow[];
+  onClose: () => void;
+}) {
   const [issueId, setIssueId] = useState("");
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     returnStock,
@@ -207,12 +232,7 @@ export function ReturnModal({ stations, openIssues }: { stations: StationOpt[]; 
   const selected = openIssues.find((i) => i.movementId === issueId);
 
   return (
-    <>
-      <Button variant="secondary" onClick={() => setOpen(true)}>
-        <Undo2 className="h-4 w-4" /> Return stock
-      </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Return stock to the store">
-        <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4">
           <label className={labelCls}>
             <span className={labelSpanCls}>Original issue</span>
             <select
@@ -259,10 +279,8 @@ export function ReturnModal({ stations, openIssues }: { stations: StationOpt[]; 
             <input name="reason" className={inputCls} />
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record return" />
+          <SubmitRow pending={pending} onClose={onClose} label="Record return" />
         </form>
-      </Modal>
-    </>
   );
 }
 

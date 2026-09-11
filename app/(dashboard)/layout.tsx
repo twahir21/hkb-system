@@ -5,8 +5,7 @@ import { countNewCoverageRequests } from "@/features/coverage/queries/coverage";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { Sidebar } from "@/components/layouts/Sidebar";
-import { Topbar } from "@/components/layouts/Topbar";
+import { DashboardShell } from "@/components/layouts/DashboardShell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -23,12 +22,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex min-h-screen w-full">
-      <Sidebar role={user.role} name={user.name} email={user.email} newCoverageCount={newCoverageCount} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar name={user.name} role={user.role} />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
-      </div>
-    </div>
+    <DashboardShell
+      role={user.role}
+      name={user.name}
+      email={user.email}
+      newCoverageCount={newCoverageCount}
+    >
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+    </DashboardShell>
   );
 }
