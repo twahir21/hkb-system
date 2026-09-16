@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
@@ -259,8 +259,63 @@ const SUPERVISOR_ROLES = [
   "SUPER_ADMIN",
 ] as const;
 
+/**
+ * A CSV row that passed validation and is ready to be written. `rowNum` and
+ * `identifier` stay attached to it so any failure — during validation or at
+ * insert time — can be reported against the exact line HR uploaded.
+ */
+type BulkGuardEntry = {
+  email: string;
+  fullName: string;
+  employeeId: string;
+  age: number;
+  phone: string;
+  homeLocation: string;
+  stationId: string;
+  workLocation: string;
+  clientId: string;
+  kinName: string;
+  kinRelation: string;
+  kinPhone: string;
+  registrationDate: string;
+  supervisorEmail: string;
+  /** 1-based CSV line number (line 1 is the header row). */
+  rowNum: number;
+  /** Employee ID (or email) shown in the import report. */
+  identifier: string;
+};
+
+/**
+ * Guard profiles written per INSERT statement. Keeps each statement far below
+ * Postgres' 65,535 bind-parameter ceiling (~13 params per row) and limits how
+ * much a single rejected row can cost on a 200+ row import.
+ */
+const BULK_INSERT_CHUNK_SIZE = 100;
+
+/**
+ * Turn a driver/database error into a guard-facing message. Mirrors the unique
+ * violation handling in createGuard (PG code 23505 + constraint name).
+ */
+function describeRowInsertError(err: unknown): string {
+  const code = (err as { code?: string } | null)?.code;
+  const constraint = (err as { constraint?: string } | null)?.constraint;
+  if (code === "23505") {
+    if (constraint === "guard_profiles_employee_id_unique") {
+      return "Employee ID is already registered to another guard";
+    }
+    if (constraint === "users_email_unique") {
+      return "Email is already in use by another account";
+    }
+    return "A guard with these details already exists";
+  }
+  const message = err instanceof Error ? err.message : String(err);
+  return `Database rejected this row: ${message.slice(0, 160)}`;
+}
+
 /** Bulk register guards from a CSV file (mirrors bulkImportUsers). */
 export async function bulkImportGuards(formData: FormData): Promise<BulkImportResult> {
+  // Auth stays outside the try/catch below: requirePermission redirects by
+  // throwing (NEXT_REDIRECT), and that must never be swallowed by our handler.
   const actor = await requirePermission("GUARD_MANAGE");
 
   const file = formData.get("file") as File | null;
@@ -281,6 +336,33 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       error: "The uploaded CSV file is empty or does not contain valid data rows.",
     };
   }
+
+  try {
+    return await importGuardRows(actor.userId, rows);
+  } catch (err) {
+    // Only unexpected/fatal failures (e.g. the database connection dropped)
+    // land here. Row-level problems are reported per row, never thrown.
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      total: rows.length,
+      imported: 0,
+      failed: rows.length,
+      errors: [],
+      error: `Bulk import failed and no guards were registered. ${message.slice(0, 200)}`,
+    };
+  }
+}
+
+/**
+ * Validates and writes every CSV row. Row-level problems are collected in the
+ * returned report instead of throwing, so one bad line among 200+ never
+ * discards the whole batch.
+ */
+async function importGuardRows(
+  actorId: string,
+  rows: Record<string, string>[],
+): Promise<BulkImportResult> {
 
   // Existing employee IDs for fast collision check (employee_id is unique)
   const existingIds = await db
@@ -311,22 +393,28 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
   const clientByName = new Map(
     clientRows.map((c) => [c.name.toLowerCase(), { id: c.id, name: c.name }]),
   );
-  const newClientNames = [
-    ...new Set(
-      rows
-        .map((r) => (r.client || "").trim().toLowerCase())
-        .filter((name) => name && !clientByName.has(name)),
-    ),
-  ];
-  if (newClientNames.length > 0) {
+  // Remember the casing HR typed in the CSV (keyed by its lowercase form) so a
+  // new client is stored as "MOFAT" instead of the lowercased lookup key.
+  const newClientNamesByKey = new Map<string, string>();
+  for (const csvRow of rows) {
+    const name = (csvRow.client || "").trim();
+    const key = name.toLowerCase();
+    if (key && !clientByName.has(key) && !newClientNamesByKey.has(key)) {
+      newClientNamesByKey.set(key, name);
+    }
+  }
+  if (newClientNamesByKey.size > 0) {
+    const newClientNames = [...newClientNamesByKey.values()];
     await db
       .insert(clients)
       .values(newClientNames.map((name) => ({ name })))
       .onConflictDoNothing();
+    // Case-insensitive read-back: an insert can be skipped by the unique index
+    // when the same client already exists under a different casing.
     const created = await db
       .select({ id: clients.id, name: clients.name })
       .from(clients)
-      .where(inArray(clients.name, newClientNames));
+      .where(inArray(sql`lower(${clients.name})`, newClientNames.map((n) => n.toLowerCase())));
     for (const c of created) clientByName.set(c.name.toLowerCase(), { id: c.id, name: c.name });
     for (const name of newClientNames) {
       errors.push({
@@ -337,22 +425,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
     }
   }
 
-  const validEntries: {
-    email: string;
-    fullName: string;
-    employeeId: string;
-    age: number;
-    phone: string;
-    homeLocation: string;
-    stationId: string;
-    workLocation: string;
-    clientId: string;
-    kinName: string;
-    kinRelation: string;
-    kinPhone: string;
-    registrationDate: string;
-    supervisorEmail: string;
-  }[] = [];
+  const validEntries: BulkGuardEntry[] = [];
 
   for (let idx = 0; idx < rows.length; idx++) {
     const rowNum = idx + 2; // account for 1-based index & header row
@@ -455,19 +528,50 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       kinPhone: v.kinPhone,
       registrationDate: v.registrationDate,
       supervisorEmail: (row.supervisoremail || "").toLowerCase().trim(),
+      rowNum,
+      identifier,
     });
   }
 
-  await insertImportedGuards(actor.userId, rows.length, validEntries, errors);
+  // A CSV email may already own a guard profile under a *different* employee ID
+  // (a guard re-included in the sheet). The employeeId check above cannot catch
+  // that, and writing it again would create a second profile for one person.
+  const entryEmails = [...new Set(validEntries.map((e) => e.email))];
+  const employeeIdByProfileEmail = new Map<string, string>();
+  if (entryEmails.length > 0) {
+    const existingProfiles = await db
+      .select({ email: users.email, employeeId: guardProfiles.employeeId })
+      .from(guardProfiles)
+      .innerJoin(users, eq(guardProfiles.userId, users.id))
+      .where(inArray(sql`lower(${users.email})`, entryEmails));
+    for (const p of existingProfiles) {
+      employeeIdByProfileEmail.set(p.email.toLowerCase(), p.employeeId);
+    }
+  }
+
+  const importable = validEntries.filter((e) => {
+    const existingEmployeeId = employeeIdByProfileEmail.get(e.email);
+    if (!existingEmployeeId) return true;
+    errors.push({
+      row: e.rowNum,
+      identifier: e.identifier,
+      reason: `Email '${e.email}' already has a guard profile (employee ID '${existingEmployeeId}') — skipped to avoid a duplicate profile`,
+    });
+    return false;
+  });
+
+  // Report what was actually written: a row the database rejects is listed
+  // against its CSV line instead of being counted as imported.
+  const imported = await insertImportedGuards(actorId, rows.length, importable, errors);
 
   const failedRows = errors.filter((e) => e.row !== 0).length;
   return {
-    ok: validEntries.length > 0,
+    ok: imported > 0,
     total: rows.length,
-    imported: validEntries.length,
+    imported,
     failed: failedRows,
     errors,
-    message: `Successfully registered ${validEntries.length} guard(s). ${
+    message: `Successfully registered ${imported} guard(s). ${
       failedRows > 0 ? `${failedRows} row(s) skipped due to errors.` : ""
     }`,
   };
@@ -477,34 +581,20 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
 async function insertImportedGuards(
   actorId: string,
   totalRows: number,
-  validEntries: {
-    email: string;
-    fullName: string;
-    employeeId: string;
-    age: number;
-    phone: string;
-    homeLocation: string;
-    stationId: string;
-    workLocation: string;
-    clientId: string;
-    kinName: string;
-    kinRelation: string;
-    kinPhone: string;
-    registrationDate: string;
-    supervisorEmail: string;
-  }[],
+  validEntries: BulkGuardEntry[],
   errors: BulkImportRowError[],
 ): Promise<number> {
   if (validEntries.length === 0) return 0;
 
-  // Resolve optional supervisor emails in one query
+  // Resolve optional supervisor emails in one query. Case-insensitive: CSV
+  // emails are lowercased, but a stored account's email may not be.
   const supervisorEmails = [...new Set(validEntries.map((e) => e.supervisorEmail).filter(Boolean))];
   const supervisorIdByEmail = new Map<string, string>();
   if (supervisorEmails.length > 0) {
     const supervisors = await db
       .select({ id: users.id, email: users.email, role: users.role })
       .from(users)
-      .where(inArray(users.email, supervisorEmails));
+      .where(inArray(sql`lower(${users.email})`, supervisorEmails));
     for (const s of supervisors) {
       if (s.role && (SUPERVISOR_ROLES as readonly string[]).includes(s.role)) {
         supervisorIdByEmail.set(s.email.toLowerCase(), s.id);
@@ -522,16 +612,23 @@ async function insertImportedGuards(
     }
   }
 
-  // Find existing users by email (createGuard reuses the user row when present)
+  // Find existing users by email (createGuard reuses the user row when present).
+  // Case-insensitive: CSV emails are lowercased but stored ones may not be —
+  // a case-sensitive match here would attempt to insert a duplicate email and
+  // fail the whole import on the users_email_unique constraint.
   const emails = [...new Set(validEntries.map((e) => e.email))];
   const userIdByEmail = new Map<string, string>();
-  const existingUsers = await db
-    .select({ id: users.id, email: users.email })
-    .from(users)
-    .where(inArray(users.email, emails));
-  for (const u of existingUsers) userIdByEmail.set(u.email.toLowerCase(), u.id);
+  if (emails.length > 0) {
+    const existingUsers = await db
+      .select({ id: users.id, email: users.email })
+      .from(users)
+      .where(inArray(sql`lower(${users.email})`, emails));
+    for (const u of existingUsers) userIdByEmail.set(u.email.toLowerCase(), u.id);
+  }
 
-  // Create missing user rows (same shape as createGuard)
+  // Create missing user rows (same shape as createGuard). onConflictDoNothing
+  // keeps a concurrent creation from failing the batch — anything skipped is
+  // picked up by the follow-up select below.
   const missingUsers = emails
     .filter((e) => !userIdByEmail.has(e))
     .map((e) => ({
@@ -545,28 +642,60 @@ async function insertImportedGuards(
     const created = await db
       .insert(users)
       .values(missingUsers)
+      .onConflictDoNothing()
       .returning({ id: users.id, email: users.email });
     for (const u of created) userIdByEmail.set(u.email.toLowerCase(), u.id);
+
+    const unresolvedEmails = emails.filter((e) => !userIdByEmail.has(e));
+    if (unresolvedEmails.length > 0) {
+      const recovered = await db
+        .select({ id: users.id, email: users.email })
+        .from(users)
+        .where(inArray(sql`lower(${users.email})`, unresolvedEmails));
+      for (const u of recovered) userIdByEmail.set(u.email.toLowerCase(), u.id);
+    }
   }
 
-  // Insert profiles
-  await db.insert(guardProfiles).values(
-    validEntries.map((e) => ({
-      userId: userIdByEmail.get(e.email)!,
-      employeeId: e.employeeId,
-      age: e.age,
-      phone: e.phone,
-      homeLocation: e.homeLocation,
-      workLocation: e.workLocation,
-      stationId: e.stationId,
-      clientId: e.clientId,
-      kinName: e.kinName,
-      kinRelation: e.kinRelation,
-      kinPhone: e.kinPhone,
-      registrationDate: e.registrationDate,
-      assignedSupervisorId: supervisorIdByEmail.get(e.supervisorEmail) ?? null,
-    })),
-  );
+  const toProfileRow = (e: BulkGuardEntry) => ({
+    userId: userIdByEmail.get(e.email)!,
+    employeeId: e.employeeId,
+    age: e.age,
+    phone: e.phone,
+    homeLocation: e.homeLocation,
+    workLocation: e.workLocation,
+    stationId: e.stationId,
+    clientId: e.clientId,
+    kinName: e.kinName,
+    kinRelation: e.kinRelation,
+    kinPhone: e.kinPhone,
+    registrationDate: e.registrationDate,
+    assignedSupervisorId: supervisorIdByEmail.get(e.supervisorEmail) ?? null,
+  });
+
+  // Insert in chunks. A rejected chunk is retried row by row, so an unexpected
+  // failure (e.g. an employee ID that appeared between the pre-check and this
+  // write) costs one row instead of silently discarding a 200+ guard sheet.
+  let imported = 0;
+  for (let i = 0; i < validEntries.length; i += BULK_INSERT_CHUNK_SIZE) {
+    const chunk = validEntries.slice(i, i + BULK_INSERT_CHUNK_SIZE);
+    try {
+      await db.insert(guardProfiles).values(chunk.map(toProfileRow));
+      imported += chunk.length;
+    } catch {
+      for (const entry of chunk) {
+        try {
+          await db.insert(guardProfiles).values(toProfileRow(entry));
+          imported += 1;
+        } catch (rowErr) {
+          errors.push({
+            row: entry.rowNum,
+            identifier: entry.identifier,
+            reason: describeRowInsertError(rowErr),
+          });
+        }
+      }
+    }
+  }
 
   await writeAuditLog({
     actorId,
@@ -574,7 +703,7 @@ async function insertImportedGuards(
     entity: "guard_profiles",
     metadata: {
       totalRows,
-      importedCount: validEntries.length,
+      importedCount: imported,
       failedCount: errors.filter((e) => e.row !== 0).length,
     },
   });
@@ -583,5 +712,5 @@ async function insertImportedGuards(
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
 
-  return validEntries.length;
+  return imported;
 }
