@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { UserPlus, Pencil, Upload, FileSpreadsheet } from "lucide-react";
-import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
+import { useState, useMemo } from "react";
+import { UserPlus, Pencil, Upload, FileSpreadsheet, Search } from "lucide-react";
+import { Button, Modal, DataTable, Badge, Pagination, type Column } from "@/components/ui";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import type { GuardRow } from "@/features/hr/queries/guards";
 import type { ClientOption, RegionOption, StationOption } from "./GuardForm";
 import { GuardForm } from "./GuardForm";
@@ -25,17 +26,35 @@ export function GuardManager({
   clients: ClientOption[];
 }) {
   const [q, setQ] = useState("");
+  const debouncedQ = useDebounce(q, 300);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [prevQ, setPrevQ] = useState(debouncedQ);
+
   const [open, setOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [partialBulkOpen, setPartialBulkOpen] = useState(false);
   const [editing, setEditing] = useState<GuardRow | null>(null);
 
-  const filtered = guards.filter(
-    (g) =>
-      !q ||
-      g.fullName.toLowerCase().includes(q.toLowerCase()) ||
-      g.employeeId.toLowerCase().includes(q.toLowerCase()),
-  );
+  // Reset to page 1 whenever the debounced search query changes
+  if (prevQ !== debouncedQ) {
+    setPrevQ(debouncedQ);
+    setPage(1);
+  }
+
+  const filtered = useMemo(() => {
+    return guards.filter(
+      (g) =>
+        !debouncedQ ||
+        g.fullName.toLowerCase().includes(debouncedQ.toLowerCase()) ||
+        g.employeeId.toLowerCase().includes(debouncedQ.toLowerCase()),
+    );
+  }, [guards, debouncedQ]);
+
+  const paginatedGuards = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, page, pageSize]);
 
   const columns: Column<GuardRow>[] = [
     {
@@ -149,12 +168,15 @@ export function GuardManager({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search guards…"
-          className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-        />
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search guards by name or ID…"
+            className="w-full rounded-lg border border-slate-300 pl-9 pr-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" onClick={() => setPartialBulkOpen(true)}>
             <FileSpreadsheet className="h-4 w-4 text-brand-600" /> Partial Import (CSV)
@@ -175,9 +197,23 @@ export function GuardManager({
 
       <DataTable
         columns={columns}
-        rows={filtered}
+        rows={paginatedGuards}
         empty="No guards match your search."
       />
+
+      {filtered.length > 0 && (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPage(1);
+          }}
+          itemLabel="guards"
+        />
+      )}
 
       <Modal
         open={open}
