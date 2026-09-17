@@ -81,30 +81,34 @@ export function GuardForm({
       {editing && <input type="hidden" name="id" value={editing.id} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {!editing && (
-          <>
-            <Field
-              label="Email"
-              name="email"
-              type="email"
-              required
-              className="sm:col-span-2"
-            />
-            <Field
-              label="Full name"
-              name="fullName"
-              required
-              className="sm:col-span-2"
-            />
-            <Field label="Employee ID" name="employeeId" required />
-            <Field
-              label="Registration date"
-              name="registrationDate"
-              type="date"
-              required
-            />
-          </>
-        )}
+        <Field
+          label="Full name"
+          name="fullName"
+          defaultValue={editing?.fullName}
+          required
+          className="sm:col-span-2"
+        />
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          defaultValue={editing?.email}
+          required
+          className="sm:col-span-2"
+        />
+        <Field
+          label="Employee ID"
+          name="employeeId"
+          defaultValue={editing?.employeeId}
+          required
+        />
+        <Field
+          label="Registration date"
+          name="registrationDate"
+          type="date"
+          defaultValue={editing?.registrationDate}
+          required
+        />
         <Field
           label="Age"
           name="age"

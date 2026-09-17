@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus, Pencil, Upload } from "lucide-react";
+import { UserPlus, Pencil, Upload, FileSpreadsheet } from "lucide-react";
 import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
 import type { GuardRow } from "@/features/hr/queries/guards";
 import type { ClientOption, RegionOption, StationOption } from "./GuardForm";
 import { GuardForm } from "./GuardForm";
 import { BulkGuardModal } from "./BulkGuardModal";
+import { PartialGuardModal } from "./PartialGuardModal";
 
 type Supervisor = { id: string; name: string; role: string };
 
@@ -26,6 +27,7 @@ export function GuardManager({
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [partialBulkOpen, setPartialBulkOpen] = useState(false);
   const [editing, setEditing] = useState<GuardRow | null>(null);
 
   const filtered = guards.filter(
@@ -39,12 +41,26 @@ export function GuardManager({
     {
       key: "guard",
       header: "Guard",
-      cell: (r) => (
-        <div>
-          <p className="font-medium text-slate-800">{r.fullName}</p>
-          <p className="font-mono text-xs text-slate-400">{r.employeeId}</p>
-        </div>
-      ),
+      cell: (r) => {
+        const isPartial =
+          r.employeeId.startsWith("HKB-P-") ||
+          r.homeLocation === "Unknown" ||
+          r.kinName === "Unknown";
+
+        return (
+          <div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="font-medium text-slate-800">{r.fullName}</p>
+              {isPartial && (
+                <span className="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                  Phase 1 (Partial)
+                </span>
+              )}
+            </div>
+            <p className="font-mono text-xs text-slate-400">{r.employeeId}</p>
+          </div>
+        );
+      },
     },
     {
       key: "age",
@@ -139,9 +155,12 @@ export function GuardManager({
           placeholder="Search guards…"
           className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="secondary" onClick={() => setPartialBulkOpen(true)}>
+            <FileSpreadsheet className="h-4 w-4 text-brand-600" /> Partial Import (CSV)
+          </Button>
           <Button variant="secondary" onClick={() => setBulkOpen(true)}>
-            <Upload className="h-4 w-4" /> Bulk Import (CSV)
+            <Upload className="h-4 w-4" /> Full CSV Import
           </Button>
           <Button
             onClick={() => {
@@ -178,6 +197,13 @@ export function GuardManager({
       </Modal>
 
       <BulkGuardModal open={bulkOpen} onClose={() => setBulkOpen(false)} />
+      <PartialGuardModal
+        open={partialBulkOpen}
+        onClose={() => setPartialBulkOpen(false)}
+        regions={regions}
+        stations={stations}
+        clients={clients}
+      />
     </div>
   );
 }

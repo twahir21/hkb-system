@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
@@ -180,7 +180,10 @@ export async function updateGuard(
   if (typeof id !== "string") return { ok: false, error: "Missing guard id" };
 
   const parsed = guardSchema.partial().safeParse({
+    email: formData.get("email") || undefined,
     fullName: formData.get("fullName") || undefined,
+    employeeId: formData.get("employeeId") || undefined,
+    registrationDate: formData.get("registrationDate") || undefined,
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") || undefined,
     homeLocation: formData.get("homeLocation") || undefined,
@@ -199,6 +202,56 @@ export async function updateGuard(
     };
   }
   const v = parsed.data;
+
+  const currentGuard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, id),
+  });
+  if (!currentGuard) return { ok: false, error: "Guard profile not found" };
+
+  // If employee ID changed, ensure new ID is not already used
+  if (
+    v.employeeId &&
+    v.employeeId.trim().toLowerCase() !== currentGuard.employeeId.toLowerCase()
+  ) {
+    const existing = await db.query.guardProfiles.findFirst({
+      where: eq(sql`lower(${guardProfiles.employeeId})`, v.employeeId.trim().toLowerCase()),
+    });
+    if (existing) {
+      return {
+        ok: false,
+        error: `Employee ID "${v.employeeId}" is already registered to another guard. Use a different ID.`,
+      };
+    }
+  }
+
+  // If email changed, ensure new email is not taken by another user
+  if (v.email) {
+    const emailLower = v.email.trim().toLowerCase();
+    const existingUser = await db.query.users.findFirst({
+      where: and(
+        eq(sql`lower(${users.email})`, emailLower),
+        ne(users.id, currentGuard.userId),
+      ),
+    });
+    if (existingUser) {
+      return {
+        ok: false,
+        error: `Email "${v.email}" is already used by another account.`,
+      };
+    }
+  }
+
+  // Update user name/email if provided
+  if (v.fullName || v.email) {
+    await db
+      .update(users)
+      .set({
+        ...(v.fullName ? { fullName: v.fullName.trim() } : {}),
+        ...(v.email ? { email: v.email.trim().toLowerCase() } : {}),
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, currentGuard.userId));
+  }
 
   // Resolve station → canonical workLocation text when the site is being changed.
   let stationUpdate: { stationId: string; workLocation: string } | null = null;
@@ -222,6 +275,8 @@ export async function updateGuard(
   await db
     .update(guardProfiles)
     .set({
+      ...(v.employeeId ? { employeeId: v.employeeId.trim() } : {}),
+      ...(v.registrationDate ? { registrationDate: v.registrationDate } : {}),
       age: v.age,
       phone: v.phone,
       homeLocation: v.homeLocation,
@@ -279,6 +334,7 @@ type BulkGuardEntry = {
   kinPhone: string;
   registrationDate: string;
   supervisorEmail: string;
+  assignedSupervisorId?: string | null;
   /** 1-based CSV line number (line 1 is the header row). */
   rowNum: number;
   /** Employee ID (or email) shown in the import report. */
@@ -583,6 +639,7 @@ async function insertImportedGuards(
   totalRows: number,
   validEntries: BulkGuardEntry[],
   errors: BulkImportRowError[],
+  actionName = "GUARD_BULK_IMPORT",
 ): Promise<number> {
   if (validEntries.length === 0) return 0;
 
@@ -669,7 +726,10 @@ async function insertImportedGuards(
     kinRelation: e.kinRelation,
     kinPhone: e.kinPhone,
     registrationDate: e.registrationDate,
-    assignedSupervisorId: supervisorIdByEmail.get(e.supervisorEmail) ?? null,
+    assignedSupervisorId:
+      e.assignedSupervisorId !== undefined
+        ? e.assignedSupervisorId
+        : supervisorIdByEmail.get(e.supervisorEmail) ?? null,
   });
 
   // Insert in chunks. A rejected chunk is retried row by row, so an unexpected
@@ -699,7 +759,7 @@ async function insertImportedGuards(
 
   await writeAuditLog({
     actorId,
-    action: "GUARD_BULK_IMPORT",
+    action: actionName,
     entity: "guard_profiles",
     metadata: {
       totalRows,
@@ -713,4 +773,242 @@ async function insertImportedGuards(
   revalidatePath("/dashboard");
 
   return imported;
+}
+
+/** Partial bulk register guards from a minimal CSV (Full Name + Phone), tiered to a station & client. */
+export async function partialBulkImportGuards(formData: FormData): Promise<BulkImportResult> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  const file = formData.get("file") as File | null;
+  const stationId = formData.get("stationId") as string | null;
+  const clientId = formData.get("clientId") as string | null;
+
+  if (!file) {
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "No CSV file provided." };
+  }
+
+  if (!stationId) {
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Please select a work site (station)." };
+  }
+
+  if (!clientId) {
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Please select a client (company)." };
+  }
+
+  const station = await resolveStation(stationId);
+  if (!station) {
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Selected work site does not exist." };
+  }
+
+  const client = await resolveClient(clientId);
+  if (!client) {
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Selected client does not exist." };
+  }
+
+  // Resolve default supervisor for this station if configured
+  const stationRow = await db.query.stations.findFirst({
+    where: eq(stations.id, stationId),
+    columns: { supervisorId: true },
+  });
+  const defaultSupervisorId = stationRow?.supervisorId ?? null;
+
+  const csvContent = await file.text();
+  const rows = parseCsv(csvContent);
+
+  if (rows.length === 0) {
+    return {
+      ok: false,
+      total: 0,
+      imported: 0,
+      failed: 0,
+      errors: [],
+      error: "The uploaded CSV file is empty or does not contain valid data rows.",
+    };
+  }
+
+  try {
+    return await importPartialGuardRows(actor.userId, rows, {
+      stationId: station.stationId,
+      workLocation: station.workLocation,
+      clientId: client.id,
+      assignedSupervisorId: defaultSupervisorId,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      total: rows.length,
+      imported: 0,
+      failed: rows.length,
+      errors: [],
+      error: `Partial bulk import failed. ${message.slice(0, 200)}`,
+    };
+  }
+}
+
+/**
+ * Validates and writes partial CSV rows (Full Name & Phone) tiered to a single station & client.
+ * Auto-generates unique email (<firstname><3 random digits>@hkb.co), temporary employee ID,
+ * and sets dummy initial data for remaining fields.
+ */
+async function importPartialGuardRows(
+  actorId: string,
+  rows: Record<string, string>[],
+  tier: {
+    stationId: string;
+    workLocation: string;
+    clientId: string;
+    assignedSupervisorId: string | null;
+  },
+): Promise<BulkImportResult> {
+  const existingProfiles = await db
+    .select({ employeeId: guardProfiles.employeeId })
+    .from(guardProfiles);
+  const existingEmployeeIds = new Set(existingProfiles.map((g) => g.employeeId.toLowerCase()));
+
+  const existingUsers = await db.select({ email: users.email }).from(users);
+  const existingEmails = new Set(existingUsers.map((u) => u.email.toLowerCase()));
+
+  const seenInBatchEmployeeIds = new Set<string>();
+  const seenInBatchEmails = new Set<string>();
+  const errors: BulkImportRowError[] = [];
+  const validEntries: BulkGuardEntry[] = [];
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  for (let idx = 0; idx < rows.length; idx++) {
+    const rowNum = idx + 2;
+    const row = rows[idx];
+
+    const fullName = (
+      row.fullname ||
+      row.name ||
+      row.guardname ||
+      row.guard_name ||
+      ""
+    ).trim();
+
+    const phone = (
+      row.phone ||
+      row.guardphone ||
+      row.guardphonenumber ||
+      row.phonenumber ||
+      row.guard_phone_number ||
+      row.contact ||
+      row.guardphone_number ||
+      ""
+    ).trim();
+
+    const identifier = fullName || `Row #${rowNum}`;
+
+    if (!fullName || fullName.length < 2) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: "Guard full name is missing or too short (minimum 2 characters).",
+      });
+      continue;
+    }
+
+    if (!phone || phone.length < 7 || phone.length > 20) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Phone number '${phone || "empty"}' is invalid (must be between 7 and 20 characters).`,
+      });
+      continue;
+    }
+
+    // Auto-generate email: first name + 3 random numbers @hkb.co
+    const rawFirst = fullName.split(/\s+/)[0] || "guard";
+    const cleanFirst = rawFirst.toLowerCase().replace(/[^a-z0-9]/g, "") || "guard";
+    let email = "";
+    let emailAttempts = 0;
+    while (emailAttempts < 200) {
+      const randNum = Math.floor(100 + Math.random() * 900);
+      const candidate = `${cleanFirst}${randNum}@hkb.co`;
+      if (!existingEmails.has(candidate) && !seenInBatchEmails.has(candidate)) {
+        email = candidate;
+        break;
+      }
+      emailAttempts++;
+    }
+    if (!email) {
+      email = `${cleanFirst}${Math.floor(1000 + Math.random() * 9000)}@hkb.co`;
+    }
+    seenInBatchEmails.add(email);
+
+    // Employee ID: check if provided in CSV or auto-generate temporary ID HKB-P-XXXXX
+    let employeeId = (row.employeeid || "").trim();
+    if (employeeId) {
+      if (
+        existingEmployeeIds.has(employeeId.toLowerCase()) ||
+        seenInBatchEmployeeIds.has(employeeId.toLowerCase())
+      ) {
+        errors.push({
+          row: rowNum,
+          identifier,
+          reason: `Employee ID '${employeeId}' is already registered in the system or duplicate in CSV.`,
+        });
+        continue;
+      }
+    } else {
+      let idAttempts = 0;
+      while (idAttempts < 200) {
+        const randId = `HKB-P-${Math.floor(10000 + Math.random() * 90000)}`;
+        if (
+          !existingEmployeeIds.has(randId.toLowerCase()) &&
+          !seenInBatchEmployeeIds.has(randId.toLowerCase())
+        ) {
+          employeeId = randId;
+          break;
+        }
+        idAttempts++;
+      }
+      if (!employeeId) {
+        employeeId = `HKB-P-${Date.now().toString().slice(-6)}`;
+      }
+    }
+    seenInBatchEmployeeIds.add(employeeId.toLowerCase());
+
+    validEntries.push({
+      email,
+      fullName,
+      employeeId,
+      age: 25, // safe initial default (within 16-100 schema)
+      phone,
+      homeLocation: "Unknown", // dummy initial data
+      stationId: tier.stationId,
+      workLocation: tier.workLocation,
+      clientId: tier.clientId,
+      kinName: "Unknown", // dummy initial data
+      kinRelation: "Unknown", // dummy initial data
+      kinPhone: phone,
+      registrationDate: todayStr,
+      supervisorEmail: "",
+      assignedSupervisorId: tier.assignedSupervisorId,
+      rowNum,
+      identifier: `${fullName} (${employeeId})`,
+    });
+  }
+
+  const imported = await insertImportedGuards(
+    actorId,
+    rows.length,
+    validEntries,
+    errors,
+    "GUARD_PARTIAL_BULK_IMPORT",
+  );
+
+  const failedRows = errors.filter((e) => e.row !== 0).length;
+  return {
+    ok: imported > 0,
+    total: rows.length,
+    imported,
+    failed: failedRows,
+    errors,
+    message: `Successfully registered ${imported} guard(s) to ${tier.workLocation}. ${
+      failedRows > 0 ? `${failedRows} row(s) skipped.` : ""
+    }`,
+  };
 }
