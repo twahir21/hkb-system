@@ -25,7 +25,7 @@ export function Pagination({
   totalItems,
   onPageChange,
   onPageSizeChange,
-  pageSizeOptions = [10, 25, 50, 100],
+  pageSizeOptions = [10, 15, 25, 50, 100],
   className,
   itemLabel = "items",
 }: PaginationProps) {

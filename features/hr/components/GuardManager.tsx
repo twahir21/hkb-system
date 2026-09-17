@@ -63,8 +63,8 @@ export function GuardManager({
       cell: (r) => {
         const isPartial =
           r.employeeId.startsWith("HKB-P-") ||
-          r.homeLocation === "Unknown" ||
-          r.kinName === "Unknown";
+          r.homeLocation?.toLowerCase() === "unknown" ||
+          r.kinName?.toLowerCase() === "unknown";
 
         return (
           <div>
