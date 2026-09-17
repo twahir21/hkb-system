@@ -426,8 +426,12 @@ async function importGuardRows(
     .from(guardProfiles);
   const existingEmployeeIds = new Set(existingIds.map((g) => g.employeeId.toLowerCase()));
 
+  const existingUsers = await db.select({ fullName: users.fullName }).from(users);
+  const existingNames = new Set(existingUsers.map((u) => u.fullName.trim().toLowerCase()));
+
   const seenInBatchEmployeeIds = new Set<string>();
   const seenInBatchEmails = new Set<string>();
+  const seenInBatchNames = new Set<string>();
   const errors: BulkImportRowError[] = [];
 
   // Region/station lookup for CSV import — stations are the source of truth.
@@ -551,6 +555,24 @@ async function importGuardRows(
       continue;
     }
 
+    if (existingNames.has(v.fullName.toLowerCase())) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Guard with name '${v.fullName}' is already registered in the system — row skipped`,
+      });
+      continue;
+    }
+
+    if (seenInBatchNames.has(v.fullName.toLowerCase())) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Duplicate guard name '${v.fullName}' found in the same CSV — row skipped`,
+      });
+      continue;
+    }
+
     if (existingEmployeeIds.has(v.employeeId.toLowerCase())) {
       errors.push({ row: rowNum, identifier, reason: `Employee ID '${v.employeeId}' is already registered in the system` });
       continue;
@@ -566,6 +588,7 @@ async function importGuardRows(
       continue;
     }
 
+    seenInBatchNames.add(v.fullName.toLowerCase());
     seenInBatchEmployeeIds.add(v.employeeId.toLowerCase());
     seenInBatchEmails.add(v.email);
 
@@ -866,11 +889,13 @@ async function importPartialGuardRows(
     .from(guardProfiles);
   const existingEmployeeIds = new Set(existingProfiles.map((g) => g.employeeId.toLowerCase()));
 
-  const existingUsers = await db.select({ email: users.email }).from(users);
+  const existingUsers = await db.select({ email: users.email, fullName: users.fullName }).from(users);
   const existingEmails = new Set(existingUsers.map((u) => u.email.toLowerCase()));
+  const existingNames = new Set(existingUsers.map((u) => u.fullName.trim().toLowerCase()));
 
   const seenInBatchEmployeeIds = new Set<string>();
   const seenInBatchEmails = new Set<string>();
+  const seenInBatchNames = new Set<string>();
   const errors: BulkImportRowError[] = [];
   const validEntries: BulkGuardEntry[] = [];
 
@@ -918,6 +943,27 @@ async function importPartialGuardRows(
       });
       continue;
     }
+
+    // Check if name collides with existing users in database or earlier rows in batch
+    if (existingNames.has(fullName.toLowerCase())) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Guard with name '${fullName}' is already registered in the system — row skipped.`,
+      });
+      continue;
+    }
+
+    if (seenInBatchNames.has(fullName.toLowerCase())) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Duplicate guard name '${fullName}' found in the same CSV — row skipped.`,
+      });
+      continue;
+    }
+
+    seenInBatchNames.add(fullName.toLowerCase());
 
     // Auto-generate email: first name + 3 random numbers @hkb.co
     const rawFirst = fullName.split(/\s+/)[0] || "guard";
