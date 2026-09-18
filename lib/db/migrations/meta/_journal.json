@@ -71,6 +71,13 @@
       "when": 1789124508906,
       "tag": "0009_late_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789712614827,
+      "tag": "0010_loose_wasp",
+      "breakpoints": true
     }
   ]
 }
