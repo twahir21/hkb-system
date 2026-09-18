@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { Button, Card, DataTable, type Column } from "@/components/ui";
+import { useState, useMemo } from "react";
+import { Button, Card, DataTable, Pagination, type Column } from "@/components/ui";
 import type { StationReportRow } from "@/features/store/queries/stock";
 
 type StationOpt = { id: string; name: string; regionName: string };
@@ -24,14 +24,25 @@ export function StockReportView({
   const [stationId, setStationId] = useState(params.get("stationId") ?? "");
   const [from, setFrom] = useState(params.get("from") ?? "");
   const [to, setTo] = useState(params.get("to") ?? "");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const apply = () => {
+    setPage(1);
     const qs = new URLSearchParams();
     if (stationId) qs.set("stationId", stationId);
     if (from) qs.set("from", from);
     if (to) qs.set("to", to);
     router.push(`/store/reports${qs.toString() ? `?${qs}` : ""}`);
   };
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const paginatedRows = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  }, [rows, safePage, pageSize]);
 
   const columns: Column<StationReportRow>[] = [
     {
@@ -106,9 +117,23 @@ export function StockReportView({
       </Card>
       <DataTable
         columns={columns}
-        rows={rows.map((r) => ({ ...r, id: `${r.stationId}-${r.itemId}` }))}
+        rows={paginatedRows.map((r) => ({ ...r, id: `${r.stationId}-${r.itemId}` }))}
         empty="No stock data for this selection."
       />
+
+      {rows.length > 0 && (
+        <Pagination
+          page={safePage}
+          pageSize={pageSize}
+          totalItems={rows.length}
+          onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPage(1);
+          }}
+          itemLabel="stock report items"
+        />
+      )}
     </div>
   );
 }
