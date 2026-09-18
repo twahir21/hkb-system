@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import {
   UserPlus,
   Upload,
@@ -10,7 +10,14 @@ import {
   Globe,
   Loader2,
 } from "lucide-react";
-import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
+import {
+  Button,
+  Modal,
+  DataTable,
+  Badge,
+  Pagination,
+  type Column,
+} from "@/components/ui";
 import type { UserRow } from "@/features/hr/queries/users";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import { UserForm } from "./UserForm";
@@ -28,6 +35,8 @@ export function UserManager({
 }) {
   const [q, setQ] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
   const [open, setOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [editing, setEditing] = useState<UserRow | null>(null);
@@ -35,17 +44,27 @@ export function UserManager({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const filtered = users.filter((u) => {
-    const matchesQ =
-      !q ||
-      u.fullName.toLowerCase().includes(q.toLowerCase()) ||
-      u.email.toLowerCase().includes(q.toLowerCase()) ||
-      (u.username && u.username.toLowerCase().includes(q.toLowerCase()));
+  const filtered = useMemo(() => {
+    return users.filter((u) => {
+      const matchesQ =
+        !q ||
+        u.fullName.toLowerCase().includes(q.toLowerCase()) ||
+        u.email.toLowerCase().includes(q.toLowerCase()) ||
+        (u.username && u.username.toLowerCase().includes(q.toLowerCase()));
 
-    const matchesRole = !roleFilter || u.role === roleFilter;
+      const matchesRole = !roleFilter || u.role === roleFilter;
 
-    return matchesQ && matchesRole;
-  });
+      return matchesQ && matchesRole;
+    });
+  }, [users, q, roleFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, safePage, pageSize]);
 
   const handleDelete = (userId: string, fullName: string) => {
     if (
@@ -198,13 +217,19 @@ export function UserManager({
         <div className="flex flex-wrap items-center gap-3">
           <input
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search by name, email, or username…"
             className="w-full sm:w-72 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setPage(1);
+            }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
             <option value="">All Roles</option>
@@ -234,10 +259,24 @@ export function UserManager({
       <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
         <DataTable
           columns={columns}
-          rows={filtered}
+          rows={paginatedUsers}
           empty="No user accounts found matching your criteria."
         />
       </div>
+
+      {filtered.length > 0 && (
+        <Pagination
+          page={safePage}
+          pageSize={pageSize}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPage(1);
+          }}
+          itemLabel="user accounts"
+        />
+      )}
 
       <Modal
         open={open}
