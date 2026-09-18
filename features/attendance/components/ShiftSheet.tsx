@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarDays, Sun, Moon } from "lucide-react";
-import { Badge, Button, statusTone } from "@/components/ui";
+import { Badge, Button, Pagination, statusTone } from "@/components/ui";
 import { AbsentModal } from "./AbsentModal";
 import { LateModal } from "./LateModal";
 import { markPresentOnly } from "@/features/attendance/actions/attendance.actions";
@@ -55,7 +56,32 @@ export function ShiftSheet({
   const router = useRouter();
   const sp = useSearchParams();
 
+  const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  const filtered = useMemo(() => {
+    if (!q) return rows;
+    const lower = q.toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.fullName.toLowerCase().includes(lower) ||
+        r.employeeId.toLowerCase().includes(lower) ||
+        r.workLocation.toLowerCase().includes(lower) ||
+        (r.supervisorName && r.supervisorName.toLowerCase().includes(lower)),
+    );
+  }, [rows, q]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const paginatedRows = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, safePage, pageSize]);
+
   const update = (patch: Record<string, string>) => {
+    setPage(1);
     const next = new URLSearchParams(sp.toString());
     Object.entries(patch).forEach(([k, v]) =>
       v ? next.set(k, v) : next.delete(k),
@@ -124,11 +150,27 @@ export function ShiftSheet({
               </select>
             </label>
           )}
+
+          <label className="text-sm">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Search
+            </span>
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search guard, ID, location…"
+              className="w-full sm:w-56 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </label>
         </div>
 
         <p className="text-sm font-medium text-slate-600">
           {formatDate(date)} · {shift === "DAY" ? "Day" : "Night"} shift ·{" "}
-          {rows.length} guards
+          {filtered.length} {filtered.length === 1 ? "guard" : "guards"}
         </p>
       </div>
 
@@ -149,107 +191,141 @@ export function ShiftSheet({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {rows.map((row) => {
-              const hasLog = Boolean(row.log);
-              const isPresent = row.log?.status === "PRESENT";
-              const isLate = row.log?.status === "LATE";
-              const absentCat = row.log?.absenceCategory ?? null;
-              return (
-                <tr
-                  key={row.id}
-                  className="transition-colors hover:bg-slate-50"
+            {rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={canPii ? (canRecord ? 8 : 7) : canRecord ? 7 : 6}
+                  className="px-4 py-8 text-center text-sm text-slate-500"
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-slate-500">
-                    {row.employeeId}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">
-                    {row.fullName}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">
-                    {row.workLocation}
-                  </td>
-                  {canPii && (
+                  No guards found for this shift.
+                </td>
+              </tr>
+            ) : paginatedRows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={canPii ? (canRecord ? 8 : 7) : canRecord ? 7 : 6}
+                  className="px-4 py-8 text-center text-sm text-slate-500"
+                >
+                  No guards match &ldquo;{q}&rdquo;.
+                </td>
+              </tr>
+            ) : (
+              paginatedRows.map((row) => {
+                const hasLog = Boolean(row.log);
+                const isPresent = row.log?.status === "PRESENT";
+                const isLate = row.log?.status === "LATE";
+                const absentCat = row.log?.absenceCategory ?? null;
+                return (
+                  <tr
+                    key={row.id}
+                    className="transition-colors hover:bg-slate-50"
+                  >
+                    <td className="px-4 py-3 font-mono text-xs text-slate-500">
+                      {row.employeeId}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-800">
+                      {row.fullName}
+                    </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {row.homeLocation ?? "—"}
+                      {row.workLocation}
                     </td>
-                  )}
-                  <td className="px-4 py-3 text-slate-600">
-                    {row.supervisorName ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    {hasLog ? (
-                      <Badge tone={statusTone(row.log!.status)}>
-                        {row.log!.status}
-                        {isLate && row.log!.minutesLate
-                          ? ` (+${row.log!.minutesLate}m)`
-                          : ""}
-                      </Badge>
-                    ) : (
-                      <span className="text-xs text-slate-400">
-                        Not recorded
-                      </span>
+                    {canPii && (
+                      <td className="px-4 py-3 text-slate-600">
+                        {row.homeLocation ?? "—"}
+                      </td>
                     )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {absentCat ? (
-                      <Badge tone={statusTone(absentCat)}>
-                        {ABSENCE_LABEL[absentCat] ?? absentCat}
-                      </Badge>
-                    ) : isLate && row.log?.reason ? (
-                      <span
-                        className="text-xs text-slate-500 max-w-37.5 truncate block"
-                        title={row.log.reason}
-                      >
-                        {row.log.reason}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-slate-400">—</span>
-                    )}
-                  </td>
-                  {canRecord && (
+                    <td className="px-4 py-3 text-slate-600">
+                      {row.supervisorName ?? "—"}
+                    </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-2">
-                        {(!hasLog || !isPresent) && (
-                          <form action={markPresentOnly}>
-                            <input
-                              type="hidden"
-                              name="guardId"
-                              value={row.id}
-                            />
-                            <input type="hidden" name="date" value={date} />
-                            <input type="hidden" name="shift" value={shift} />
-                            <input
-                              type="hidden"
-                              name="status"
-                              value="PRESENT"
-                            />
-                            <Button type="submit" variant="success" size="sm">
-                              Present
-                            </Button>
-                          </form>
-                        )}
-                        <LateModal
-                          guardId={row.id}
-                          guardName={row.fullName}
-                          date={date}
-                          shift={shift}
-                          currentMinutesLate={row.log?.minutesLate}
-                        />
-                        <AbsentModal
-                          guardId={row.id}
-                          guardName={row.fullName}
-                          date={date}
-                          shift={shift}
-                        />
-                      </div>
+                      {hasLog ? (
+                        <Badge tone={statusTone(row.log!.status)}>
+                          {row.log!.status}
+                          {isLate && row.log!.minutesLate
+                            ? ` (+${row.log!.minutesLate}m)`
+                            : ""}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-slate-400">
+                          Not recorded
+                        </span>
+                      )}
                     </td>
-                  )}
-                </tr>
-              );
-            })}
+                    <td className="px-4 py-3">
+                      {absentCat ? (
+                        <Badge tone={statusTone(absentCat)}>
+                          {ABSENCE_LABEL[absentCat] ?? absentCat}
+                        </Badge>
+                      ) : isLate && row.log?.reason ? (
+                        <span
+                          className="text-xs text-slate-500 max-w-37.5 truncate block"
+                          title={row.log.reason}
+                        >
+                          {row.log.reason}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
+                    </td>
+                    {canRecord && (
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          {(!hasLog || !isPresent) && (
+                            <form action={markPresentOnly}>
+                              <input
+                                type="hidden"
+                                name="guardId"
+                                value={row.id}
+                              />
+                              <input type="hidden" name="date" value={date} />
+                              <input type="hidden" name="shift" value={shift} />
+                              <input
+                                type="hidden"
+                                name="status"
+                                value="PRESENT"
+                              />
+                              <Button type="submit" variant="success" size="sm">
+                                Present
+                              </Button>
+                            </form>
+                          )}
+                          <LateModal
+                            guardId={row.id}
+                            guardName={row.fullName}
+                            date={date}
+                            shift={shift}
+                            currentMinutesLate={row.log?.minutesLate}
+                          />
+                          <AbsentModal
+                            guardId={row.id}
+                            guardName={row.fullName}
+                            date={date}
+                            shift={shift}
+                          />
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
+
+      {filtered.length > 0 && (
+        <Pagination
+          page={safePage}
+          pageSize={pageSize}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPage(1);
+          }}
+          itemLabel="guards"
+        />
+      )}
     </div>
   );
 }
