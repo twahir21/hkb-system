@@ -3,12 +3,13 @@ import "server-only";
 import { desc, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
-import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
+import { guardProfiles, clients, regions, stations, users, type Gender } from "@/lib/db/schema";
 
 export type GuardRow = {
   id: string;
   userId: string;
   employeeId: string;
+  gender: Gender;
   age: number;
   phone: string;
   homeLocation: string;
@@ -55,6 +56,7 @@ export async function listGuards(includePii = false): Promise<GuardRow[]> {
     id: r.guard.id,
     userId: r.guard.userId,
     employeeId: r.guard.employeeId,
+    gender: r.guard.gender,
     age: r.guard.age,
     phone: includePii ? r.guard.phone : "",
     homeLocation: includePii ? r.guard.homeLocation : "",

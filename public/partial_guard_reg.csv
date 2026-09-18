@@ -1,6 +1,6 @@
-fullName,phone
-Juma Ally,0712345678
-Amina Hassan,0754123456
-Bakari Said,0689123456
-Grace Mwamba,0765987654
-Baraka Joseph,0714987654
+fullName,phone,gender
+Juma Ally,0712345678,MALE
+Amina Hassan,0754123456,FEMALE
+Bakari Said,0689123456,MALE
+Grace Mwamba,0765987654,FEMALE
+Baraka Joseph,0714987654,MALE

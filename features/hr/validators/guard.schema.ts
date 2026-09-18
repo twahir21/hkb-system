@@ -4,6 +4,7 @@ export const guardSchema = z.object({
   email: z.email(),
   fullName: z.string().trim().min(2).max(255),
   employeeId: z.string().trim().min(1).max(50),
+  gender: z.enum(["MALE", "FEMALE"]).default("MALE"),
   age: z.coerce.number().int().min(16).max(100),
   phone: z.string().trim().min(7).max(20),
   homeLocation: z.string().trim().min(1).max(255),

@@ -20,6 +20,7 @@ const CSV_COLUMNS: { name: string; example: string; required?: boolean }[] = [
   { name: "fullName", example: "John Doe", required: true },
   { name: "email", example: "jdoe@hkb.co", required: true },
   { name: "employeeId", example: "HKB-001", required: true },
+  { name: "gender", example: "MALE / FEMALE (defaults to MALE)" },
   { name: "age", example: "28 (16–100)", required: true },
   { name: "phone", example: "0712345678", required: true },
   { name: "homeLocation", example: "Dar es Salaam", required: true },

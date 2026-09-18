@@ -109,6 +109,11 @@ export function BulkUserModal({
               <span className="font-bold text-slate-900">password:</span> Min. 6
               characters
             </div>
+            <div>
+              <span className="font-bold text-slate-900">gender:</span> Optional (
+              <span className="text-brand-700 font-semibold">MALE</span> or{" "}
+              <span className="text-brand-700 font-semibold">FEMALE</span>, defaults to MALE)
+            </div>
             <div className="sm:col-span-2">
               <span className="font-bold text-slate-900">role:</span> Must be
               one of:{" "}

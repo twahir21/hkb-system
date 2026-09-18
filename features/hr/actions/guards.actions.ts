@@ -59,6 +59,7 @@ export async function createGuard(
     email: formData.get("email") ?? undefined,
     fullName: formData.get("fullName") ?? undefined,
     employeeId: formData.get("employeeId") ?? undefined,
+    gender: formData.get("gender") ?? undefined,
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") ?? undefined,
     homeLocation: formData.get("homeLocation") ?? undefined,
@@ -113,6 +114,7 @@ export async function createGuard(
         email: v.email,
         fullName: v.fullName,
         role: "GUARD",
+        gender: v.gender,
       })
       .returning({ id: users.id });
     userId = created.id;
@@ -125,6 +127,7 @@ export async function createGuard(
       .values({
         userId,
         employeeId: v.employeeId,
+        gender: v.gender,
         age: v.age,
         phone: v.phone,
         homeLocation: v.homeLocation,
@@ -183,6 +186,7 @@ export async function updateGuard(
     email: formData.get("email") || undefined,
     fullName: formData.get("fullName") || undefined,
     employeeId: formData.get("employeeId") || undefined,
+    gender: formData.get("gender") || undefined,
     registrationDate: formData.get("registrationDate") || undefined,
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") || undefined,
@@ -241,13 +245,14 @@ export async function updateGuard(
     }
   }
 
-  // Update user name/email if provided
-  if (v.fullName || v.email) {
+  // Update user name/email/gender if provided
+  if (v.fullName || v.email || v.gender) {
     await db
       .update(users)
       .set({
         ...(v.fullName ? { fullName: v.fullName.trim() } : {}),
         ...(v.email ? { email: v.email.trim().toLowerCase() } : {}),
+        ...(v.gender ? { gender: v.gender } : {}),
         updatedAt: new Date(),
       })
       .where(eq(users.id, currentGuard.userId));
@@ -276,6 +281,7 @@ export async function updateGuard(
     .update(guardProfiles)
     .set({
       ...(v.employeeId ? { employeeId: v.employeeId.trim() } : {}),
+      ...(v.gender ? { gender: v.gender } : {}),
       ...(v.registrationDate ? { registrationDate: v.registrationDate } : {}),
       age: v.age,
       phone: v.phone,
@@ -323,6 +329,7 @@ type BulkGuardEntry = {
   email: string;
   fullName: string;
   employeeId: string;
+  gender: "MALE" | "FEMALE";
   age: number;
   phone: string;
   homeLocation: string;
@@ -498,6 +505,7 @@ async function importGuardRows(
       email: email || undefined,
       fullName: (row.fullname || row.name || "").trim() || undefined,
       employeeId: employeeId || undefined,
+      gender: (row.gender || row.sex || "").toUpperCase().trim() === "FEMALE" ? "FEMALE" : "MALE",
       age: (row.age || "").trim() || undefined,
       phone: (row.phone || "").trim() || undefined,
       homeLocation: (row.homelocation || "").trim() || undefined,
@@ -596,6 +604,7 @@ async function importGuardRows(
       email: v.email,
       fullName: v.fullName,
       employeeId: v.employeeId,
+      gender: v.gender,
       age: v.age,
       phone: v.phone,
       homeLocation: v.homeLocation,
@@ -716,6 +725,7 @@ async function insertImportedGuards(
       email: e,
       fullName: validEntries.find((x) => x.email === e)!.fullName,
       role: "GUARD" as const,
+      gender: validEntries.find((x) => x.email === e)!.gender,
     }));
 
   if (missingUsers.length > 0) {
@@ -739,6 +749,7 @@ async function insertImportedGuards(
   const toProfileRow = (e: BulkGuardEntry) => ({
     userId: userIdByEmail.get(e.email)!,
     employeeId: e.employeeId,
+    gender: e.gender,
     age: e.age,
     phone: e.phone,
     homeLocation: e.homeLocation,
@@ -1017,10 +1028,15 @@ async function importPartialGuardRows(
     }
     seenInBatchEmployeeIds.add(employeeId.toLowerCase());
 
+    // Parse gender if present in CSV, defaulting to MALE
+    const rawGender = (row.gender || row.sex || "MALE").toUpperCase().trim();
+    const gender: "MALE" | "FEMALE" = rawGender === "FEMALE" ? "FEMALE" : "MALE";
+
     validEntries.push({
       email,
       fullName,
       employeeId,
+      gender,
       age: 25, // safe initial default (within 16-100 schema)
       phone,
       homeLocation: "Unknown", // dummy initial data

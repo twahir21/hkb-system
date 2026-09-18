@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { users, roleEnum, type Role } from "@/lib/db/schema";
+import { users, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { parseCsv, type BulkImportRowError, type BulkImportResult } from "@/lib/csv";
@@ -29,6 +29,7 @@ const userCreateSchema = z.object({
     .max(100)
     .regex(/^[a-zA-Z0-9_.-]+$/, "Username can only contain letters, numbers, dots, hyphens and underscores"),
   role: z.enum(roleEnum.enumValues),
+  gender: z.enum(genderEnum.enumValues).default("MALE"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -36,6 +37,7 @@ const userUpdateSchema = z.object({
   id: z.string().uuid("Invalid user ID"),
   fullName: z.string().trim().min(2).max(255),
   role: z.enum(roleEnum.enumValues),
+  gender: z.enum(genderEnum.enumValues).optional(),
   password: z.string().min(6).optional().or(z.literal("")),
 });
 
@@ -48,6 +50,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
     email: (formData.get("email") as string)?.toLowerCase().trim() ?? undefined,
     username: formData.get("username") ?? undefined,
     role: formData.get("role") ?? undefined,
+    gender: formData.get("gender") ?? undefined,
     password: formData.get("password") ?? undefined,
   });
 
@@ -81,6 +84,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
       username: v.username,
       fullName: v.fullName,
       role: v.role,
+      gender: v.gender,
       passwordHash,
     })
     .returning({ id: users.id });
@@ -90,7 +94,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
     action: "USER_CREATE",
     entity: "users",
     entityId: created.id,
-    metadata: { email: v.email, username: v.username, role: v.role },
+    metadata: { email: v.email, username: v.username, role: v.role, gender: v.gender },
   });
 
   revalidatePath("/users");
@@ -107,6 +111,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
     id: formData.get("id") ?? undefined,
     fullName: formData.get("fullName") ?? undefined,
     role: formData.get("role") ?? undefined,
+    gender: formData.get("gender") ?? undefined,
     password: formData.get("password") ?? undefined,
   });
 
@@ -127,11 +132,13 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
   const updateData: {
     fullName: string;
     role: Role;
+    gender?: Gender;
     passwordHash?: string;
     updatedAt: Date;
   } = {
     fullName: v.fullName,
     role: v.role,
+    ...(v.gender ? { gender: v.gender } : {}),
     updatedAt: new Date(),
   };
 
@@ -146,7 +153,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
     action: "USER_UPDATE",
     entity: "users",
     entityId: v.id,
-    metadata: { role: v.role, passwordChanged: Boolean(v.password) },
+    metadata: { role: v.role, gender: v.gender, passwordChanged: Boolean(v.password) },
   });
 
   revalidatePath("/users");
@@ -225,6 +232,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
     email: string;
     username: string;
     role: Role;
+    gender: Gender;
     passwordHash: string;
   }[] = [];
 
@@ -238,6 +246,8 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
     const email = (row.email || "").toLowerCase().trim();
     const username = (row.username || "").trim();
     const roleRaw = (row.role || "").toUpperCase().trim();
+    const rawGender = (row.gender || row.sex || "MALE").toUpperCase().trim();
+    const gender: Gender = rawGender === "FEMALE" ? "FEMALE" : "MALE";
     const password = (row.password || "").trim();
 
     const identifier = email || username || fullName || `Row #${rowNum}`;
@@ -317,6 +327,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       email,
       username,
       role: roleRaw as Role,
+      gender,
       passwordHash,
     });
   }

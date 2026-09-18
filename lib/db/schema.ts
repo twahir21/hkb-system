@@ -68,6 +68,8 @@ export const expenseCategoryEnum = pgEnum("expense_category", [
 ]);
 
 
+export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
+
 // Core Users Table
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -78,6 +80,7 @@ export const users = pgTable("users", {
   fullName: varchar("full_name", { length: 255 }).notNull(),
   avatarUrl: varchar("avatar_url", { length: 512 }),
   role: roleEnum("role").notNull().default("GUARD"),
+  gender: genderEnum("gender").notNull().default("MALE"),
   coverageRequestsLastSeenAt: timestamp("coverage_requests_last_seen_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -90,6 +93,7 @@ export const guardProfiles = pgTable("guard_profiles", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   employeeId: varchar("employee_id", { length: 50 }).notNull().unique(),
+  gender: genderEnum("gender").notNull().default("MALE"),
   age: integer("age").notNull(),
   phone: varchar("phone", { length: 20 }).notNull(),
   homeLocation: varchar("home_location", { length: 255 }).notNull(),
@@ -442,6 +446,7 @@ export const businessExpenses = pgTable(
 );
 
 export type Role = (typeof roleEnum.enumValues)[number];
+export type Gender = (typeof genderEnum.enumValues)[number];
 export type ShiftType = (typeof shiftTypeEnum.enumValues)[number];
 export type AttendanceStatus = (typeof attendanceStatusEnum.enumValues)[number];
 export type AbsenceCategory = (typeof absenceCategoryEnum.enumValues)[number];

@@ -102,6 +102,20 @@ export function GuardForm({
           defaultValue={editing?.employeeId}
           required
         />
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Gender
+          </span>
+          <select
+            name="gender"
+            defaultValue={editing?.gender ?? "MALE"}
+            required
+            className={inputCls}
+          >
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+          </select>
+        </label>
         <Field
           label="Registration date"
           name="registrationDate"

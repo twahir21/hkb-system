@@ -8,7 +8,7 @@
 import bcrypt from "bcryptjs";
 import { eq, or } from "drizzle-orm";
 import { db } from "./index";
-import { users, businesses, type Role } from "./schema";
+import { users, businesses, type Role, type Gender } from "./schema";
 
 const SUPERADMIN_USERNAME = process.env.SUPERADMIN_USERNAME || "admin";
 const SUPERADMIN_EMAIL = (process.env.SUPERADMIN_EMAIL || "admin@hkb.co").toLowerCase();
@@ -20,6 +20,7 @@ interface SeedAccount {
   email: string;
   fullName: string;
   role: Role;
+  gender?: Gender;
   password: string;
 }
 
@@ -29,6 +30,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: SUPERADMIN_EMAIL,
     fullName: SUPERADMIN_NAME,
     role: "SUPER_ADMIN",
+    gender: "MALE",
     password: SUPERADMIN_PASSWORD,
   },
   {
@@ -36,6 +38,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: "snr.supervisor@hkb.co",
     fullName: "Senior Supervisor Alpha",
     role: "SENIOR_SUPERVISOR",
+    gender: "MALE",
     password: "Password123!",
   },
   {
@@ -43,6 +46,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: "supervisor@hkb.co",
     fullName: "Supervisor Bravo",
     role: "SUPERVISOR",
+    gender: "MALE",
     password: "Password123!",
   },
   {
@@ -50,6 +54,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: "hr@hkb.co",
     fullName: "HR Officer Charlie",
     role: "HR",
+    gender: "FEMALE",
     password: "Password123!",
   },
   {
@@ -57,6 +62,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: "bursar@hkb.co",
     fullName: "Finance Bursar Delta",
     role: "BURSAR",
+    gender: "MALE",
     password: "Password123!",
   },
   {
@@ -64,6 +70,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: "storekeeper@hkb.co",
     fullName: "Storekeeper Foxtrot",
     role: "STOREKEEPER",
+    gender: "MALE",
     password: "Password123!",
   },
   {
@@ -71,6 +78,7 @@ const SEED_ACCOUNTS: SeedAccount[] = [
     email: "guard@hkb.co",
     fullName: "Officer Echo",
     role: "GUARD",
+    gender: "MALE",
     password: "Password123!",
   },
 ];
@@ -96,6 +104,7 @@ async function main() {
         email: account.email,
         fullName: account.fullName,
         role: account.role,
+        gender: account.gender ?? "MALE",
         passwordHash,
       });
       results.push({
@@ -145,6 +154,7 @@ async function main() {
         email,
         fullName: email.split("@")[0],
         role: "SUPER_ADMIN",
+        gender: "MALE",
         passwordHash,
       });
       results.push({
