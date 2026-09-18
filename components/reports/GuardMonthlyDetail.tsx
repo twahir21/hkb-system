@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Calendar, CheckCircle2, Clock, XCircle, Award, ArrowLeft } from "lucide-react";
 import { Badge, Button, DataTable, Pagination, statusTone, type Column } from "@/components/ui";
+import { ShiftHeatmapStrip } from "@/components/ui/charts";
 import { formatDate } from "@/lib/utils";
 import type { GuardMonthlyDetail } from "@/lib/queries/monthly-summary";
 
@@ -236,6 +237,13 @@ export function GuardMonthlyDetail({
           </p>
         </div>
       </div>
+
+      {/* 30-Day Heatmap Strip */}
+      <ShiftHeatmapStrip
+        year={detail.year}
+        month={detail.month}
+        logs={detail.logs}
+      />
 
       {/* Per-day log */}
       <div className="space-y-4">

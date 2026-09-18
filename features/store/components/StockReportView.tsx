@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useMemo } from "react";
 import { Button, Card, DataTable, Pagination, type Column } from "@/components/ui";
+import { StockCategoryBarChart } from "@/components/ui/charts";
 import type { StationReportRow } from "@/features/store/queries/stock";
 
 type StationOpt = { id: string; name: string; regionName: string };
@@ -115,6 +116,9 @@ export function StockReportView({
           <Button size="md" onClick={apply}>Apply</Button>
         </div>
       </Card>
+
+      {rows.length > 0 && <StockCategoryBarChart rows={rows} />}
+
       <DataTable
         columns={columns}
         rows={paginatedRows.map((r) => ({ ...r, id: `${r.stationId}-${r.itemId}` }))}

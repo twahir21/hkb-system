@@ -29,6 +29,37 @@ export type GuardMonthlyStat = {
   performanceTier: "EXCELLENT" | "GOOD" | "WARNING" | "CRITICAL" | "NO_DATA";
 };
 
+export type MonthlyDailyTrendPoint = {
+  day: number;
+  date: string;
+  dayLabel: string;
+  present: number;
+  late: number;
+  absent: number;
+  sick: number;
+  permitted: number;
+  notPermitted: number;
+  total: number;
+  rate: number;
+};
+
+export type SupervisorMonthlyStat = {
+  name: string;
+  shifts: number;
+  present: number;
+  late: number;
+  absent: number;
+  attendancePercentage: number;
+};
+
+export type TierDistribution = {
+  excellent: number;
+  good: number;
+  warning: number;
+  critical: number;
+  noData: number;
+};
+
 export type OverallMonthlySummary = {
   year: number;
   month: number;
@@ -46,6 +77,9 @@ export type OverallMonthlySummary = {
   totalMinutesLate: number;
   overallAttendancePercentage: number;
   overallOnTimePercentage: number;
+  tierDistribution: TierDistribution;
+  dailyTrend: MonthlyDailyTrendPoint[];
+  supervisorStats: SupervisorMonthlyStat[];
   guards: GuardMonthlyStat[];
 };
 
@@ -96,12 +130,18 @@ export async function getMonthlyAttendanceSummary(
         )
     : [];
 
-  // Group logs by guardId
+  // Group logs by guardId and by Date
   const logsByGuard = new Map<string, (typeof attendanceLogs.$inferSelect)[]>();
+  const logsByDate = new Map<string, (typeof attendanceLogs.$inferSelect)[]>();
+
   for (const log of logs) {
     const list = logsByGuard.get(log.guardId) || [];
     list.push(log);
     logsByGuard.set(log.guardId, list);
+
+    const dList = logsByDate.get(log.date) || [];
+    dList.push(log);
+    logsByDate.set(log.date, dList);
   }
 
   let totalPresent = 0;
@@ -111,6 +151,19 @@ export async function getMonthlyAttendanceSummary(
   let totalPermitted = 0;
   let totalNotPermitted = 0;
   let totalLateMins = 0;
+
+  const tierDistribution: TierDistribution = {
+    excellent: 0,
+    good: 0,
+    warning: 0,
+    critical: 0,
+    noData: 0,
+  };
+
+  const supervisorMap = new Map<
+    string,
+    { shifts: number; present: number; late: number; absent: number }
+  >();
 
   const guardStats: GuardMonthlyStat[] = guards.map((g) => {
     const guardLogs = logsByGuard.get(g.id) || [];
@@ -146,16 +199,40 @@ export async function getMonthlyAttendanceSummary(
     totalNotPermitted += notPermitted;
     totalLateMins += lateMinutes;
 
+    const supName = g.supervisorName || "Unassigned";
+    const sStat = supervisorMap.get(supName) || {
+      shifts: 0,
+      present: 0,
+      late: 0,
+      absent: 0,
+    };
+    sStat.shifts += total;
+    sStat.present += present;
+    sStat.late += late;
+    sStat.absent += absent;
+    supervisorMap.set(supName, sStat);
+
     const attendancePct =
       total > 0 ? Math.round(((present + late) / total) * 1000) / 10 : 0;
     const onTimePct = total > 0 ? Math.round((present / total) * 1000) / 10 : 0;
 
     let tier: GuardMonthlyStat["performanceTier"] = "NO_DATA";
     if (total > 0) {
-      if (attendancePct >= 95) tier = "EXCELLENT";
-      else if (attendancePct >= 85) tier = "GOOD";
-      else if (attendancePct >= 70) tier = "WARNING";
-      else tier = "CRITICAL";
+      if (attendancePct >= 95) {
+        tier = "EXCELLENT";
+        tierDistribution.excellent++;
+      } else if (attendancePct >= 85) {
+        tier = "GOOD";
+        tierDistribution.good++;
+      } else if (attendancePct >= 70) {
+        tier = "WARNING";
+        tierDistribution.warning++;
+      } else {
+        tier = "CRITICAL";
+        tierDistribution.critical++;
+      }
+    } else {
+      tierDistribution.noData++;
     }
 
     return {
@@ -187,6 +264,65 @@ export async function getMonthlyAttendanceSummary(
   const overallOnTimePct =
     totalShifts > 0 ? Math.round((totalPresent / totalShifts) * 1000) / 10 : 0;
 
+  // Build daily trend array across the month
+  const dailyTrend: MonthlyDailyTrendPoint[] = [];
+  for (let day = 1; day <= lastDay; day++) {
+    const iso = `${year}-${paddedMonth}-${String(day).padStart(2, "0")}`;
+    const dayLogs = logsByDate.get(iso) || [];
+
+    let p = 0;
+    let l = 0;
+    let a = 0;
+    let s = 0;
+    let perm = 0;
+    let unexc = 0;
+
+    for (const log of dayLogs) {
+      if (log.status === "PRESENT") p++;
+      else if (log.status === "LATE") l++;
+      else if (log.status === "ABSENT") {
+        a++;
+        if (log.absenceCategory === "SICK") s++;
+        else if (log.absenceCategory === "PERMITTED_REASON") perm++;
+        else if (log.absenceCategory === "NOT_PERMITTED") unexc++;
+      }
+    }
+
+    const t = dayLogs.length;
+    const rate = t > 0 ? Math.round(((p + l) / t) * 1000) / 10 : 0;
+
+    dailyTrend.push({
+      day,
+      date: iso,
+      dayLabel: `${MONTH_NAMES[month - 1].slice(0, 3)} ${day}`,
+      present: p,
+      late: l,
+      absent: a,
+      sick: s,
+      permitted: perm,
+      notPermitted: unexc,
+      total: t,
+      rate,
+    });
+  }
+
+  // Build supervisor ranking list
+  const supervisorStats: SupervisorMonthlyStat[] = Array.from(
+    supervisorMap.entries()
+  )
+    .map(([name, stat]) => ({
+      name,
+      shifts: stat.shifts,
+      present: stat.present,
+      late: stat.late,
+      absent: stat.absent,
+      attendancePercentage:
+        stat.shifts > 0
+          ? Math.round(((stat.present + stat.late) / stat.shifts) * 1000) / 10
+          : 0,
+    }))
+    .sort((a, b) => b.shifts - a.shifts);
+
   return {
     year,
     month,
@@ -204,6 +340,9 @@ export async function getMonthlyAttendanceSummary(
     totalMinutesLate: totalLateMins,
     overallAttendancePercentage: overallAttendancePct,
     overallOnTimePercentage: overallOnTimePct,
+    tierDistribution,
+    dailyTrend,
+    supervisorStats,
     guards: guardStats,
   };
 }

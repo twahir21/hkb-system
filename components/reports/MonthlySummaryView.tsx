@@ -12,7 +12,16 @@ import {
   Award,
 } from "lucide-react";
 import { Badge, Button, DataTable, Pagination, type Column } from "@/components/ui";
-import type { OverallMonthlySummary, GuardMonthlyStat } from "@/lib/queries/monthly-summary";
+import {
+  AttendanceTrendAreaChart,
+  PerformanceTierDonutChart,
+  AbsenceBreakdownBarChart,
+  SupervisorComparisonBarChart,
+} from "@/components/ui/charts";
+import type {
+  OverallMonthlySummary,
+  GuardMonthlyStat,
+} from "@/lib/queries/monthly-summary";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 
@@ -318,6 +327,35 @@ export function MonthlySummaryView({
             {summary.sickCount} sick · {summary.permittedCount} perm · {summary.notPermittedCount} unexcused
           </p>
         </div>
+      </div>
+
+      {/* Visual Analytics Graphs */}
+      <div className="space-y-6">
+        {/* Full Month Daily Trend Area Chart */}
+        <AttendanceTrendAreaChart
+          data={summary.dailyTrend}
+          title={`${summary.monthName} ${summary.year} — Daily Attendance Progression`}
+          subtitle={`Day-by-day record of present, late, and absent shifts for ${summary.monthName}`}
+          height={260}
+        />
+
+        {/* 2-Column Grid: Tier Distribution Donut & Absence Root-Cause Bar Chart */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <PerformanceTierDonutChart
+            distribution={summary.tierDistribution}
+            totalGuards={summary.totalGuards}
+          />
+          <AbsenceBreakdownBarChart
+            sickCount={summary.sickCount}
+            permittedCount={summary.permittedCount}
+            notPermittedCount={summary.notPermittedCount}
+          />
+        </div>
+
+        {/* Supervisor Performance Comparison */}
+        {summary.supervisorStats && summary.supervisorStats.length > 0 && (
+          <SupervisorComparisonBarChart stats={summary.supervisorStats} />
+        )}
       </div>
 
       {/* Individual Guard Attendance Table */}
