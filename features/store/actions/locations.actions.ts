@@ -1,11 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { regions, stations } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
-import { regionSchema, stationSchema } from "@/features/store/validators/store.schema";
+import {
+  regionSchema,
+  stationSchema,
+  stationUpdateSchema,
+} from "@/features/store/validators/store.schema";
 import type { ActionState } from "@/features/attendance/actions/attendance.actions";
 
 export type { ActionState } from "@/features/attendance/actions/attendance.actions";
@@ -73,4 +78,93 @@ export async function createStation(
   revalidatePath("/store/locations");
   revalidatePath("/store");
   return { ok: true, message: "Station created." };
+}
+
+export async function updateStation(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const actor = await requirePermission("STORE_LOCATIONS_MANAGE");
+
+  const parsed = stationUpdateSchema.safeParse({
+    id: formData.get("id") ?? undefined,
+    name: formData.get("name") ?? undefined,
+    regionId: formData.get("regionId") ?? undefined,
+    supervisorId: formData.get("supervisorId") || undefined,
+  });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid station details",
+    };
+  }
+
+  try {
+    const [station] = await db
+      .update(stations)
+      .set({
+        name: parsed.data.name,
+        regionId: parsed.data.regionId,
+        supervisorId: parsed.data.supervisorId ?? null,
+        updatedAt: new Date(),
+      })
+      .where(eq(stations.id, parsed.data.id))
+      .returning();
+
+    if (!station) {
+      return { ok: false, error: "Station not found." };
+    }
+
+    await writeAuditLog({
+      actorId: actor.userId,
+      action: "STORE_STATION_UPDATE",
+      entity: "stations",
+      entityId: station.id,
+      metadata: {
+        name: parsed.data.name,
+        regionId: parsed.data.regionId,
+        supervisorId: parsed.data.supervisorId ?? null,
+      },
+    });
+  } catch {
+    return {
+      ok: false,
+      error: "A station with this name already exists in the region.",
+    };
+  }
+
+  revalidatePath("/store/locations");
+  revalidatePath("/store");
+  return { ok: true, message: "Station updated successfully." };
+}
+
+export async function deleteStation(
+  stationId: string
+): Promise<{ ok: boolean; error?: string }> {
+  const actor = await requirePermission("STORE_LOCATIONS_MANAGE");
+
+  try {
+    const [station] = await db
+      .delete(stations)
+      .where(eq(stations.id, stationId))
+      .returning();
+
+    if (!station) {
+      return { ok: false, error: "Station not found." };
+    }
+
+    await writeAuditLog({
+      actorId: actor.userId,
+      action: "STORE_STATION_DELETE",
+      entity: "stations",
+      entityId: station.id,
+      metadata: { name: station.name },
+    });
+
+    revalidatePath("/store/locations");
+    revalidatePath("/store");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Failed to delete station." };
+  }
 }

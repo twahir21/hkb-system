@@ -35,6 +35,10 @@ export const stationSchema = z.object({
   supervisorId: uuid.optional(),
 });
 
+export const stationUpdateSchema = stationSchema.extend({
+  id: uuid,
+});
+
 /**
  * A single stock movement. `type` determines which location fields are
  * required:
