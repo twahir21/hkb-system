@@ -143,6 +143,39 @@ export const attendanceLogs = pgTable(
   ]
 );
 
+// Daily Staff Attendance logs (one row per staff member per day)
+export const staffAttendanceLogs = pgTable(
+  "staff_attendance_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    date: date("date").notNull(),
+    status: attendanceStatusEnum("status").notNull(),
+    checkInTime: varchar("check_in_time", { length: 20 }),
+    absenceCategory: absenceCategoryEnum("absence_category"),
+    allowedDays: integer("allowed_days"),
+    minutesLate: integer("minutes_late"),
+    reason: text("reason"),
+    documentUrl: text("document_url"),
+    recordedById: uuid("recorded_by_id")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("staff_attendance_logs_user_date_unique").on(
+      table.userId,
+      table.date
+    ),
+    index("staff_attendance_logs_date_idx").on(table.date),
+    index("staff_attendance_logs_user_idx").on(table.userId),
+  ]
+);
+
+
 // Guard transfer requests
 export const transferRequests = pgTable("transfer_requests", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -469,3 +502,4 @@ export type CreditType = (typeof creditTypeEnum.enumValues)[number];
 export type CreditStatus = (typeof creditStatusEnum.enumValues)[number];
 export type SaleType = (typeof saleTypeEnum.enumValues)[number];
 export type ExpenseCategory = (typeof expenseCategoryEnum.enumValues)[number];
+export type StaffAttendanceLog = (typeof staffAttendanceLogs.$inferSelect);

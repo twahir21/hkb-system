@@ -78,6 +78,13 @@
       "when": 1789712614827,
       "tag": "0010_loose_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789995420284,
+      "tag": "0011_zippy_sersi",
+      "breakpoints": true
     }
   ]
 }

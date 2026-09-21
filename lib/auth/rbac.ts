@@ -5,7 +5,7 @@ import type { Role } from "@/lib/db/schema";
  * Every protected operation is authorized against this single source of truth.
  */
 export const PERMISSIONS = {
-  // Attendance
+  // Attendance (Guards)
   ATTENDANCE_RECORD: [
     "SUPERVISOR",
     "OPERATION_OFFICER",
@@ -24,6 +24,12 @@ export const PERMISSIONS = {
   ],
   ATTENDANCE_VIEW_OWN: ["GUARD"],
   SICKNESS_DOC_AUDIT: ["SUPER_ADMIN", "HR"],
+
+  // Staff Attendance (Office & Operations Staff)
+  STAFF_ATTENDANCE_VIEW: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+  STAFF_ATTENDANCE_RECORD: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+  STAFF_ATTENDANCE_EDIT: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+
 
   // System Users
   USER_MANAGE: ["SUPER_ADMIN"],

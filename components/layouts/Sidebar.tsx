@@ -22,6 +22,7 @@ import {
   Store,
   Wallet,
   BellRing,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -63,6 +64,13 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
           "SECRETARY",
         ],
       },
+      {
+        href: "/staff-attendance",
+        label: "Staff Attendance",
+        icon: UserCheck,
+        roles: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+      },
+
       {
         href: "/records",
         label: "Attendance Records",
