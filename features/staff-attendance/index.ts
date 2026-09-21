@@ -4,3 +4,5 @@ export * from "./validators/staff-attendance.schema";
 export * from "./components/StaffAttendanceView";
 export * from "./components/StaffLateModal";
 export * from "./components/StaffAbsentModal";
+export * from "./components/charts/StaffAttendanceCharts";
+

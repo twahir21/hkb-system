@@ -38,8 +38,12 @@ import {
 import { StaffLateModal } from "./StaffLateModal";
 import { StaffAbsentModal } from "./StaffAbsentModal";
 import { formatDate } from "@/lib/utils";
+import { StaffAttendanceCharts } from "./charts/StaffAttendanceCharts";
+import { BarChart3, FileDown } from "lucide-react";
 
-type ViewTab = "sheet" | "history";
+type ViewTab = "sheet" | "analytics" | "history";
+
+
 
 export function StaffAttendanceView({
   date,
@@ -300,47 +304,79 @@ export function StaffAttendanceView({
       )}
 
       {/* Top Header & Navigation */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             Staff Attendance
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Track daily roll call, late arrivals, and absence records for office
-            and operations staff.
+            Track daily roll call, late arrivals, absence records, and analytics for office and operational staff.
           </p>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200/80">
-          <button
-            type="button"
-            onClick={() => setActiveTab("sheet")}
-            className={
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition " +
-              (activeTab === "sheet"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900")
-            }
+        <div className="flex flex-wrap items-center gap-3">
+          {/* PDF Export Shortcut */}
+          <a
+            href={`/api/staff-attendance/pdf?date=${date}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center"
           >
-            <Calendar className="h-4 w-4" />
-            Daily Roll Call
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("history")}
-            className={
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition " +
-              (activeTab === "history"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900")
-            }
-          >
-            <FileText className="h-4 w-4" />
-            Attendance Records
-          </button>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-9 px-3 text-xs font-semibold shadow-xs"
+            >
+              <FileDown className="h-4 w-4 mr-1.5 text-indigo-600" />
+              Download PDF Report
+            </Button>
+          </a>
+
+          {/* Tab switcher */}
+          <div className="flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200/80">
+            <button
+              type="button"
+              onClick={() => setActiveTab("sheet")}
+              className={
+                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition " +
+                (activeTab === "sheet"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900")
+              }
+            >
+              <Calendar className="h-3.5 w-3.5" />
+              Daily Roll Call
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("analytics")}
+              className={
+                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition " +
+                (activeTab === "analytics"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900")
+              }
+            >
+              <BarChart3 className="h-3.5 w-3.5" />
+              Visual Analytics
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("history")}
+              className={
+                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition " +
+                (activeTab === "history"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900")
+              }
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Records
+            </button>
+          </div>
         </div>
       </div>
+
 
       {activeTab === "sheet" && (
         <>
@@ -764,6 +800,15 @@ export function StaffAttendanceView({
         </>
       )}
 
+      {/* Visual Analytics & Graphs Tab */}
+      {activeTab === "analytics" && (
+        <StaffAttendanceCharts
+          rows={rows}
+          historyLogs={historyLogs}
+          selectedDate={date}
+        />
+      )}
+
       {/* History & Attendance Records Tab */}
       {activeTab === "history" && (
         <div className="space-y-4">
@@ -817,8 +862,24 @@ export function StaffAttendanceView({
                 Export CSV
               </Button>
 
+              <a
+                href={`/api/staff-attendance/pdf?role=${encodeURIComponent(historyRoleFilter)}&status=${encodeURIComponent(historyStatusFilter)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center"
+              >
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="text-xs font-semibold h-9 px-3 text-indigo-700 border-indigo-200 bg-indigo-50 hover:bg-indigo-100"
+                >
+                  <FileDown className="h-3.5 w-3.5 mr-1.5 text-indigo-600" />
+                  Download PDF
+                </Button>
+              </a>
             </div>
           </div>
+
 
           {/* History Table */}
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
