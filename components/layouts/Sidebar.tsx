@@ -261,6 +261,7 @@ export function Sidebar({
   mobileOpen = false,
   onMobileClose,
   newCoverageCount = 0,
+  onAutoPrintOpen,
 }: {
   role: Role;
   name: string;
@@ -268,6 +269,7 @@ export function Sidebar({
   mobileOpen?: boolean;
   onMobileClose?: () => void;
   newCoverageCount?: number;
+  onAutoPrintOpen?: () => void;
 }) {
   const pathname = usePathname();
 
@@ -336,7 +338,7 @@ export function Sidebar({
 
   const footer = (
     <div className="border-t border-slate-200 p-4 space-y-3">
-      <AutoPrintButton variant="sidebar" />
+      <AutoPrintButton variant="sidebar" onOpen={onAutoPrintOpen} />
       <div>
         <p className="truncate text-sm font-semibold text-slate-800">{name}</p>
         <p className="truncate text-xs text-slate-400">

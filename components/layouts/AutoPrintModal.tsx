@@ -154,40 +154,40 @@ export function AutoPrintModal({
 export function AutoPrintButton({
   variant = "topbar",
   className = "",
+  onOpen,
 }: {
   variant?: "topbar" | "sidebar" | "mobile";
   className?: string;
+  onOpen?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const handleClick = () => {
+    if (onOpen) {
+      onOpen();
+    }
+  };
 
   if (variant === "sidebar") {
     return (
-      <>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-brand-50 hover:text-brand-800 ${className}`}
-        >
-          <Printer className="h-4 w-4 text-brand-600" />
-          <span>Auto Print (HQ)</span>
-        </button>
-        <AutoPrintModal open={open} onClose={() => setOpen(false)} />
-      </>
+      <button
+        type="button"
+        onClick={handleClick}
+        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-brand-50 hover:text-brand-800 ${className}`}
+      >
+        <Printer className="h-4 w-4 text-brand-600" />
+        <span>Auto Print (HQ)</span>
+      </button>
     );
   }
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Open Auto Print instructions and portal"
-        className={`inline-flex h-9 items-center gap-2 rounded-lg border border-brand-300 bg-brand-50/70 px-3 text-sm font-medium text-brand-800 transition-colors hover:bg-brand-100 hover:text-brand-900 active:scale-[0.98] ${className}`}
-      >
-        <Printer className="h-4 w-4 text-brand-600" />
-        <span className="font-semibold">Auto Print</span>
-      </button>
-      <AutoPrintModal open={open} onClose={() => setOpen(false)} />
-    </>
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label="Open Auto Print instructions and portal"
+      className={`inline-flex h-9 items-center gap-2 rounded-lg border border-brand-300 bg-brand-50/70 px-3 text-sm font-medium text-brand-800 transition-colors hover:bg-brand-100 hover:text-brand-900 active:scale-[0.98] ${className}`}
+    >
+      <Printer className="h-4 w-4 text-brand-600" />
+      <span className="font-semibold">Auto Print</span>
+    </button>
   );
 }
