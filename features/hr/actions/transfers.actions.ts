@@ -38,8 +38,19 @@ export async function submitTransfer(
   // Current supervisor is the requester by default.
   const profile = await db.query.guardProfiles.findFirst({
     where: eq(guardProfiles.id, v.guardId),
-    columns: { assignedSupervisorId: true },
+    columns: { assignedSupervisorId: true, isActive: true },
   });
+
+  if (!profile) {
+    return { ok: false, error: "Guard profile not found." };
+  }
+  if (!profile.isActive) {
+    return {
+      ok: false,
+      error:
+        "This guard is disabled and cannot be transferred. Re-activate them first.",
+    };
+  }
 
   const [request] = await db
     .insert(transferRequests)
@@ -102,6 +113,19 @@ export async function approveOrRejectTransfer(
   if (!request) return { ok: false, error: "Transfer request not found." };
   if (request.status !== "PENDING") {
     return { ok: false, error: "Transfer already processed." };
+  }
+
+  // A guard disabled after the request was raised must not be moved around.
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, request.guardId),
+    columns: { isActive: true },
+  });
+  if (guard && !guard.isActive) {
+    return {
+      ok: false,
+      error:
+        "This guard is disabled — the transfer cannot be approved. Re-activate them first.",
+    };
   }
 
   await db

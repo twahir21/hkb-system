@@ -111,7 +111,9 @@ export async function listGuardOptions(): Promise<GuardOption[]> {
     .from(guardProfiles)
     .innerJoin(users, eq(guardProfiles.userId, users.id))
     .leftJoin(guardCredits, eq(guardCredits.guardId, guardProfiles.id))
-    .where(eq(users.role, "GUARD"))
+    // Disabled guards can no longer take new credit (their outstanding debt is
+    // still listed by getOutstandingByGuard, which is a payroll view).
+    .where(and(eq(users.role, "GUARD"), eq(guardProfiles.isActive, true)))
     .groupBy(guardProfiles.id, guardProfiles.employeeId, users.fullName)
     .orderBy(users.fullName);
 

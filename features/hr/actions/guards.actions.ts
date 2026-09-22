@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
+import { guardProfiles, clients, regions, stations, users, transferRequests } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { guardSchema } from "@/features/hr/validators/guard.schema";
@@ -313,13 +313,128 @@ export async function updateGuard(
   return { ok: true, guardId: id, message: "Guard updated." };
 }
 
+/**
+ * Disable a guard. Every record (attendance, credits, transfers) is kept for
+ * payroll and dispute resolution, but the guard stops being *counted* as a
+ * guard: they drop out of shift sheets, dashboards, analytics, credit pickers
+ * and the transfer queue.
+ */
+export async function disableGuard(
+  guardId: string,
+  reason?: string,
+): Promise<GuardState> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  if (typeof guardId !== "string" || !guardId) {
+    return { ok: false, error: "Missing guard id" };
+  }
+
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, guardId),
+  });
+  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (!guard.isActive) {
+    return { ok: true, guardId, message: "Guard is already disabled." };
+  }
+
+  const now = new Date();
+
+  await db
+    .update(guardProfiles)
+    .set({ isActive: false, disabledAt: now, updatedAt: now })
+    .where(eq(guardProfiles.id, guardId));
+
+  // A disabled guard must not sit in HR's transfer queue. Pending requests are
+  // closed automatically rather than left dangling for a guard who has left.
+  await db
+    .update(transferRequests)
+    .set({
+      status: "REJECTED",
+      reviewerNotes: "Closed automatically — the guard was disabled.",
+      updatedAt: now,
+    })
+    .where(
+      and(
+        eq(transferRequests.guardId, guardId),
+        eq(transferRequests.status, "PENDING"),
+      ),
+    );
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "GUARD_DISABLE",
+    entity: "guard_profiles",
+    entityId: guardId,
+    metadata: {
+      employeeId: guard.employeeId,
+      reason: reason?.trim() ? reason.trim() : null,
+    },
+  });
+
+  revalidatePath("/guards");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
+  revalidatePath("/transfers");
+  revalidatePath("/office/credit");
+
+  return {
+    ok: true,
+    guardId,
+    message: "Guard disabled — they are no longer counted as a guard.",
+  };
+}
+
+/** Re-activate a previously disabled guard (history is untouched). */
+export async function enableGuard(guardId: string): Promise<GuardState> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  if (typeof guardId !== "string" || !guardId) {
+    return { ok: false, error: "Missing guard id" };
+  }
+
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, guardId),
+  });
+  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (guard.isActive) {
+    return { ok: true, guardId, message: "Guard is already active." };
+  }
+
+  const now = new Date();
+  await db
+    .update(guardProfiles)
+    .set({ isActive: true, disabledAt: null, updatedAt: now })
+    .where(eq(guardProfiles.id, guardId));
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "GUARD_ENABLE",
+    entity: "guard_profiles",
+    entityId: guardId,
+    metadata: { employeeId: guard.employeeId },
+  });
+
+  revalidatePath("/guards");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
+  revalidatePath("/office/credit");
+
+  return {
+    ok: true,
+    guardId,
+    message: "Guard re-activated — they are counted as a guard again.",
+  };
+}
+
+
 const SUPERVISOR_ROLES = [
   "SUPERVISOR",
   "OPERATION_OFFICER",
   "SENIOR_SUPERVISOR",
   "SUPER_ADMIN",
 ] as const;
-
 /**
  * A CSV row that passed validation and is ready to be written. `rowNum` and
  * `identifier` stay attached to it so any failure — during validation or at

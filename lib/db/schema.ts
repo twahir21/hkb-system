@@ -105,6 +105,8 @@ export const guardProfiles = pgTable("guard_profiles", {
   kinPhone: varchar("kin_phone", { length: 20 }).notNull(),
   registrationDate: date("registration_date").notNull(),
   assignedSupervisorId: uuid("assigned_supervisor_id").references(() => users.id),
+  isActive: boolean("is_active").notNull().default(true),
+  disabledAt: timestamp("disabled_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

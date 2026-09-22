@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { users, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
+import { users, guardProfiles, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { parseCsv, type BulkImportRowError, type BulkImportResult } from "@/lib/csv";
@@ -174,6 +174,22 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
 
   if (!existing) {
     return { ok: false, error: "User not found." };
+  }
+
+  // Guard accounts are never hard-deleted: deleting the user cascades into
+  // guard_profiles and wipes attendance/credit history that payroll relies on
+  // for disputes. Disabling keeps every record and just stops them being
+  // counted as a guard.
+  const guardProfile = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.userId, userId),
+    columns: { id: true },
+  });
+  if (guardProfile) {
+    return {
+      ok: false,
+      error:
+        "This account belongs to a guard. Disable the guard in the Guard Registry instead — that keeps their attendance and payroll history.",
+    };
   }
 
   await db.delete(users).where(eq(users.id, userId));

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { guardProfiles, regions, stations } from "@/lib/db/schema";
 
@@ -42,12 +42,22 @@ export async function getRegionSiteAnalytics(): Promise<{
         count: sql<number>`COUNT(*)`.as("guard_count"),
       })
       .from(guardProfiles)
-      .where(sql`${guardProfiles.stationId} IS NOT NULL`)
+      .where(
+        and(
+          sql`${guardProfiles.stationId} IS NOT NULL`,
+          eq(guardProfiles.isActive, true),
+        ),
+      )
       .groupBy(guardProfiles.stationId),
     db
       .select({ count: sql<number>`COUNT(*)`.as("unassigned") })
       .from(guardProfiles)
-      .where(sql`${guardProfiles.stationId} IS NULL`),
+      .where(
+        and(
+          sql`${guardProfiles.stationId} IS NULL`,
+          eq(guardProfiles.isActive, true),
+        ),
+      ),
   ]);
 
   const guardsByStation = new Map(

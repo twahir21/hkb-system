@@ -3,7 +3,7 @@ import "server-only";
 import { and, gte, inArray, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attendanceLogs } from "@/lib/db/schema";
-import { listGuards } from "@/features/hr/queries/guards";
+import { guardsInPeriod, listGuards } from "@/features/hr/queries/guards";
 import {
   listLogs,
   type LogRow,
@@ -110,7 +110,12 @@ export async function getMonthlyAttendanceSummary(
   const lastDay = new Date(year, month, 0).getDate();
   const endDate = `${year}-${paddedMonth}-${String(lastDay).padStart(2, "0")}`;
 
-  const allGuards = await listGuards(includePii);
+  // Period report: active guards plus anyone disabled during/after this period
+  // (they may still have worked part of it and must appear for payroll).
+  const allGuards = guardsInPeriod(
+    await listGuards(includePii, { includeDisabled: true }),
+    startDate,
+  );
   const guards = supervisorId
     ? allGuards.filter((g) => g.assignedSupervisorId === supervisorId)
     : allGuards;
@@ -389,7 +394,8 @@ export async function getGuardMonthlyDetail(
   const lastDay = new Date(year, month, 0).getDate();
   const endDate = `${year}-${paddedMonth}-${String(lastDay).padStart(2, "0")}`;
 
-  const allGuards = await listGuards(false);
+  // History lookup: a disabled guard's past months must stay reachable.
+  const allGuards = await listGuards(false, { includeDisabled: true });
   const guard = allGuards.find((g) => g.id === guardId);
   if (!guard) return null;
 

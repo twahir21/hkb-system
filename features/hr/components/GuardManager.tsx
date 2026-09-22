@@ -1,7 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { UserPlus, Pencil, Upload, FileSpreadsheet, Search } from "lucide-react";
+import { useState, useMemo, useTransition } from "react";
+import {
+  UserPlus,
+  Pencil,
+  Upload,
+  FileSpreadsheet,
+  Search,
+  Ban,
+  RotateCcw,
+  Loader2,
+} from "lucide-react";
 import { Button, Modal, DataTable, Badge, Pagination, type Column } from "@/components/ui";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import type { GuardRow } from "@/features/hr/queries/guards";
@@ -9,6 +18,8 @@ import type { ClientOption, RegionOption, StationOption } from "./GuardForm";
 import { GuardForm } from "./GuardForm";
 import { BulkGuardModal } from "./BulkGuardModal";
 import { PartialGuardModal } from "./PartialGuardModal";
+import { disableGuard, enableGuard } from "@/features/hr/actions/guards.actions";
+import { formatDate } from "@/lib/utils";
 
 type Supervisor = { id: string; name: string; role: string };
 
@@ -28,6 +39,7 @@ export function GuardManager({
   const [q, setQ] = useState("");
   const debouncedQ = useDebounce(q, 300);
   const [genderFilter, setGenderFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [prevQ, setPrevQ] = useState(debouncedQ);
@@ -37,14 +49,63 @@ export function GuardManager({
   const [partialBulkOpen, setPartialBulkOpen] = useState(false);
   const [editing, setEditing] = useState<GuardRow | null>(null);
 
-  const maleCount = useMemo(() => guards.filter((g) => g.gender === "MALE").length, [guards]);
-  const femaleCount = useMemo(() => guards.filter((g) => g.gender === "FEMALE").length, [guards]);
+  // Disable flow: modal collects an optional reason (kept in the audit trail).
+  const [disableTarget, setDisableTarget] = useState<GuardRow | null>(null);
+  const [disableReason, setDisableReason] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  // Disabled guards are listed here (so they can be re-activated) but they are
+  // never counted as guards in the stats below.
+  const activeGuards = useMemo(() => guards.filter((g) => g.isActive), [guards]);
+  const disabledCount = guards.length - activeGuards.length;
+
+  const maleCount = useMemo(() => activeGuards.filter((g) => g.gender === "MALE").length, [activeGuards]);
+  const femaleCount = useMemo(() => activeGuards.filter((g) => g.gender === "FEMALE").length, [activeGuards]);
 
   // Reset to page 1 whenever the debounced search query changes
   if (prevQ !== debouncedQ) {
     setPrevQ(debouncedQ);
     setPage(1);
   }
+
+  const handleDisable = (reason: string) => {
+    if (!disableTarget) return;
+    setActionError(null);
+    setBusyId(disableTarget.id);
+    const target = disableTarget;
+    startTransition(async () => {
+      try {
+        const res = await disableGuard(target.id, reason);
+        if (!res.ok) {
+          setActionError(res.error ?? "Failed to disable guard.");
+        } else {
+          setDisableTarget(null);
+          setDisableReason("");
+        }
+      } catch {
+        setActionError("Failed to disable guard.");
+      } finally {
+        setBusyId(null);
+      }
+    });
+  };
+
+  const handleEnable = (guard: GuardRow) => {
+    setActionError(null);
+    setBusyId(guard.id);
+    startTransition(async () => {
+      try {
+        const res = await enableGuard(guard.id);
+        if (!res.ok) setActionError(res.error ?? "Failed to re-activate guard.");
+      } catch {
+        setActionError("Failed to re-activate guard.");
+      } finally {
+        setBusyId(null);
+      }
+    });
+  };
 
   const filtered = useMemo(() => {
     return guards.filter((g) => {
@@ -55,9 +116,13 @@ export function GuardManager({
 
       const matchesGender = !genderFilter || g.gender === genderFilter;
 
-      return matchesQ && matchesGender;
+      const matchesStatus =
+        !statusFilter ||
+        (statusFilter === "ACTIVE" ? g.isActive : !g.isActive);
+
+      return matchesQ && matchesGender && matchesStatus;
     });
-  }, [guards, debouncedQ, genderFilter]);
+  }, [guards, debouncedQ, genderFilter, statusFilter]);
 
   const paginatedGuards = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -171,31 +236,84 @@ export function GuardManager({
         ),
     },
     {
+      key: "status",
+      header: "Status",
+      cell: (r) =>
+        r.isActive ? (
+          <Badge tone="emerald">Active</Badge>
+        ) : (
+          <div className="flex flex-col items-start gap-1">
+            <Badge tone="rose">Disabled</Badge>
+            {r.disabledAt && (
+              <span className="text-[10px] text-slate-400">
+                {formatDate(r.disabledAt)}
+              </span>
+            )}
+          </div>
+        ),
+    },
+    {
       key: "actions",
       header: "",
       className: "text-right",
       cell: (r) => (
-        <button
-          onClick={() => {
-            setEditing(r);
-            setOpen(true);
-          }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
-        >
-          <Pencil className="h-3.5 w-3.5" /> Edit
-        </button>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => {
+              setEditing(r);
+              setOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+          >
+            <Pencil className="h-3.5 w-3.5" /> Edit
+          </button>
+
+          {r.isActive ? (
+            <button
+              onClick={() => {
+                setActionError(null);
+                setDisableReason("");
+                setDisableTarget(r);
+              }}
+              disabled={isPending && busyId === r.id}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+              title="Stop counting this guard as a guard (history is kept)"
+            >
+              {isPending && busyId === r.id ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Ban className="h-3.5 w-3.5" />
+              )}
+              Disable
+            </button>
+          ) : (
+            <button
+              onClick={() => handleEnable(r)}
+              disabled={isPending && busyId === r.id}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+              title="Count this guard as a guard again"
+            >
+              {isPending && busyId === r.id ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RotateCcw className="h-3.5 w-3.5" />
+              )}
+              Enable
+            </button>
+          )}
+        </div>
       ),
     },
   ];
 
   return (
     <div className="space-y-4">
-      {/* Stats and Gender Breakdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Stats and Gender Breakdown — active guards only; disabled are not counted */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-slate-500">Total Registered Guards</p>
-            <p className="text-xl font-bold text-slate-900">{guards.length}</p>
+            <p className="text-xs font-medium text-slate-500">Active Guards (counted)</p>
+            <p className="text-xl font-bold text-slate-900">{activeGuards.length}</p>
           </div>
           <div className="h-9 w-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-xs">
             All
@@ -208,7 +326,7 @@ export function GuardManager({
             <p className="text-xl font-bold text-sky-950">{maleCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">
-            {guards.length > 0 ? Math.round((maleCount / guards.length) * 100) : 0}%
+            {activeGuards.length > 0 ? Math.round((maleCount / activeGuards.length) * 100) : 0}%
           </span>
         </div>
 
@@ -218,7 +336,17 @@ export function GuardManager({
             <p className="text-xl font-bold text-fuchsia-950">{femaleCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-fuchsia-100 px-2 py-1 text-xs font-semibold text-fuchsia-800">
-            {guards.length > 0 ? Math.round((femaleCount / guards.length) * 100) : 0}%
+            {activeGuards.length > 0 ? Math.round((femaleCount / activeGuards.length) * 100) : 0}%
+          </span>
+        </div>
+
+        <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-rose-700">Disabled (not counted)</p>
+            <p className="text-xl font-bold text-rose-950">{disabledCount}</p>
+          </div>
+          <span className="inline-flex items-center rounded-md bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-800">
+            <Ban className="h-3 w-3" />
           </span>
         </div>
       </div>
@@ -246,6 +374,18 @@ export function GuardManager({
             <option value="MALE">Male ({maleCount})</option>
             <option value="FEMALE">Female ({femaleCount})</option>
           </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
+          >
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active only ({activeGuards.length})</option>
+            <option value="DISABLED">Disabled only ({disabledCount})</option>
+          </select>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" onClick={() => setPartialBulkOpen(true)}>
@@ -264,6 +404,12 @@ export function GuardManager({
           </Button>
         </div>
       </div>
+
+      {actionError && !disableTarget && (
+        <p className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm font-medium text-rose-700">
+          {actionError}
+        </p>
+      )}
 
       <DataTable
         columns={columns}
@@ -310,6 +456,69 @@ export function GuardManager({
         stations={stations}
         clients={clients}
       />
+
+      <Modal
+        open={disableTarget !== null}
+        onClose={() => {
+          setDisableTarget(null);
+          setDisableReason("");
+        }}
+        title={
+          disableTarget
+            ? `Disable ${disableTarget.fullName}?`
+            : "Disable guard"
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
+            <span className="font-semibold text-slate-800">{disableTarget?.fullName}</span>
+            {disableTarget?.employeeId ? ` (${disableTarget.employeeId})` : ""} will stop being
+            counted as a guard: they disappear from the shift sheet, dashboard, analytics, region
+            counts, transfer requests and new credit pick-ups.
+          </p>
+
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
+            Nothing is deleted. Attendance, absences, late minutes and outstanding debts are all
+            kept for payroll and dispute resolution, and you can re-activate the guard at any time.
+          </div>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Reason (optional — saved to the audit trail)
+            </span>
+            <textarea
+              value={disableReason}
+              onChange={(e) => setDisableReason(e.target.value)}
+              rows={3}
+              placeholder="e.g. resigned, contract ended, transferred out of HKB…"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </label>
+
+          {actionError && <p className="text-sm text-rose-600">{actionError}</p>}
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setDisableTarget(null);
+                setDisableReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleDisable(disableReason)}
+              disabled={isPending}
+            >
+              {isPending ? "Disabling…" : "Disable guard"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

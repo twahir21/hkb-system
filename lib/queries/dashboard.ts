@@ -22,20 +22,38 @@ export type DailyTrendPoint = {
 };
 
 export async function getDashboardCounts(role: string, userId: string, date = today()) {
-  const [guards] = await db.select({ value: count() }).from(guardProfiles);
+  // Disabled guards are not counted anywhere on the dashboard — they are only
+  // visible in the Guard Registry and the payroll export.
+  const [guards] = await db
+    .select({ value: count() })
+    .from(guardProfiles)
+    .where(eq(guardProfiles.isActive, true));
   const [assignedGuards] = await db
     .select({ value: count() })
     .from(guardProfiles)
     .where(
-      role === "SUPERVISOR"
-        ? eq(guardProfiles.assignedSupervisorId, userId)
-        : undefined
+      and(
+        eq(guardProfiles.isActive, true),
+        role === "SUPERVISOR"
+          ? eq(guardProfiles.assignedSupervisorId, userId)
+          : undefined
+      )
     );
 
   const [unassignedGuards] = await db
     .select({ value: count() })
     .from(guardProfiles)
-    .where(isNull(guardProfiles.assignedSupervisorId));
+    .where(
+      and(
+        eq(guardProfiles.isActive, true),
+        isNull(guardProfiles.assignedSupervisorId)
+      )
+    );
+
+  const [disabledGuards] = await db
+    .select({ value: count() })
+    .from(guardProfiles)
+    .where(eq(guardProfiles.isActive, false));
 
   const [totalStations] = await db
     .select({ value: count() })
@@ -61,6 +79,7 @@ export async function getDashboardCounts(role: string, userId: string, date = to
     totalGuards: guards?.value ?? 0,
     assignedGuards: assignedGuards?.value ?? 0,
     unassignedGuards: unassignedGuards?.value ?? 0,
+    disabledGuards: disabledGuards?.value ?? 0,
     totalStations: totalStations?.value ?? 0,
     pendingTransfers: pendingTransfers?.value ?? 0,
     pendingStockTransfers: pendingStockTransfers?.value ?? 0,
@@ -92,7 +111,12 @@ export async function get7DayAttendanceTrend(
     const guardRows = await db
       .select({ id: guardProfiles.id })
       .from(guardProfiles)
-      .where(eq(guardProfiles.assignedSupervisorId, supervisorId));
+      .where(
+        and(
+          eq(guardProfiles.assignedSupervisorId, supervisorId),
+          eq(guardProfiles.isActive, true)
+        )
+      );
     guardFilterIds = guardRows.map((g) => g.id);
   }
 

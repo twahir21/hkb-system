@@ -22,6 +22,39 @@ export const reportQuerySchema = z.object({
 
 export type ReportQueryInput = z.infer<typeof reportQuerySchema>;
 
+/**
+ * Query flags arrive as strings — read them strictly so `?flag=false` is false
+ * (z.coerce.boolean() would turn any non-empty string into true).
+ */
+const booleanFlagSchema = z
+  .enum(["true", "false"])
+  .optional()
+  .transform((value) => value === "true");
+
+/**
+ * Guard payroll export ("Guard Directory & Payroll Export" PDF).
+ * Either a month (`YYYY-MM`) or an explicit inclusive date range is required.
+ */
+export const guardPayrollExportQuerySchema = z
+  .object({
+    month: z.string().regex(/^\d{4}-\d{2}$/, "month must be YYYY-MM").optional(),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    regionId: z.string().uuid().optional(),
+    clientId: z.string().uuid().optional(),
+    supervisorId: z.string().uuid().optional(),
+    status: z.enum(["ALL", "ACTIVE", "DISABLED"]).optional(),
+    includeZeroActivity: booleanFlagSchema,
+    includeDetails: booleanFlagSchema,
+    format: z.literal("pdf").optional(),
+  })
+  .refine((v) => Boolean(v.month) || Boolean(v.startDate && v.endDate), {
+    message: "Provide a month (YYYY-MM) or both startDate and endDate",
+    path: ["month"],
+  });
+
+export type GuardPayrollExportQueryInput = z.infer<typeof guardPayrollExportQuerySchema>;
+
 /** Public "Request Coverage" submission from the marketing website. */
 const phoneRegex = /^\+?[0-9][0-9\s\-()]{6,25}$/;
 
