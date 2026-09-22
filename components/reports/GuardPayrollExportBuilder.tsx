@@ -8,15 +8,14 @@ import {
   Filter,
   Users,
   Building2,
-  MapPin,
   CheckCircle2,
   FileSpreadsheet,
   Layers,
 } from "lucide-react";
 
 type SupervisorOpt = { id: string; name: string; role: string };
-type RegionOpt = { id: string; name: string };
 type ClientOpt = { id: string; name: string };
+type RegionOpt = { id: string; name: string };
 
 function daysAgo(n: number) {
   const d = new Date();
@@ -30,12 +29,11 @@ const labelCls = "mb-1.5 flex items-center gap-1.5 text-xs font-semibold upperca
 
 export function GuardPayrollExportBuilder({
   supervisors,
-  regions,
   clients,
   defaultMonth,
 }: {
   supervisors: SupervisorOpt[];
-  regions: RegionOpt[];
+  regions?: RegionOpt[];
   clients: ClientOpt[];
   defaultMonth: string;
 }) {
@@ -43,7 +41,6 @@ export function GuardPayrollExportBuilder({
   const [month, setMonth] = useState(defaultMonth);
   const [startDate, setStartDate] = useState(daysAgo(30));
   const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 10));
-  const [regionId, setRegionId] = useState("");
   const [clientId, setClientId] = useState("");
   const [supervisorId, setSupervisorId] = useState("");
   const [status, setStatus] = useState<"ALL" | "ACTIVE" | "DISABLED">("ALL");
@@ -58,7 +55,6 @@ export function GuardPayrollExportBuilder({
       p.set("startDate", startDate);
       p.set("endDate", endDate);
     }
-    if (regionId) p.set("regionId", regionId);
     if (clientId) p.set("clientId", clientId);
     if (supervisorId) p.set("supervisorId", supervisorId);
     if (status !== "ALL") p.set("status", status);
@@ -70,7 +66,6 @@ export function GuardPayrollExportBuilder({
     month,
     startDate,
     endDate,
-    regionId,
     clientId,
     supervisorId,
     status,
@@ -78,8 +73,7 @@ export function GuardPayrollExportBuilder({
     includeDetails,
   ]);
 
-  const selectedRegion = regions.find((r) => r.id === regionId)?.name ?? "All Regions";
-  const selectedClient = clients.find((c) => c.id === clientId)?.name ?? "All Clients";
+  const selectedClient = clients.find((c) => c.id === clientId)?.name ?? "All Clients (Chunked)";
   const selectedSupervisor =
     supervisors.find((s) => s.id === supervisorId)?.name ?? "All Supervisors";
 
@@ -91,14 +85,14 @@ export function GuardPayrollExportBuilder({
         <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-300">
-              <FileSpreadsheet className="h-3.5 w-3.5" /> Official Payroll Export
+              <FileSpreadsheet className="h-3.5 w-3.5" /> Client-Chunked Payroll Dossier
             </div>
             <h3 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Guard Directory &amp; Payroll Dossier Export
+              Guard Directory &amp; Payroll Export
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Export complete guard records containing personal identity, site deployments, attendance
-              shifts, late penalties, absence reasons, and credit deductions for finance &amp; bursar processing.
+              Export guard payroll working sheets structured by client accounts. Each client sheet includes
+              independent attendance rosters, debt/credit deductions, subtotals, and verification signature blocks.
             </p>
           </div>
 
@@ -199,44 +193,29 @@ export function GuardPayrollExportBuilder({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Filter className="h-4 w-4 text-brand-600" />
-              <h4 className="font-semibold text-slate-900 text-base">Scope &amp; Assignments</h4>
+              <h4 className="font-semibold text-slate-900 text-base">Scope &amp; Client Assignments</h4>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>
-                  <MapPin className="h-3 w-3" /> Region
-                </label>
-                <select
-                  value={regionId}
-                  onChange={(e) => setRegionId(e.target.value)}
-                  className={inputCls}
-                >
-                  <option value="">All Regions</option>
-                  {regions.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={labelCls}>
-                  <Building2 className="h-3 w-3" /> Client
+                  <Building2 className="h-3 w-3" /> Client Account
                 </label>
                 <select
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
                   className={inputCls}
                 >
-                  <option value="">All Clients</option>
+                  <option value="">All Clients (Grouped by Client Sheet)</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
                   ))}
                 </select>
+                <p className="mt-1 text-xs text-slate-400">
+                  When "All Clients" is selected, each client is rendered on its own dedicated page chunk.
+                </p>
               </div>
 
               <div>
@@ -314,7 +293,7 @@ export function GuardPayrollExportBuilder({
                     Include Guard Profile &amp; Next-of-Kin Dossiers
                   </span>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Appends a detailed card section with next of kin, emergency contacts, home location, and complete breakdown per guard.
+                    Appends client-grouped guard dossier cards with next of kin, emergency contacts, home location, and shift details.
                   </p>
                 </div>
               </label>
@@ -337,11 +316,7 @@ export function GuardPayrollExportBuilder({
                 </span>
               </div>
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Region:</span>
-                <span className="font-semibold text-slate-900">{selectedRegion}</span>
-              </div>
-              <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Client:</span>
+                <span className="text-slate-500 font-medium">Client Scope:</span>
                 <span className="font-semibold text-slate-900">{selectedClient}</span>
               </div>
               <div className="pt-2 flex justify-between">
@@ -389,10 +364,10 @@ export function GuardPayrollExportBuilder({
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-xs text-amber-800 space-y-2">
             <p className="font-bold text-amber-900 flex items-center gap-1.5">
-              <span>📌</span> Payroll Working Document Notice
+              <span>📌</span> Client-Specific Payroll Processing
             </p>
             <p className="leading-relaxed">
-              This export generates the comprehensive working sheet for bursars &amp; accountants. It aggregates attendance logs, late minutes, unexcused absences, and debt deductions. It does not compute salaries or disburse payments.
+              PDF exports are automatically partitioned into client chunks with independent subtotals, attendance breakdowns, and sign-off blocks so client managers and bursars can process payroll per account.
             </p>
           </div>
         </div>

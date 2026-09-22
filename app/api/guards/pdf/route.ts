@@ -3,15 +3,63 @@ import { hasPermission } from "@/lib/auth/rbac";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { guardPayrollExportQuerySchema } from "@/lib/validators/schemas";
 import { getGuardPayrollExport, monthPeriod, rangePeriod } from "@/features/hr/queries/guard-export";
-import { renderGuardPayrollPdf, type GuardPayrollPdfData } from "@/lib/pdf/guard-payroll-document";
+import {
+  renderGuardPayrollPdf,
+  type GuardPayrollPdfData,
+  type GuardPayrollPdfRow,
+  type GuardPayrollPdfTotals,
+  type GuardPayrollClientGroup,
+} from "@/lib/pdf/guard-payroll-document";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function computeClientTotals(rows: GuardPayrollPdfRow[]): GuardPayrollPdfTotals {
+  const totals: GuardPayrollPdfTotals = {
+    guards: 0,
+    activeGuards: 0,
+    disabledGuards: 0,
+    totalShifts: 0,
+    presentCount: 0,
+    lateCount: 0,
+    absentCount: 0,
+    sickCount: 0,
+    permittedCount: 0,
+    notPermittedCount: 0,
+    totalMinutesLate: 0,
+    outstandingDebt: 0,
+    deductedThisPeriod: 0,
+    attendancePercentage: 0,
+  };
+
+  for (const r of rows) {
+    totals.guards += 1;
+    if (r.isActive) totals.activeGuards += 1;
+    else totals.disabledGuards += 1;
+    totals.totalShifts += r.totalShifts;
+    totals.presentCount += r.presentCount;
+    totals.lateCount += r.lateCount;
+    totals.absentCount += r.absentCount;
+    totals.sickCount += r.sickCount;
+    totals.permittedCount += r.permittedCount;
+    totals.notPermittedCount += r.notPermittedCount;
+    totals.totalMinutesLate += r.totalMinutesLate;
+    totals.outstandingDebt += r.outstandingDebt;
+    totals.deductedThisPeriod += r.deductedThisPeriod;
+  }
+
+  totals.attendancePercentage =
+    totals.totalShifts > 0
+      ? Math.round(((totals.presentCount + totals.lateCount) / totals.totalShifts) * 1000) / 10
+      : 0;
+
+  return totals;
+}
+
 /**
  * GET /api/guards/pdf?month=YYYY-MM | startDate&endDate
  *                      &regionId&clientId&supervisorId&status&includeZeroActivity&includeDetails
- * Streams the guard payroll export PDF (full profile + attendance + outstanding debt).
+ * Streams the guard payroll export PDF structured by client chunks.
  * Payroll is intentionally NOT computed here — this is the working sheet for the bursar.
  */
 export async function GET(request: Request) {
@@ -56,13 +104,74 @@ export async function GET(request: Request) {
   });
 
   const scopeLines: string[] = [exportData.filters.statusLabel];
-  if (exportData.filters.regionName) scopeLines.push(`Region: ${exportData.filters.regionName}`);
   if (exportData.filters.clientName) scopeLines.push(`Client: ${exportData.filters.clientName}`);
   if (exportData.filters.supervisorName)
     scopeLines.push(`Supervisor: ${exportData.filters.supervisorName}`);
   if (!v.includeZeroActivity) scopeLines.push("Only guards with activity or outstanding debt");
   if (v.includeZeroActivity) scopeLines.push("Zero-activity guards included");
   if (!includePii) scopeLines.push("Personal contact details withheld");
+
+  const allRows: GuardPayrollPdfRow[] = exportData.rows.map((r) => ({
+    employeeId: r.employeeId,
+    fullName: r.fullName,
+    gender: r.gender,
+    age: r.age,
+    phone: r.phone,
+    email: r.email,
+    homeLocation: r.homeLocation,
+    workLocation: r.workLocation,
+    clientName: r.clientName,
+    supervisorName: r.supervisorName,
+    registrationDate: r.registrationDate,
+    kinName: r.kinName,
+    kinRelation: r.kinRelation,
+    kinPhone: r.kinPhone,
+    isActive: r.isActive,
+    disabledAtLabel: r.disabledAt
+      ? new Date(r.disabledAt).toLocaleDateString("en-GB", { dateStyle: "medium" })
+      : null,
+    totalShifts: r.totalShifts,
+    presentCount: r.presentCount,
+    lateCount: r.lateCount,
+    absentCount: r.absentCount,
+    sickCount: r.sickCount,
+    permittedCount: r.permittedCount,
+    notPermittedCount: r.notPermittedCount,
+    totalMinutesLate: r.totalMinutesLate,
+    attendancePercentage: r.attendancePercentage,
+    onTimePercentage: r.onTimePercentage,
+    outstandingDebt: r.outstandingDebt,
+    outstandingCount: r.outstandingCount,
+    deductedThisPeriod: r.deductedThisPeriod,
+  }));
+
+  const UNASSIGNED_LABEL = "Unassigned / Standby Pool";
+  const clientMap = new Map<string, GuardPayrollPdfRow[]>();
+
+  for (const row of allRows) {
+    const key = row.clientName?.trim() || UNASSIGNED_LABEL;
+    const list = clientMap.get(key) ?? [];
+    list.push(row);
+    clientMap.set(key, list);
+  }
+
+  // Sort clients alphabetically, placing unassigned at the end
+  const sortedClientNames = Array.from(clientMap.keys()).sort((a, b) => {
+    if (a === UNASSIGNED_LABEL) return 1;
+    if (b === UNASSIGNED_LABEL) return -1;
+    return a.localeCompare(b);
+  });
+
+  const clientGroups: GuardPayrollClientGroup[] = sortedClientNames.map((name) => {
+    const groupRows = clientMap.get(name)!;
+    groupRows.sort((a, b) => a.fullName.localeCompare(b.fullName));
+    return {
+      clientId: name === UNASSIGNED_LABEL ? null : name,
+      clientName: name,
+      totals: computeClientTotals(groupRows),
+      rows: groupRows,
+    };
+  });
 
   const data: GuardPayrollPdfData = {
     title: "Guard Payroll Export",
@@ -77,40 +186,7 @@ export async function GET(request: Request) {
     piiIncluded: includePii,
     includeDetails: Boolean(v.includeDetails),
     totals: exportData.totals,
-    rows: exportData.rows.map((r) => ({
-      employeeId: r.employeeId,
-      fullName: r.fullName,
-      gender: r.gender,
-      age: r.age,
-      phone: r.phone,
-      email: r.email,
-      homeLocation: r.homeLocation,
-      workLocation: r.workLocation,
-      regionName: r.regionName,
-      clientName: r.clientName,
-      supervisorName: r.supervisorName,
-      registrationDate: r.registrationDate,
-      kinName: r.kinName,
-      kinRelation: r.kinRelation,
-      kinPhone: r.kinPhone,
-      isActive: r.isActive,
-      disabledAtLabel: r.disabledAt
-        ? new Date(r.disabledAt).toLocaleDateString("en-GB", { dateStyle: "medium" })
-        : null,
-      totalShifts: r.totalShifts,
-      presentCount: r.presentCount,
-      lateCount: r.lateCount,
-      absentCount: r.absentCount,
-      sickCount: r.sickCount,
-      permittedCount: r.permittedCount,
-      notPermittedCount: r.notPermittedCount,
-      totalMinutesLate: r.totalMinutesLate,
-      attendancePercentage: r.attendancePercentage,
-      onTimePercentage: r.onTimePercentage,
-      outstandingDebt: r.outstandingDebt,
-      outstandingCount: r.outstandingCount,
-      deductedThisPeriod: r.deductedThisPeriod,
-    })),
+    clientGroups,
   };
 
   const buffer = await renderGuardPayrollPdf(data);
@@ -126,7 +202,8 @@ export async function GET(request: Request) {
       clientId: v.clientId ?? null,
       supervisorId: v.supervisorId ?? null,
       includePii,
-      rows: data.rows.length,
+      rows: allRows.length,
+      clientGroupsCount: clientGroups.length,
     },
   });
 
