@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/db/schema";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
+import { AutoPrintButton } from "./AutoPrintModal";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; roles: Role[] };
 
@@ -334,11 +335,14 @@ export function Sidebar({
   );
 
   const footer = (
-    <div className="border-t border-slate-200 p-4">
-      <p className="truncate text-sm font-semibold text-slate-800">{name}</p>
-      <p className="truncate text-xs text-slate-400">
-        {ROLE_LABELS[role]} · {email}
-      </p>
+    <div className="border-t border-slate-200 p-4 space-y-3">
+      <AutoPrintButton variant="sidebar" />
+      <div>
+        <p className="truncate text-sm font-semibold text-slate-800">{name}</p>
+        <p className="truncate text-xs text-slate-400">
+          {ROLE_LABELS[role]} · {email}
+        </p>
+      </div>
     </div>
   );
 

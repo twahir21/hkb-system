@@ -2,6 +2,7 @@ import { LogOut, Menu } from "lucide-react";
 import { logout } from "@/app/actions/auth.actions";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import type { Role } from "@/lib/db/schema";
+import { AutoPrintButton } from "./AutoPrintModal";
 
 export function Topbar({
   name,
@@ -28,7 +29,8 @@ export function Topbar({
           <p className="truncate text-xs text-slate-400 sm:hidden">{ROLE_LABELS[role]}</p>
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        <AutoPrintButton />
         <div className="hidden items-center gap-3 sm:flex">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
             {name.charAt(0).toUpperCase()}
