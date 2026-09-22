@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, count, desc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   attendanceLogs,
@@ -10,7 +10,6 @@ import {
   stockTransfers,
   transferRequests,
 } from "@/lib/db/schema";
-import { formatDate } from "@/lib/utils";
 
 export type DailyTrendPoint = {
   date: string;
