@@ -14,6 +14,7 @@ export function StaffLateModal({
   currentMinutesLate,
   currentReason,
   currentCheckInTime,
+  canEditTime = false,
 }: {
   userId: string;
   userName: string;
@@ -21,6 +22,8 @@ export function StaffLateModal({
   currentMinutesLate?: number | null;
   currentReason?: string | null;
   currentCheckInTime?: string | null;
+  /** Super Admin only — manual check-in time editing */
+  canEditTime?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [minutesLate, setMinutesLate] = useState<number>(
@@ -108,19 +111,25 @@ export function StaffLateModal({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Check-in Time
-              </label>
-              <input
-                type="text"
-                name="checkInTime"
-                value={checkInTime}
-                onChange={(e) => setCheckInTime(e.target.value)}
-                placeholder="e.g. 08:45 AM"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-              />
-            </div>
+            {canEditTime ? (
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
+                  Check-in Time
+                </label>
+                <input
+                  type="text"
+                  name="checkInTime"
+                  value={checkInTime}
+                  onChange={(e) => setCheckInTime(e.target.value)}
+                  placeholder="e.g. 08:45 AM"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+            ) : (
+              // Only Super Admin may edit times — submit the recorded/current
+              // time untouched so a fresh mark still gets stamped.
+              <input type="hidden" name="checkInTime" value={checkInTime} />
+            )}
           </div>
 
           <div>

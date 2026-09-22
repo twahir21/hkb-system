@@ -85,6 +85,13 @@
       "when": 1789995420284,
       "tag": "0011_zippy_sersi",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790055915459,
+      "tag": "0012_wandering_quicksilver",
+      "breakpoints": true
     }
   ]
 }

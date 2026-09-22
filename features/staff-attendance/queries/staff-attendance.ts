@@ -30,6 +30,7 @@ export type StaffAttendanceLogDTO = {
   date: string;
   status: AttendanceStatus;
   checkInTime: string | null;
+  checkOutTime: string | null;
   absenceCategory: AbsenceCategory | null;
   allowedDays: number | null;
   minutesLate: number | null;
@@ -79,6 +80,7 @@ export async function getStaffAttendanceSheet(date: string): Promise<StaffSheetR
       date: staffAttendanceLogs.date,
       status: staffAttendanceLogs.status,
       checkInTime: staffAttendanceLogs.checkInTime,
+      checkOutTime: staffAttendanceLogs.checkOutTime,
       absenceCategory: staffAttendanceLogs.absenceCategory,
       allowedDays: staffAttendanceLogs.allowedDays,
       minutesLate: staffAttendanceLogs.minutesLate,
@@ -140,6 +142,7 @@ export async function listStaffAttendanceLogs(filters: {
       date: staffAttendanceLogs.date,
       status: staffAttendanceLogs.status,
       checkInTime: staffAttendanceLogs.checkInTime,
+      checkOutTime: staffAttendanceLogs.checkOutTime,
       absenceCategory: staffAttendanceLogs.absenceCategory,
       allowedDays: staffAttendanceLogs.allowedDays,
       minutesLate: staffAttendanceLogs.minutesLate,

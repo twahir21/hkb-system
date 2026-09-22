@@ -54,6 +54,7 @@ export async function GET(request: Request) {
       staffGender: r.staffGender,
       status: r.status,
       checkInTime: r.checkInTime,
+      checkOutTime: r.checkOutTime,
       absenceCategory: r.absenceCategory,
       allowedDays: r.allowedDays,
       minutesLate: r.minutesLate,

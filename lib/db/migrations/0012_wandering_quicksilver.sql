@@ -1,0 +1,1 @@
+ALTER TABLE "staff_attendance_logs" ADD COLUMN "check_out_time" varchar(20);

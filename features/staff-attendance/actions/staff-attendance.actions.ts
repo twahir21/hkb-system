@@ -11,8 +11,11 @@ import {
   markStaffAttendanceSchema,
   batchMarkStaffPresentSchema,
   clearStaffAttendanceSchema,
+  updateStaffTimesSchema,
+  staffSignOutSchema,
 } from "@/features/staff-attendance/validators/staff-attendance.schema";
 import { uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
+import { hasPermission } from "@/lib/auth/rbac";
 
 export type ActionState = {
   ok: boolean;
@@ -33,6 +36,7 @@ export async function markStaffAttendance(
     date: formData.get("date") ?? undefined,
     status: formData.get("status") ?? undefined,
     checkInTime: formData.get("checkInTime") || undefined,
+    checkOutTime: formData.get("checkOutTime") || undefined,
     absenceCategory: formData.get("absenceCategory") || undefined,
     allowedDays: formData.get("allowedDays")
       ? Number(formData.get("allowedDays"))
@@ -55,7 +59,12 @@ export async function markStaffAttendance(
 
   // If already logged, editing requires STAFF_ATTENDANCE_EDIT
   const [existing] = await db
-    .select({ id: staffAttendanceLogs.id, status: staffAttendanceLogs.status })
+    .select({
+      id: staffAttendanceLogs.id,
+      status: staffAttendanceLogs.status,
+      checkInTime: staffAttendanceLogs.checkInTime,
+      checkOutTime: staffAttendanceLogs.checkOutTime,
+    })
     .from(staffAttendanceLogs)
     .where(
       and(
@@ -69,6 +78,12 @@ export async function markStaffAttendance(
     await requirePermission("STAFF_ATTENDANCE_EDIT");
   }
 
+  // Only Super Admin may change the recorded times of an existing log.
+  const canEditTime = hasPermission(user.role, "STAFF_ATTENDANCE_EDIT_TIME");
+  // A missing form key means "don't touch this time" (preserve the stored value).
+  const hasCheckInKey = formData.has("checkInTime");
+  const hasCheckOutKey = formData.has("checkOutTime");
+
   await db
     .insert(staffAttendanceLogs)
     .values({
@@ -76,6 +91,7 @@ export async function markStaffAttendance(
       date: v.date,
       status: v.status,
       checkInTime: v.checkInTime ?? null,
+      checkOutTime: v.checkOutTime ?? null,
       absenceCategory: v.absenceCategory ?? null,
       allowedDays: v.allowedDays ?? null,
       minutesLate: v.minutesLate ?? null,
@@ -87,7 +103,6 @@ export async function markStaffAttendance(
       target: [staffAttendanceLogs.userId, staffAttendanceLogs.date],
       set: {
         status: v.status,
-        checkInTime: v.checkInTime ?? null,
         absenceCategory: v.absenceCategory ?? null,
         allowedDays: v.allowedDays ?? null,
         minutesLate: v.minutesLate ?? null,
@@ -95,6 +110,18 @@ export async function markStaffAttendance(
         documentUrl: v.documentUrl ?? null,
         recordedById: user.userId,
         updatedAt: new Date(),
+        // Times on an existing record may only be changed by Super Admin;
+        // every other role keeps the times already recorded.
+        ...(canEditTime
+          ? {
+              checkInTime: hasCheckInKey
+                ? v.checkInTime ?? null
+                : existing?.checkInTime ?? null,
+              checkOutTime: hasCheckOutKey
+                ? v.checkOutTime ?? null
+                : existing?.checkOutTime ?? null,
+            }
+          : {}),
       },
     });
 
@@ -109,12 +136,153 @@ export async function markStaffAttendance(
       category: v.absenceCategory,
       minutesLate: v.minutesLate,
       checkInTime: v.checkInTime,
+      checkOutTime: v.checkOutTime,
     },
   });
 
   revalidatePath("/staff-attendance");
   revalidatePath("/dashboard");
   return { ok: true, message: "Staff attendance recorded successfully." };
+}
+
+/** Super Admin only — edit the recorded check-in / sign-out times of an existing log */
+export async function updateStaffTimes(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const user = await requirePermission("STAFF_ATTENDANCE_EDIT_TIME");
+
+  const parsed = updateStaffTimesSchema.safeParse({
+    userId: formData.get("userId") ?? undefined,
+    date: formData.get("date") ?? undefined,
+    checkInTime: formData.get("checkInTime") ?? undefined,
+    checkOutTime: formData.get("checkOutTime") ?? undefined,
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
+  }
+
+  const { userId, date, checkInTime, checkOutTime } = parsed.data;
+
+  const [existing] = await db
+    .select({ id: staffAttendanceLogs.id })
+    .from(staffAttendanceLogs)
+    .where(
+      and(eq(staffAttendanceLogs.userId, userId), eq(staffAttendanceLogs.date, date)),
+    )
+    .limit(1);
+
+  if (!existing) {
+    return {
+      ok: false,
+      error:
+        "No attendance record exists for this staff member on this date. Mark them Present / Late / Absent first.",
+    };
+  }
+
+  await db
+    .update(staffAttendanceLogs)
+    .set({
+      // Empty string = clear the recorded time
+      checkInTime: checkInTime?.trim() || null,
+      checkOutTime: checkOutTime?.trim() || null,
+      updatedAt: new Date(),
+    })
+    .where(eq(staffAttendanceLogs.id, existing.id));
+
+  await writeAuditLog({
+    actorId: user.userId,
+    action: "STAFF_ATTENDANCE_EDIT_TIME",
+    entity: "staff_attendance_logs",
+    entityId: userId,
+    metadata: {
+      date,
+      checkInTime: checkInTime || null,
+      checkOutTime: checkOutTime || null,
+    },
+  });
+
+  revalidatePath("/staff-attendance");
+  revalidatePath("/dashboard");
+  return { ok: true, message: "Check-in / sign-out times updated." };
+}
+
+/** Super Admin only — one-click sign-out: stamps the current time as sign-out */
+export async function signOutStaff(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const user = await requirePermission("STAFF_ATTENDANCE_EDIT_TIME");
+
+  const parsed = staffSignOutSchema.safeParse({
+    userId: formData.get("userId") ?? undefined,
+    date: formData.get("date") ?? undefined,
+    signOutTime: formData.get("signOutTime") || undefined,
+  });
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
+  }
+
+  const { userId, date } = parsed.data;
+  // Prefer the browser-stamped time so the recorded clock matches the user's
+  // timezone, exactly like the check-in quick action does.
+  const signOutTime =
+    parsed.data.signOutTime ||
+    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  const [existing] = await db
+    .select({
+      id: staffAttendanceLogs.id,
+      status: staffAttendanceLogs.status,
+      checkOutTime: staffAttendanceLogs.checkOutTime,
+    })
+    .from(staffAttendanceLogs)
+    .where(
+      and(eq(staffAttendanceLogs.userId, userId), eq(staffAttendanceLogs.date, date)),
+    )
+    .limit(1);
+
+  if (!existing) {
+    return {
+      ok: false,
+      error: "No attendance record exists for this staff member on this date.",
+    };
+  }
+
+  await db
+    .update(staffAttendanceLogs)
+    .set({ checkOutTime: signOutTime, updatedAt: new Date() })
+    .where(eq(staffAttendanceLogs.id, existing.id));
+
+  await writeAuditLog({
+    actorId: user.userId,
+    action: "STAFF_ATTENDANCE_SIGN_OUT",
+    entity: "staff_attendance_logs",
+    entityId: userId,
+    metadata: {
+      date,
+      status: existing.status,
+      signOutTime,
+      previousSignOutTime: existing.checkOutTime,
+    },
+  });
+
+  revalidatePath("/staff-attendance");
+  revalidatePath("/dashboard");
+  return {
+    ok: true,
+    message: existing.checkOutTime
+      ? `Sign-out time updated to ${signOutTime}.`
+      : `Signed out at ${signOutTime}.`,
+  };
 }
 
 /** Quick 1-click clock-in for PRESENT via plain <form action> */

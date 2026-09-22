@@ -14,6 +14,7 @@ export const markStaffAttendanceSchema = z
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
     status: staffAttendanceStatusSchema,
     checkInTime: z.string().max(20).optional(),
+    checkOutTime: z.string().max(20).optional(),
     absenceCategory: staffAbsenceCategorySchema.optional(),
     allowedDays: z.coerce.number().int().min(1).max(365).optional(),
     minutesLate: z.coerce.number().int().min(1).max(720).optional(),
@@ -49,9 +50,23 @@ export const batchMarkStaffPresentSchema = z.object({
   checkInTime: z.string().max(20).optional(),
 });
 
+/** Super Admin-only: edit the recorded check-in / sign-out times of an existing log.
+ *  Empty string means "clear the time". */
+export const updateStaffTimesSchema = z.object({
+  userId: z.string().uuid("Invalid staff user ID"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  checkInTime: z.string().max(20).optional(),
+  checkOutTime: z.string().max(20).optional(),
+});
+
 export const clearStaffAttendanceSchema = z.object({
   userId: z.string().uuid("Invalid staff user ID"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+});
+
+/** Super Admin-only quick sign-out (userId + date + optional client-stamped time) */
+export const staffSignOutSchema = clearStaffAttendanceSchema.extend({
+  signOutTime: z.string().max(20).optional(),
 });
 
 export type MarkStaffAttendanceInput = z.infer<typeof markStaffAttendanceSchema>;

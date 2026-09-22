@@ -9,7 +9,6 @@ import {
   XCircle,
   HelpCircle,
   Search,
-  Filter,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -17,26 +16,26 @@ import {
   CheckCheck,
   RotateCcw,
   FileText,
-  Eye,
   FileCheck,
-  Sparkles,
   AlertCircle,
+  LogOut,
 } from "lucide-react";
-import { Button, Badge, DataTable, type Column, Modal } from "@/components/ui";
+import { Button, Badge, Modal } from "@/components/ui";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import type { Role } from "@/lib/db/schema";
 import type {
   StaffSheetRow,
   StaffHistoryRow,
-  StaffMember,
 } from "@/features/staff-attendance/queries/staff-attendance";
 import {
   markStaffAttendance,
   markAllStaffPresent,
   clearStaffAttendance,
+  signOutStaff,
 } from "@/features/staff-attendance/actions/staff-attendance.actions";
 import { StaffLateModal } from "./StaffLateModal";
 import { StaffAbsentModal } from "./StaffAbsentModal";
+import { StaffEditTimeModal } from "./StaffEditTimeModal";
 import { formatDate } from "@/lib/utils";
 import { StaffAttendanceCharts } from "./charts/StaffAttendanceCharts";
 import { BarChart3, FileDown } from "lucide-react";
@@ -51,12 +50,15 @@ export function StaffAttendanceView({
   historyLogs,
   canRecord = true,
   canEdit = true,
+  canEditTime = false,
 }: {
   date: string;
   rows: StaffSheetRow[];
   historyLogs: StaffHistoryRow[];
   canRecord?: boolean;
   canEdit?: boolean;
+  /** Super Admin only — edit recorded times & sign staff out */
+  canEditTime?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -160,7 +162,7 @@ export function StaffAttendanceView({
   }, [historyLogs, historySearch, historyRoleFilter, historyStatusFilter]);
 
   // Actions
-  const handleMarkPresent = (userId: string) => {
+  const handleMarkPresent = (userId: string, hasExistingLog: boolean) => {
     setActionError(null);
     setActionMessage(null);
     startTransition(async () => {
@@ -168,10 +170,14 @@ export function StaffAttendanceView({
       fd.append("userId", userId);
       fd.append("date", date);
       fd.append("status", "PRESENT");
-      fd.append(
-        "checkInTime",
-        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      );
+      // Only stamp the clock-in time on a fresh mark — re-marking must not
+      // overwrite an already recorded time (only Super Admin may edit times).
+      if (!hasExistingLog) {
+        fd.append(
+          "checkInTime",
+          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        );
+      }
       const res = await markStaffAttendance({ ok: false }, fd);
       if (!res.ok) {
         setActionError(res.error || "Failed to mark attendance.");
@@ -196,6 +202,28 @@ export function StaffAttendanceView({
         setActionError(res.error || "Failed to clear attendance.");
       } else {
         setActionMessage(res.message || "Attendance record cleared.");
+      }
+    });
+  };
+
+  const handleSignOut = (userId: string) => {
+    setActionError(null);
+    setActionMessage(null);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append("userId", userId);
+      fd.append("date", date);
+      // Stamped in the browser so the clock matches the user's timezone,
+      // consistent with the check-in quick action.
+      fd.append(
+        "signOutTime",
+        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      );
+      const res = await signOutStaff({ ok: false }, fd);
+      if (!res.ok) {
+        setActionError(res.error || "Failed to sign out.");
+      } else {
+        setActionMessage(res.message || "Signed out.");
       }
     });
   };
@@ -226,6 +254,7 @@ export function StaffAttendanceView({
       "Gender",
       "Status",
       "Check-In Time",
+      "Sign-Out Time",
       "Late (mins)",
       "Absence Category",
       "Allowed Days",
@@ -241,6 +270,7 @@ export function StaffAttendanceView({
       h.staffGender,
       h.status,
       h.checkInTime || "",
+      h.checkOutTime || "",
       h.minutesLate || "",
       h.absenceCategory || "",
       h.allowedDays || "",
@@ -691,7 +721,12 @@ export function StaffAttendanceView({
                               <div className="space-y-0.5">
                                 {log.checkInTime && (
                                   <p className="font-medium text-slate-800">
-                                    Time: {log.checkInTime}
+                                    In: {log.checkInTime}
+                                  </p>
+                                )}
+                                {log.checkOutTime && (
+                                  <p className="font-medium text-slate-800">
+                                    Out: {log.checkOutTime}
                                   </p>
                                 )}
                                 {log.reason && (
@@ -710,7 +745,7 @@ export function StaffAttendanceView({
                                     View Note
                                   </a>
                                 )}
-                                {!log.checkInTime && !log.reason && (
+                                {!log.checkInTime && !log.checkOutTime && !log.reason && (
                                   <span className="text-slate-400">—</span>
                                 )}
                               </div>
@@ -746,7 +781,7 @@ export function StaffAttendanceView({
                                   variant="secondary"
                                   size="sm"
                                   disabled={isPending}
-                                  onClick={() => handleMarkPresent(staff.id)}
+                                  onClick={() => handleMarkPresent(staff.id, !!log)}
                                   className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900"
                                 >
                                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 mr-1" />
@@ -760,6 +795,7 @@ export function StaffAttendanceView({
                                   currentMinutesLate={log?.minutesLate}
                                   currentReason={log?.reason}
                                   currentCheckInTime={log?.checkInTime}
+                                  canEditTime={canEditTime}
                                 />
 
                                 <StaffAbsentModal
@@ -771,6 +807,36 @@ export function StaffAttendanceView({
                                   currentAllowedDays={log?.allowedDays}
                                   currentDocumentUrl={log?.documentUrl}
                                 />
+
+                                {/* Super Admin only: edit recorded times */}
+                                {canEditTime && log && (
+                                  <StaffEditTimeModal
+                                    key={`${staff.id}-${log.checkInTime ?? ""}-${log.checkOutTime ?? ""}`}
+                                    userId={staff.id}
+                                    userName={staff.fullName}
+                                    date={date}
+                                    currentCheckInTime={log.checkInTime}
+                                    currentCheckOutTime={log.checkOutTime}
+                                  />
+                                )}
+
+                                {/* Super Admin only: one-click sign-out */}
+                                {canEditTime &&
+                                  log &&
+                                  log.status !== "ABSENT" &&
+                                  !log.checkOutTime && (
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      disabled={isPending}
+                                      onClick={() => handleSignOut(staff.id)}
+                                      title="Sign out — record the current time"
+                                      className="border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 hover:text-indigo-900"
+                                    >
+                                      <LogOut className="h-3.5 w-3.5 text-indigo-600 mr-1" />
+                                      Sign Out
+                                    </Button>
+                                  )}
 
                                 {canEdit && log && (
                                   <Button
@@ -958,6 +1024,16 @@ export function StaffAttendanceView({
                         </td>
                         <td className="px-4 py-3">
                           <div className="space-y-0.5 max-w-xs">
+                            {item.checkInTime && (
+                              <p className="font-medium text-slate-800">
+                                In: {item.checkInTime}
+                              </p>
+                            )}
+                            {item.checkOutTime && (
+                              <p className="font-medium text-slate-800">
+                                Out: {item.checkOutTime}
+                              </p>
+                            )}
                             {item.reason && (
                               <p className="italic text-slate-600 truncate">
                                 &ldquo;{item.reason}&rdquo;

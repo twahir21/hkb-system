@@ -21,6 +21,7 @@ export default async function StaffAttendancePage({ searchParams }: PageProps) {
   const canView = hasPermission(user?.role, "STAFF_ATTENDANCE_VIEW");
   const canRecord = hasPermission(user?.role, "STAFF_ATTENDANCE_RECORD");
   const canEdit = hasPermission(user?.role, "STAFF_ATTENDANCE_EDIT");
+  const canEditTime = hasPermission(user?.role, "STAFF_ATTENDANCE_EDIT_TIME");
 
   if (!canView || !user) {
     return (
@@ -52,6 +53,7 @@ export default async function StaffAttendancePage({ searchParams }: PageProps) {
         historyLogs={historyLogs}
         canRecord={canRecord}
         canEdit={canEdit}
+        canEditTime={canEditTime}
       />
     </div>
   );

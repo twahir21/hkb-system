@@ -154,6 +154,7 @@ export const staffAttendanceLogs = pgTable(
     date: date("date").notNull(),
     status: attendanceStatusEnum("status").notNull(),
     checkInTime: varchar("check_in_time", { length: 20 }),
+    checkOutTime: varchar("check_out_time", { length: 20 }),
     absenceCategory: absenceCategoryEnum("absence_category"),
     allowedDays: integer("allowed_days"),
     minutesLate: integer("minutes_late"),

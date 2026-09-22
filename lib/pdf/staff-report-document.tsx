@@ -10,6 +10,7 @@ export type StaffReportRow = {
   staffGender: Gender;
   status: AttendanceStatus;
   checkInTime: string | null;
+  checkOutTime: string | null;
   absenceCategory: AbsenceCategory | null;
   allowedDays: number | null;
   minutesLate: number | null;
@@ -129,13 +130,14 @@ const styles = StyleSheet.create({
   tableRowAlt: {
     backgroundColor: "#f8fafc",
   },
-  cellDate: { width: "12%" },
-  cellName: { width: "22%" },
-  cellRole: { width: "15%" },
-  cellStatus: { width: "14%" },
-  cellCheckIn: { width: "11%" },
-  cellAbsence: { width: "14%" },
-  cellRecordedBy: { width: "12%" },
+  cellDate: { width: "11%" },
+  cellName: { width: "20%" },
+  cellRole: { width: "13%" },
+  cellStatus: { width: "13%" },
+  cellCheckIn: { width: "10%" },
+  cellCheckOut: { width: "10%" },
+  cellAbsence: { width: "12%" },
+  cellRecordedBy: { width: "11%" },
 
   statusPresent: { color: "#15803d", fontWeight: "bold" },
   statusLate: { color: "#b45309", fontWeight: "bold" },
@@ -251,6 +253,7 @@ export function StaffReportDocument({ data }: { data: StaffReportData }) {
           <Text style={styles.cellRole}>Role</Text>
           <Text style={styles.cellStatus}>Status</Text>
           <Text style={styles.cellCheckIn}>Check-In</Text>
+          <Text style={styles.cellCheckOut}>Sign-Out</Text>
           <Text style={styles.cellAbsence}>Absence / Notes</Text>
           <Text style={styles.cellRecordedBy}>Recorded By</Text>
         </View>
@@ -289,6 +292,7 @@ export function StaffReportDocument({ data }: { data: StaffReportData }) {
                   : "Present"}
             </Text>
             <Text style={styles.cellCheckIn}>{r.checkInTime || "—"}</Text>
+            <Text style={styles.cellCheckOut}>{r.checkOutTime || "—"}</Text>
             <Text style={styles.cellAbsence}>
               {r.reason ? r.reason.slice(0, 30) : r.allowedDays ? `Allowed: ${r.allowedDays}d` : "—"}
             </Text>
