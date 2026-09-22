@@ -331,13 +331,12 @@ const styles = StyleSheet.create({
 
 // Usable landscape A4 width ~794pt
 const COLS = {
-  emp: 46,
-  name: 124,
+  name: 146,
   phone: 72,
   gender: 18,
   age: 22,
-  work: 100,
-  sup: 86,
+  work: 114,
+  sup: 96,
   shifts: 24,
   present: 20,
   late: 20,
@@ -355,7 +354,6 @@ const COLS = {
 type Col = { key: string; label: string; width: number; align?: "right" | "left" | "center" };
 
 const SUMMARY_COLS: Col[] = [
-  { key: "emp", label: "EMP #", width: COLS.emp },
   { key: "name", label: "FULL NAME", width: COLS.name },
   { key: "phone", label: "PHONE", width: COLS.phone },
   { key: "gender", label: "G", width: COLS.gender, align: "center" },
@@ -536,7 +534,7 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
   const showExecutiveOverview = groups.length > 1;
 
   const totalColLeft =
-    COLS.emp + COLS.name + COLS.phone + COLS.gender + COLS.age + COLS.work + COLS.sup;
+    COLS.name + COLS.phone + COLS.gender + COLS.age + COLS.work + COLS.sup;
 
   const execLeftWidth = EXEC_COLS[0].width;
 
