@@ -9,6 +9,7 @@ import {
   Search,
   Ban,
   RotateCcw,
+  Trash2,
   Loader2,
 } from "lucide-react";
 import { Button, Modal, DataTable, Badge, Pagination, type Column } from "@/components/ui";
@@ -18,7 +19,11 @@ import type { ClientOption, RegionOption, StationOption } from "./GuardForm";
 import { GuardForm } from "./GuardForm";
 import { BulkGuardModal } from "./BulkGuardModal";
 import { PartialGuardModal } from "./PartialGuardModal";
-import { disableGuard, enableGuard } from "@/features/hr/actions/guards.actions";
+import {
+  disableGuard,
+  enableGuard,
+  deleteGuard,
+} from "@/features/hr/actions/guards.actions";
 import { formatDate } from "@/lib/utils";
 
 type Supervisor = { id: string; name: string; role: string };
@@ -57,6 +62,11 @@ export function GuardManager({
   // Disable flow: modal collects an optional reason (kept in the audit trail).
   const [disableTarget, setDisableTarget] = useState<GuardRow | null>(null);
   const [disableReason, setDisableReason] = useState("");
+  // Delete flow: irreversible, so the modal spells out what is erased and asks
+  // for the employee ID as confirmation.
+  const [deleteTarget, setDeleteTarget] = useState<GuardRow | null>(null);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -145,6 +155,38 @@ export function GuardManager({
         if (!res.ok) setActionError(res.error ?? "Failed to re-activate guard.");
       } catch {
         setActionError("Failed to re-activate guard.");
+      } finally {
+        setBusyId(null);
+      }
+    });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteTarget(null);
+    setDeleteReason("");
+    setDeleteConfirm("");
+  };
+
+  const deleteConfirmed =
+    deleteTarget !== null &&
+    deleteConfirm.trim().toUpperCase() ===
+      deleteTarget.employeeId.trim().toUpperCase();
+
+  const handleDelete = (reason: string) => {
+    if (!deleteTarget) return;
+    setActionError(null);
+    setBusyId(deleteTarget.id);
+    const target = deleteTarget;
+    startTransition(async () => {
+      try {
+        const res = await deleteGuard(target.id, reason);
+        if (!res.ok) {
+          setActionError(res.error ?? "Failed to delete guard.");
+        } else {
+          closeDeleteModal();
+        }
+      } catch {
+        setActionError("Failed to delete guard.");
       } finally {
         setBusyId(null);
       }
@@ -353,6 +395,25 @@ export function GuardManager({
               Enable
             </button>
           )}
+
+          <button
+            onClick={() => {
+              setActionError(null);
+              setDeleteReason("");
+              setDeleteConfirm("");
+              setDeleteTarget(r);
+            }}
+            disabled={isPending && busyId === r.id}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-600 bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500 disabled:opacity-50"
+            title="Permanently delete this guard and all their history"
+          >
+            {isPending && busyId === r.id ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
+            Delete
+          </button>
         </div>
       ),
     },
@@ -500,7 +561,7 @@ export function GuardManager({
         </div>
       </div>
 
-      {actionError && !disableTarget && (
+      {actionError && !disableTarget && !deleteTarget && (
         <p className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm font-medium text-rose-700">
           {actionError}
         </p>
@@ -610,6 +671,82 @@ export function GuardManager({
               disabled={isPending}
             >
               {isPending ? "Disabling…" : "Disable guard"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={deleteTarget !== null}
+        onClose={closeDeleteModal}
+        title={
+          deleteTarget ? `Delete ${deleteTarget.fullName}?` : "Delete guard"
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
+            <span className="font-semibold text-slate-800">
+              {deleteTarget?.fullName}
+            </span>
+            {deleteTarget?.employeeId ? ` (${deleteTarget.employeeId})` : ""}{" "}
+            and their login account will be removed from the system.
+          </p>
+
+          <div className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-xs text-rose-800">
+            <p className="font-semibold uppercase tracking-wide">
+              This cannot be undone
+            </p>
+            <p className="mt-1">
+              Attendance, absences, late minutes, transfer requests and credit
+              records are permanently deleted with the guard, and payroll will
+              no longer see them. If you only want the guard stopped while
+              keeping all history, cancel and use Disable instead.
+            </p>
+          </div>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Reason (optional — saved to the audit trail)
+            </span>
+            <textarea
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              rows={3}
+              placeholder="e.g. duplicate registration, fraud, data cleanup…"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Type{" "}
+              <span className="font-mono normal-case text-rose-700">
+                {deleteTarget?.employeeId}
+              </span>{" "}
+              to confirm
+            </span>
+            <input
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder={deleteTarget?.employeeId ?? ""}
+              autoComplete="off"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </label>
+
+          {actionError && <p className="text-sm text-rose-600">{actionError}</p>}
+
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" size="sm" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleDelete(deleteReason)}
+              disabled={isPending || !deleteConfirmed}
+            >
+              {isPending ? "Deleting…" : "Delete permanently"}
             </Button>
           </div>
         </div>

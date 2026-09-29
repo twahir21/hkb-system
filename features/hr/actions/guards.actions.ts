@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { guardProfiles, clients, regions, stations, users, transferRequests } from "@/lib/db/schema";
+import { guardProfiles, clients, regions, stations, users, transferRequests, guardCredits } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { guardSchema } from "@/features/hr/validators/guard.schema";
@@ -428,6 +428,120 @@ export async function enableGuard(guardId: string): Promise<GuardState> {
   };
 }
 
+
+/**
+ * Permanently delete a guard — irreversible. Deleting the login account
+ * cascades into guard_profiles and (one level further) attendance_logs,
+ * transfer_requests and guard_credits, all within a single statement, so a
+ * blocked foreign key rolls everything back and leaves the guard intact. Use
+ * disableGuard instead when history must be kept for payroll/disputes.
+ */
+export async function deleteGuard(
+  guardId: string,
+  reason?: string,
+): Promise<GuardState> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  if (typeof guardId !== "string" || !guardId) {
+    return { ok: false, error: "Missing guard id" };
+  }
+
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, guardId),
+  });
+  if (!guard) return { ok: false, error: "Guard profile not found." };
+
+  if (actor.userId === guard.userId) {
+    return { ok: false, error: "You cannot delete your own account." };
+  }
+
+  const userRow = await db.query.users.findFirst({
+    where: eq(users.id, guard.userId),
+    columns: { email: true, fullName: true },
+  });
+
+  // Unpaid debt must not vanish with the guard — settle it in Office → Credit
+  // (deduct or write off) first, or keep the guard disabled instead.
+  const [owed] = await db
+    .select({ total: sql<string>`coalesce(sum(${guardCredits.amount}), 0)` })
+    .from(guardCredits)
+    .where(
+      and(
+        eq(guardCredits.guardId, guardId),
+        eq(guardCredits.status, "OUTSTANDING"),
+      ),
+    );
+  const outstanding = Number(owed?.total ?? 0);
+  if (outstanding > 0) {
+    return {
+      ok: false,
+      error: `This guard still owes TZS ${outstanding.toLocaleString()} — record the deduction or write it off under Office → Credit first, or just disable the guard.`,
+    };
+  }
+
+  // Another guard may point at this user as their supervisor; detach them first
+  // so the users FK (ON DELETE NO ACTION) doesn't block, restored on failure.
+  const detached = await db
+    .update(guardProfiles)
+    .set({ assignedSupervisorId: null, updatedAt: new Date() })
+    .where(eq(guardProfiles.assignedSupervisorId, guard.userId))
+    .returning({ id: guardProfiles.id });
+
+  try {
+    await db.delete(users).where(eq(users.id, guard.userId));
+  } catch (err) {
+    if (detached.length > 0) {
+      await db
+        .update(guardProfiles)
+        .set({ assignedSupervisorId: guard.userId, updatedAt: new Date() })
+        .where(
+          inArray(
+            guardProfiles.id,
+            detached.map((d) => d.id),
+          ),
+        );
+    }
+    const blocked =
+      (err as { code?: string } | null)?.code === "23503" ||
+      /foreign key/i.test(err instanceof Error ? err.message : "");
+    if (blocked) {
+      return {
+        ok: false,
+        error:
+          "Other records still reference this account (audit trail, transfers or attendance where they acted as supervisor), so it cannot be deleted — disable the guard instead.",
+      };
+    }
+    throw err;
+  }
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "GUARD_DELETE",
+    entity: "guard_profiles",
+    entityId: guardId,
+    metadata: {
+      employeeId: guard.employeeId,
+      userId: guard.userId,
+      email: userRow?.email ?? null,
+      fullName: userRow?.fullName ?? guard.employeeId,
+      reason: reason?.trim() ? reason.trim() : null,
+    },
+  });
+
+  revalidatePath("/guards");
+  revalidatePath("/users");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
+  revalidatePath("/transfers");
+  revalidatePath("/office/credit");
+
+  return {
+    ok: true,
+    guardId,
+    message: "Guard permanently deleted — profile, account and history removed.",
+  };
+}
 
 const SUPERVISOR_ROLES = [
   "SUPERVISOR",

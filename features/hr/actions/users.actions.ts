@@ -176,10 +176,10 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
     return { ok: false, error: "User not found." };
   }
 
-  // Guard accounts are never hard-deleted: deleting the user cascades into
-  // guard_profiles and wipes attendance/credit history that payroll relies on
-  // for disputes. Disabling keeps every record and just stops them being
-  // counted as a guard.
+  // Guard accounts are never hard-deleted from here: deleting the user cascades
+  // into guard_profiles and wipes attendance/credit history without any of the
+  // Guard Registry's warnings. Use the registry instead — Delete (permanent,
+  // with its own confirmation) or Disable (keeps history).
   const guardProfile = await db.query.guardProfiles.findFirst({
     where: eq(guardProfiles.userId, userId),
     columns: { id: true },
@@ -188,7 +188,7 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
     return {
       ok: false,
       error:
-        "This account belongs to a guard. Disable the guard in the Guard Registry instead — that keeps their attendance and payroll history.",
+        "This account belongs to a guard. Manage it in the Guard Registry instead — delete the guard there permanently, or disable them to keep their attendance and payroll history.",
     };
   }
 
