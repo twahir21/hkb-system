@@ -23,6 +23,9 @@ import { formatDate } from "@/lib/utils";
 
 type Supervisor = { id: string; name: string; role: string };
 
+/** Option value used by the site/client filters for guards with no assignment. */
+const UNASSIGNED = "__unassigned";
+
 export function GuardManager({
   guards,
   supervisors,
@@ -40,6 +43,8 @@ export function GuardManager({
   const debouncedQ = useDebounce(q, 300);
   const [genderFilter, setGenderFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [siteFilter, setSiteFilter] = useState<string>("");
+  const [clientFilter, setClientFilter] = useState<string>("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [prevQ, setPrevQ] = useState(debouncedQ);
@@ -63,6 +68,45 @@ export function GuardManager({
 
   const maleCount = useMemo(() => activeGuards.filter((g) => g.gender === "MALE").length, [activeGuards]);
   const femaleCount = useMemo(() => activeGuards.filter((g) => g.gender === "FEMALE").length, [activeGuards]);
+
+  // Guards per site / per client (disabled included — they are still listed in
+  // the table) so every filter option can show how many rows it will return.
+  const siteCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const g of guards) {
+      const key = g.stationId ?? UNASSIGNED;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }, [guards]);
+
+  const clientCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const g of guards) {
+      const key = g.clientId ?? UNASSIGNED;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }, [guards]);
+
+  // Sites grouped under their region (plus a fallback group for sites whose
+  // region row is missing) so the site filter stays readable.
+  const siteGroups = useMemo(() => {
+    const byRegion = new Map<string, StationOption[]>();
+    for (const r of regions) byRegion.set(r.id, []);
+    const stray: StationOption[] = [];
+    for (const st of stations) {
+      const bucket = byRegion.get(st.regionId);
+      if (bucket) bucket.push(st);
+      else stray.push(st);
+    }
+    const groups = regions
+      .map((r) => ({ id: r.id, name: r.name, stations: byRegion.get(r.id) ?? [] }))
+      .filter((g) => g.stations.length > 0);
+    return stray.length > 0
+      ? [...groups, { id: "other", name: "Other sites", stations: stray }]
+      : groups;
+  }, [regions, stations]);
 
   // Reset to page 1 whenever the debounced search query changes
   if (prevQ !== debouncedQ) {
@@ -120,9 +164,17 @@ export function GuardManager({
         !statusFilter ||
         (statusFilter === "ACTIVE" ? g.isActive : !g.isActive);
 
-      return matchesQ && matchesGender && matchesStatus;
+      const matchesSite =
+        !siteFilter ||
+        (siteFilter === UNASSIGNED ? !g.stationId : g.stationId === siteFilter);
+
+      const matchesClient =
+        !clientFilter ||
+        (clientFilter === UNASSIGNED ? !g.clientId : g.clientId === clientFilter);
+
+      return matchesQ && matchesGender && matchesStatus && matchesSite && matchesClient;
     });
-  }, [guards, debouncedQ, genderFilter, statusFilter]);
+  }, [guards, debouncedQ, genderFilter, statusFilter, siteFilter, clientFilter]);
 
   const paginatedGuards = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -385,6 +437,49 @@ export function GuardManager({
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active only ({activeGuards.length})</option>
             <option value="DISABLED">Disabled only ({disabledCount})</option>
+          </select>
+          <select
+            value={siteFilter}
+            onChange={(e) => {
+              setSiteFilter(e.target.value);
+              setPage(1);
+            }}
+            aria-label="Filter by site"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
+          >
+            <option value="">All Sites ({guards.length})</option>
+            <option value={UNASSIGNED}>
+              Unassigned site ({siteCounts.get(UNASSIGNED) ?? 0})
+            </option>
+            {siteGroups.map((group) => (
+              <optgroup key={group.id} label={group.name}>
+                {group.stations.map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {st.name} ({siteCounts.get(st.id) ?? 0})
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <select
+            value={clientFilter}
+            onChange={(e) => {
+              setClientFilter(e.target.value);
+              setPage(1);
+            }}
+            aria-label="Filter by client"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
+          >
+            <option value="">All Clients ({guards.length})</option>
+            <option value={UNASSIGNED}>
+              Unassigned client ({clientCounts.get(UNASSIGNED) ?? 0})
+            </option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {c.isActive === false ? " (inactive)" : ""} ({clientCounts.get(c.id) ?? 0})
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex flex-wrap items-center gap-2">
