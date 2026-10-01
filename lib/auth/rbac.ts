@@ -68,6 +68,10 @@ export const PERMISSIONS = {
   COVERAGE_VIEW: ["SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
   COVERAGE_MANAGE: ["SUPER_ADMIN"],
 
+  // News / website content
+  NEWS_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY"],
+  NEWS_MANAGE: ["SUPER_ADMIN", "SECRETARY"],
+
   // PII / sensitive data
   PII_VIEW: ["SUPER_ADMIN", "HR"],
 

@@ -32,6 +32,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/login" ||
     pathname === "/access-denied" ||
     pathname === "/api/request-coverage" || // public lead-capture endpoint
+    pathname.startsWith("/api/news") || // public news feed (read-only)
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next");
 

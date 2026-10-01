@@ -66,6 +66,11 @@ export const expenseCategoryEnum = pgEnum("expense_category", [
   "TRANSPORT",
   "OTHER",
 ]);
+export const newsStatusEnum = pgEnum("news_status", [
+  "DRAFT", // Saved, not visible on the public website
+  "PUBLISHED", // Live on the public website
+  "ARCHIVED", // Hidden from the website, kept for records
+]);
 
 
 // Core Users Table
@@ -441,6 +446,34 @@ export const businessExpenses = pgTable(
   ]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// News / Website content
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Articles managed from the dashboard and published to the public website
+// (read via the CORS-enabled GET /api/news endpoints). Cover images live in
+// Firebase Storage; `coverImagePath` keeps the bucket object key so the file
+// can be deleted when the article is updated or removed.
+export const news = pgTable(
+  "news",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: varchar("slug", { length: 220 }).notNull().unique(),
+    title: varchar("title", { length: 250 }).notNull(),
+    summary: text("summary"), // short excerpt for cards / list views
+    body: text("body").notNull(), // article content (plain text / markdown)
+    coverImageUrl: text("cover_image_url"), // public image URL
+    coverImagePath: text("cover_image_path"), // Firebase Storage object key
+    category: varchar("category", { length: 100 }),
+    status: newsStatusEnum("status").notNull().default("DRAFT"),
+    publishedAt: timestamp("published_at"),
+    authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [index("news_status_published_idx").on(table.status, table.publishedAt)]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
 export type ShiftType = (typeof shiftTypeEnum.enumValues)[number];
 export type AttendanceStatus = (typeof attendanceStatusEnum.enumValues)[number];
@@ -464,3 +497,5 @@ export type CreditType = (typeof creditTypeEnum.enumValues)[number];
 export type CreditStatus = (typeof creditStatusEnum.enumValues)[number];
 export type SaleType = (typeof saleTypeEnum.enumValues)[number];
 export type ExpenseCategory = (typeof expenseCategoryEnum.enumValues)[number];
+export type NewsStatus = (typeof newsStatusEnum.enumValues)[number];
+export type NewsArticle = (typeof news.$inferSelect);
