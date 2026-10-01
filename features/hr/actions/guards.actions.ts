@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { guardProfiles, clients, regions, stations, users } from "@/lib/db/schema";
+import { guardProfiles, clients, regions, stations, users, transferRequests, guardCredits } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { guardSchema } from "@/features/hr/validators/guard.schema";
@@ -59,6 +59,7 @@ export async function createGuard(
     email: formData.get("email") ?? undefined,
     fullName: formData.get("fullName") ?? undefined,
     employeeId: formData.get("employeeId") ?? undefined,
+    gender: formData.get("gender") ?? undefined,
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") ?? undefined,
     homeLocation: formData.get("homeLocation") ?? undefined,
@@ -113,6 +114,7 @@ export async function createGuard(
         email: v.email,
         fullName: v.fullName,
         role: "GUARD",
+        gender: v.gender,
       })
       .returning({ id: users.id });
     userId = created.id;
@@ -125,6 +127,7 @@ export async function createGuard(
       .values({
         userId,
         employeeId: v.employeeId,
+        gender: v.gender,
         age: v.age,
         phone: v.phone,
         homeLocation: v.homeLocation,
@@ -183,6 +186,7 @@ export async function updateGuard(
     email: formData.get("email") || undefined,
     fullName: formData.get("fullName") || undefined,
     employeeId: formData.get("employeeId") || undefined,
+    gender: formData.get("gender") || undefined,
     registrationDate: formData.get("registrationDate") || undefined,
     age: formData.get("age") ?? undefined,
     phone: formData.get("phone") || undefined,
@@ -241,13 +245,14 @@ export async function updateGuard(
     }
   }
 
-  // Update user name/email if provided
-  if (v.fullName || v.email) {
+  // Update user name/email/gender if provided
+  if (v.fullName || v.email || v.gender) {
     await db
       .update(users)
       .set({
         ...(v.fullName ? { fullName: v.fullName.trim() } : {}),
         ...(v.email ? { email: v.email.trim().toLowerCase() } : {}),
+        ...(v.gender ? { gender: v.gender } : {}),
         updatedAt: new Date(),
       })
       .where(eq(users.id, currentGuard.userId));
@@ -276,6 +281,7 @@ export async function updateGuard(
     .update(guardProfiles)
     .set({
       ...(v.employeeId ? { employeeId: v.employeeId.trim() } : {}),
+      ...(v.gender ? { gender: v.gender } : {}),
       ...(v.registrationDate ? { registrationDate: v.registrationDate } : {}),
       age: v.age,
       phone: v.phone,
@@ -307,13 +313,242 @@ export async function updateGuard(
   return { ok: true, guardId: id, message: "Guard updated." };
 }
 
+/**
+ * Disable a guard. Every record (attendance, credits, transfers) is kept for
+ * payroll and dispute resolution, but the guard stops being *counted* as a
+ * guard: they drop out of shift sheets, dashboards, analytics, credit pickers
+ * and the transfer queue.
+ */
+export async function disableGuard(
+  guardId: string,
+  reason?: string,
+): Promise<GuardState> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  if (typeof guardId !== "string" || !guardId) {
+    return { ok: false, error: "Missing guard id" };
+  }
+
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, guardId),
+  });
+  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (!guard.isActive) {
+    return { ok: true, guardId, message: "Guard is already disabled." };
+  }
+
+  const now = new Date();
+
+  await db
+    .update(guardProfiles)
+    .set({ isActive: false, disabledAt: now, updatedAt: now })
+    .where(eq(guardProfiles.id, guardId));
+
+  // A disabled guard must not sit in HR's transfer queue. Pending requests are
+  // closed automatically rather than left dangling for a guard who has left.
+  await db
+    .update(transferRequests)
+    .set({
+      status: "REJECTED",
+      reviewerNotes: "Closed automatically — the guard was disabled.",
+      updatedAt: now,
+    })
+    .where(
+      and(
+        eq(transferRequests.guardId, guardId),
+        eq(transferRequests.status, "PENDING"),
+      ),
+    );
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "GUARD_DISABLE",
+    entity: "guard_profiles",
+    entityId: guardId,
+    metadata: {
+      employeeId: guard.employeeId,
+      reason: reason?.trim() ? reason.trim() : null,
+    },
+  });
+
+  revalidatePath("/guards");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
+  revalidatePath("/transfers");
+  revalidatePath("/office/credit");
+
+  return {
+    ok: true,
+    guardId,
+    message: "Guard disabled — they are no longer counted as a guard.",
+  };
+}
+
+/** Re-activate a previously disabled guard (history is untouched). */
+export async function enableGuard(guardId: string): Promise<GuardState> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  if (typeof guardId !== "string" || !guardId) {
+    return { ok: false, error: "Missing guard id" };
+  }
+
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, guardId),
+  });
+  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (guard.isActive) {
+    return { ok: true, guardId, message: "Guard is already active." };
+  }
+
+  const now = new Date();
+  await db
+    .update(guardProfiles)
+    .set({ isActive: true, disabledAt: null, updatedAt: now })
+    .where(eq(guardProfiles.id, guardId));
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "GUARD_ENABLE",
+    entity: "guard_profiles",
+    entityId: guardId,
+    metadata: { employeeId: guard.employeeId },
+  });
+
+  revalidatePath("/guards");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
+  revalidatePath("/office/credit");
+
+  return {
+    ok: true,
+    guardId,
+    message: "Guard re-activated — they are counted as a guard again.",
+  };
+}
+
+
+/**
+ * Permanently delete a guard — irreversible. Deleting the login account
+ * cascades into guard_profiles and (one level further) attendance_logs,
+ * transfer_requests and guard_credits, all within a single statement, so a
+ * blocked foreign key rolls everything back and leaves the guard intact. Use
+ * disableGuard instead when history must be kept for payroll/disputes.
+ */
+export async function deleteGuard(
+  guardId: string,
+  reason?: string,
+): Promise<GuardState> {
+  const actor = await requirePermission("GUARD_MANAGE");
+
+  if (typeof guardId !== "string" || !guardId) {
+    return { ok: false, error: "Missing guard id" };
+  }
+
+  const guard = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, guardId),
+  });
+  if (!guard) return { ok: false, error: "Guard profile not found." };
+
+  if (actor.userId === guard.userId) {
+    return { ok: false, error: "You cannot delete your own account." };
+  }
+
+  const userRow = await db.query.users.findFirst({
+    where: eq(users.id, guard.userId),
+    columns: { email: true, fullName: true },
+  });
+
+  // Unpaid debt must not vanish with the guard — settle it in Office → Credit
+  // (deduct or write off) first, or keep the guard disabled instead.
+  const [owed] = await db
+    .select({ total: sql<string>`coalesce(sum(${guardCredits.amount}), 0)` })
+    .from(guardCredits)
+    .where(
+      and(
+        eq(guardCredits.guardId, guardId),
+        eq(guardCredits.status, "OUTSTANDING"),
+      ),
+    );
+  const outstanding = Number(owed?.total ?? 0);
+  if (outstanding > 0) {
+    return {
+      ok: false,
+      error: `This guard still owes TZS ${outstanding.toLocaleString()} — record the deduction or write it off under Office → Credit first, or just disable the guard.`,
+    };
+  }
+
+  // Another guard may point at this user as their supervisor; detach them first
+  // so the users FK (ON DELETE NO ACTION) doesn't block, restored on failure.
+  const detached = await db
+    .update(guardProfiles)
+    .set({ assignedSupervisorId: null, updatedAt: new Date() })
+    .where(eq(guardProfiles.assignedSupervisorId, guard.userId))
+    .returning({ id: guardProfiles.id });
+
+  try {
+    await db.delete(users).where(eq(users.id, guard.userId));
+  } catch (err) {
+    if (detached.length > 0) {
+      await db
+        .update(guardProfiles)
+        .set({ assignedSupervisorId: guard.userId, updatedAt: new Date() })
+        .where(
+          inArray(
+            guardProfiles.id,
+            detached.map((d) => d.id),
+          ),
+        );
+    }
+    const blocked =
+      (err as { code?: string } | null)?.code === "23503" ||
+      /foreign key/i.test(err instanceof Error ? err.message : "");
+    if (blocked) {
+      return {
+        ok: false,
+        error:
+          "Other records still reference this account (audit trail, transfers or attendance where they acted as supervisor), so it cannot be deleted — disable the guard instead.",
+      };
+    }
+    throw err;
+  }
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "GUARD_DELETE",
+    entity: "guard_profiles",
+    entityId: guardId,
+    metadata: {
+      employeeId: guard.employeeId,
+      userId: guard.userId,
+      email: userRow?.email ?? null,
+      fullName: userRow?.fullName ?? guard.employeeId,
+      reason: reason?.trim() ? reason.trim() : null,
+    },
+  });
+
+  revalidatePath("/guards");
+  revalidatePath("/users");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
+  revalidatePath("/transfers");
+  revalidatePath("/office/credit");
+
+  return {
+    ok: true,
+    guardId,
+    message: "Guard permanently deleted — profile, account and history removed.",
+  };
+}
+
 const SUPERVISOR_ROLES = [
   "SUPERVISOR",
   "OPERATION_OFFICER",
   "SENIOR_SUPERVISOR",
   "SUPER_ADMIN",
 ] as const;
-
 /**
  * A CSV row that passed validation and is ready to be written. `rowNum` and
  * `identifier` stay attached to it so any failure — during validation or at
@@ -323,6 +558,7 @@ type BulkGuardEntry = {
   email: string;
   fullName: string;
   employeeId: string;
+  gender: "MALE" | "FEMALE";
   age: number;
   phone: string;
   homeLocation: string;
@@ -498,6 +734,7 @@ async function importGuardRows(
       email: email || undefined,
       fullName: (row.fullname || row.name || "").trim() || undefined,
       employeeId: employeeId || undefined,
+      gender: (row.gender || row.sex || "").toUpperCase().trim() === "FEMALE" ? "FEMALE" : "MALE",
       age: (row.age || "").trim() || undefined,
       phone: (row.phone || "").trim() || undefined,
       homeLocation: (row.homelocation || "").trim() || undefined,
@@ -596,6 +833,7 @@ async function importGuardRows(
       email: v.email,
       fullName: v.fullName,
       employeeId: v.employeeId,
+      gender: v.gender,
       age: v.age,
       phone: v.phone,
       homeLocation: v.homeLocation,
@@ -716,6 +954,7 @@ async function insertImportedGuards(
       email: e,
       fullName: validEntries.find((x) => x.email === e)!.fullName,
       role: "GUARD" as const,
+      gender: validEntries.find((x) => x.email === e)!.gender,
     }));
 
   if (missingUsers.length > 0) {
@@ -739,6 +978,7 @@ async function insertImportedGuards(
   const toProfileRow = (e: BulkGuardEntry) => ({
     userId: userIdByEmail.get(e.email)!,
     employeeId: e.employeeId,
+    gender: e.gender,
     age: e.age,
     phone: e.phone,
     homeLocation: e.homeLocation,
@@ -1017,10 +1257,15 @@ async function importPartialGuardRows(
     }
     seenInBatchEmployeeIds.add(employeeId.toLowerCase());
 
+    // Parse gender if present in CSV, defaulting to MALE
+    const rawGender = (row.gender || row.sex || "MALE").toUpperCase().trim();
+    const gender: "MALE" | "FEMALE" = rawGender === "FEMALE" ? "FEMALE" : "MALE";
+
     validEntries.push({
       email,
       fullName,
       employeeId,
+      gender,
       age: 25, // safe initial default (within 16-100 schema)
       phone,
       homeLocation: "Unknown", // dummy initial data

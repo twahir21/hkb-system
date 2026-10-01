@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import {
   UserPlus,
   Upload,
@@ -10,7 +10,14 @@ import {
   Globe,
   Loader2,
 } from "lucide-react";
-import { Button, Modal, DataTable, Badge, type Column } from "@/components/ui";
+import {
+  Button,
+  Modal,
+  DataTable,
+  Badge,
+  Pagination,
+  type Column,
+} from "@/components/ui";
 import type { UserRow } from "@/features/hr/queries/users";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import { UserForm } from "./UserForm";
@@ -28,6 +35,9 @@ export function UserManager({
 }) {
   const [q, setQ] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("");
+  const [genderFilter, setGenderFilter] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
   const [open, setOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [editing, setEditing] = useState<UserRow | null>(null);
@@ -35,17 +45,31 @@ export function UserManager({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const filtered = users.filter((u) => {
-    const matchesQ =
-      !q ||
-      u.fullName.toLowerCase().includes(q.toLowerCase()) ||
-      u.email.toLowerCase().includes(q.toLowerCase()) ||
-      (u.username && u.username.toLowerCase().includes(q.toLowerCase()));
+  const maleCount = useMemo(() => users.filter((u) => u.gender === "MALE").length, [users]);
+  const femaleCount = useMemo(() => users.filter((u) => u.gender === "FEMALE").length, [users]);
 
-    const matchesRole = !roleFilter || u.role === roleFilter;
+  const filtered = useMemo(() => {
+    return users.filter((u) => {
+      const matchesQ =
+        !q ||
+        u.fullName.toLowerCase().includes(q.toLowerCase()) ||
+        u.email.toLowerCase().includes(q.toLowerCase()) ||
+        (u.username && u.username.toLowerCase().includes(q.toLowerCase()));
 
-    return matchesQ && matchesRole;
-  });
+      const matchesRole = !roleFilter || u.role === roleFilter;
+      const matchesGender = !genderFilter || u.gender === genderFilter;
+
+      return matchesQ && matchesRole && matchesGender;
+    });
+  }, [users, q, roleFilter, genderFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, safePage, pageSize]);
 
   const handleDelete = (userId: string, fullName: string) => {
     if (
@@ -106,6 +130,21 @@ export function UserManager({
       key: "email",
       header: "Email",
       cell: (r) => <span className="text-xs text-slate-600">{r.email}</span>,
+    },
+    {
+      key: "gender",
+      header: "Gender",
+      cell: (r) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+            r.gender === "FEMALE"
+              ? "bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200"
+              : "bg-sky-50 text-sky-700 border border-sky-200"
+          }`}
+        >
+          {r.gender === "FEMALE" ? "Female" : "Male"}
+        </span>
+      ),
     },
     {
       key: "role",
@@ -194,17 +233,56 @@ export function UserManager({
         </div>
       )}
 
+      {/* Stats and Gender Breakdown */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-slate-500">Total Staff / Users</p>
+            <p className="text-xl font-bold text-slate-900">{users.length}</p>
+          </div>
+          <div className="h-9 w-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-xs">
+            All
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-sky-100 bg-sky-50/50 p-3 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-sky-700">Male Staff</p>
+            <p className="text-xl font-bold text-sky-950">{maleCount}</p>
+          </div>
+          <span className="inline-flex items-center rounded-md bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">
+            {users.length > 0 ? Math.round((maleCount / users.length) * 100) : 0}%
+          </span>
+        </div>
+
+        <div className="rounded-xl border border-fuchsia-100 bg-fuchsia-50/50 p-3 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-fuchsia-700">Female Staff</p>
+            <p className="text-xl font-bold text-fuchsia-950">{femaleCount}</p>
+          </div>
+          <span className="inline-flex items-center rounded-md bg-fuchsia-100 px-2 py-1 text-xs font-semibold text-fuchsia-800">
+            {users.length > 0 ? Math.round((femaleCount / users.length) * 100) : 0}%
+          </span>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <input
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search by name, email, or username…"
             className="w-full sm:w-72 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setPage(1);
+            }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
             <option value="">All Roles</option>
@@ -213,6 +291,18 @@ export function UserManager({
                 {label}
               </option>
             ))}
+          </select>
+          <select
+            value={genderFilter}
+            onChange={(e) => {
+              setGenderFilter(e.target.value);
+              setPage(1);
+            }}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
+          >
+            <option value="">All Genders</option>
+            <option value="MALE">Male ({maleCount})</option>
+            <option value="FEMALE">Female ({femaleCount})</option>
           </select>
         </div>
 
@@ -234,10 +324,24 @@ export function UserManager({
       <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
         <DataTable
           columns={columns}
-          rows={filtered}
+          rows={paginatedUsers}
           empty="No user accounts found matching your criteria."
         />
       </div>
+
+      {filtered.length > 0 && (
+        <Pagination
+          page={safePage}
+          pageSize={pageSize}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPage(1);
+          }}
+          itemLabel="user accounts"
+        />
+      )}
 
       <Modal
         open={open}

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { clients, guardProfiles } from "@/lib/db/schema";
 
@@ -37,7 +37,14 @@ export async function listClientsWithCounts(): Promise<ClientRow[]> {
       guardCount: sql<number>`COUNT(${guardProfiles.id})`.as("guard_count"),
     })
     .from(clients)
-    .leftJoin(guardProfiles, eq(guardProfiles.clientId, clients.id))
+    // Only guards who are currently counted as guards belong in the tally.
+    .leftJoin(
+      guardProfiles,
+      and(
+        eq(guardProfiles.clientId, clients.id),
+        eq(guardProfiles.isActive, true),
+      ),
+    )
     .groupBy(clients.id)
     .orderBy(sql`${clients.isActive} DESC`, asc(clients.name));
 

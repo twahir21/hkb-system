@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
+import { AutoPrintModal } from "./AutoPrintModal";
 import type { Role } from "@/lib/db/schema";
 
 export function DashboardShell({
@@ -19,8 +20,8 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [autoPrintOpen, setAutoPrintOpen] = useState(false);
 
-  // Lock body scroll while the mobile drawer is open.
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
     return () => {
@@ -37,15 +38,18 @@ export function DashboardShell({
         newCoverageCount={newCoverageCount}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
+        onAutoPrintOpen={() => setAutoPrintOpen(true)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           name={name}
           role={role}
           onMenuToggle={() => setMobileMenuOpen((prev) => !prev)}
+          onAutoPrintOpen={() => setAutoPrintOpen(true)}
         />
         <main className="flex-1 p-3.5 sm:p-6 lg:p-8 overflow-x-auto">{children}</main>
       </div>
+      <AutoPrintModal open={autoPrintOpen} onClose={() => setAutoPrintOpen(false)} />
     </div>
   );
 }

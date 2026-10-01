@@ -2,7 +2,7 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors } from "@/features/hr/queries/guards";
 import { listRegions, listStations } from "@/features/store/queries/stock";
-import { RegionForm, StationForm } from "@/features/store";
+import { RegionForm, StationForm, StationManager } from "@/features/store";
 import { getRegionSiteAnalytics } from "@/features/hr/queries/locations";
 import { RegionAnalyticsCard } from "@/features/hr/components/RegionAnalyticsCard";
 
@@ -28,7 +28,7 @@ export default async function StoreLocationsPage() {
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Regions &amp; Stations</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Where stock is held — regions group stations.
+          Where stock is held and guards are posted — manage stations and assign supervisors.
         </p>
       </div>
       <RegionAnalyticsCard
@@ -43,30 +43,16 @@ export default async function StoreLocationsPage() {
             supervisors={supervisors.map((s) => ({ id: s.id, fullName: s.fullName }))}
           />
         </div>
-        <div className="overflow-x-auto rounded-xl border border-slate-200 lg:col-span-2">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-                <th className="px-4 py-3 font-semibold">Station</th>
-                <th className="px-4 py-3 font-semibold">Region</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {stations.map((s) => (
-                <tr key={s.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-slate-800">{s.name}</td>
-                  <td className="px-4 py-3 text-slate-500">{s.regionName}</td>
-                </tr>
-              ))}
-              {stations.length === 0 && (
-                <tr>
-                  <td colSpan={2} className="px-4 py-10 text-center text-slate-400">
-                    No stations yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="lg:col-span-2">
+          <StationManager
+            stations={stations}
+            regions={regions.map((r) => ({ id: r.id, name: r.name }))}
+            supervisors={supervisors.map((s) => ({
+              id: s.id,
+              fullName: s.fullName,
+              role: s.role,
+            }))}
+          />
         </div>
       </div>
     </div>

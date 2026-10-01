@@ -2,7 +2,7 @@ import "server-only";
 
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { users, type Role } from "@/lib/db/schema";
+import { users, type Role, type Gender } from "@/lib/db/schema";
 
 export type UserRow = {
   id: string;
@@ -10,6 +10,7 @@ export type UserRow = {
   email: string;
   fullName: string;
   role: Role;
+  gender: Gender;
   hasPassword: boolean;
   hasGoogle: boolean;
   avatarUrl: string | null;
@@ -24,6 +25,7 @@ export async function listUsers(): Promise<UserRow[]> {
       email: users.email,
       fullName: users.fullName,
       role: users.role,
+      gender: users.gender,
       passwordHash: users.passwordHash,
       googleId: users.googleId,
       avatarUrl: users.avatarUrl,
@@ -38,6 +40,7 @@ export async function listUsers(): Promise<UserRow[]> {
     email: r.email,
     fullName: r.fullName,
     role: r.role,
+    gender: r.gender,
     hasPassword: Boolean(r.passwordHash),
     hasGoogle: Boolean(r.googleId),
     avatarUrl: r.avatarUrl,

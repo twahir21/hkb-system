@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Calendar,
@@ -11,8 +11,17 @@ import {
   FileDown,
   Award,
 } from "lucide-react";
-import { Badge, Button, DataTable, type Column } from "@/components/ui";
-import type { OverallMonthlySummary, GuardMonthlyStat } from "@/lib/queries/monthly-summary";
+import { Badge, Button, DataTable, Pagination, type Column } from "@/components/ui";
+import {
+  AttendanceTrendAreaChart,
+  PerformanceTierDonutChart,
+  AbsenceBreakdownBarChart,
+  SupervisorComparisonBarChart,
+} from "@/components/ui/charts";
+import type {
+  OverallMonthlySummary,
+  GuardMonthlyStat,
+} from "@/lib/queries/monthly-summary";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 
@@ -43,8 +52,11 @@ export function MonthlySummaryView({
 
   const [q, setQ] = useState("");
   const [tierFilter, setTierFilter] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const updateFilters = (patch: Record<string, string>) => {
+    setPage(1);
     const next = new URLSearchParams(sp.toString());
     Object.entries(patch).forEach(([k, v]) => (v ? next.set(k, v) : next.delete(k)));
     router.replace(`/reports?${next.toString()}`);
@@ -55,16 +67,26 @@ export function MonthlySummaryView({
 
   const pdfUrl = `/api/reports/pdf?startDate=${summary.startDate}&endDate=${summary.endDate}&format=pdf`;
 
-  const filteredGuards = summary.guards.filter((g) => {
-    const matchesQ =
-      !q ||
-      g.fullName.toLowerCase().includes(q.toLowerCase()) ||
-      g.employeeId.toLowerCase().includes(q.toLowerCase()) ||
-      g.workLocation.toLowerCase().includes(q.toLowerCase());
+  const filteredGuards = useMemo(() => {
+    return summary.guards.filter((g) => {
+      const matchesQ =
+        !q ||
+        g.fullName.toLowerCase().includes(q.toLowerCase()) ||
+        g.employeeId.toLowerCase().includes(q.toLowerCase()) ||
+        g.workLocation.toLowerCase().includes(q.toLowerCase());
 
-    const matchesTier = !tierFilter || g.performanceTier === tierFilter;
-    return matchesQ && matchesTier;
-  });
+      const matchesTier = !tierFilter || g.performanceTier === tierFilter;
+      return matchesQ && matchesTier;
+    });
+  }, [summary.guards, q, tierFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredGuards.length / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const paginatedGuards = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return filteredGuards.slice(start, start + pageSize);
+  }, [filteredGuards, safePage, pageSize]);
 
   const getTierBadge = (tier: GuardMonthlyStat["performanceTier"]) => {
     switch (tier) {
@@ -307,6 +329,35 @@ export function MonthlySummaryView({
         </div>
       </div>
 
+      {/* Visual Analytics Graphs */}
+      <div className="space-y-6">
+        {/* Full Month Daily Trend Area Chart */}
+        <AttendanceTrendAreaChart
+          data={summary.dailyTrend}
+          title={`${summary.monthName} ${summary.year} — Daily Attendance Progression`}
+          subtitle={`Day-by-day record of present, late, and absent shifts for ${summary.monthName}`}
+          height={260}
+        />
+
+        {/* 2-Column Grid: Tier Distribution Donut & Absence Root-Cause Bar Chart */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <PerformanceTierDonutChart
+            distribution={summary.tierDistribution}
+            totalGuards={summary.totalGuards}
+          />
+          <AbsenceBreakdownBarChart
+            sickCount={summary.sickCount}
+            permittedCount={summary.permittedCount}
+            notPermittedCount={summary.notPermittedCount}
+          />
+        </div>
+
+        {/* Supervisor Performance Comparison */}
+        {summary.supervisorStats && summary.supervisorStats.length > 0 && (
+          <SupervisorComparisonBarChart stats={summary.supervisorStats} />
+        )}
+      </div>
+
       {/* Individual Guard Attendance Table */}
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -322,13 +373,19 @@ export function MonthlySummaryView({
           <div className="flex flex-wrap items-center gap-2">
             <input
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search guard or location…"
               className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs sm:w-60 focus:border-brand-500 focus:outline-none"
             />
             <select
               value={tierFilter}
-              onChange={(e) => setTierFilter(e.target.value)}
+              onChange={(e) => {
+                setTierFilter(e.target.value);
+                setPage(1);
+              }}
               className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 focus:border-brand-500 focus:outline-none"
             >
               <option value="">All Tiers</option>
@@ -343,10 +400,24 @@ export function MonthlySummaryView({
         <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
           <DataTable
             columns={columns}
-            rows={filteredGuards.map((g): TableRow => ({ ...g, id: g.guardId }))}
+            rows={paginatedGuards.map((g): TableRow => ({ ...g, id: g.guardId }))}
             empty="No guard records found for this month."
           />
         </div>
+
+        {filteredGuards.length > 0 && (
+          <Pagination
+            page={safePage}
+            pageSize={pageSize}
+            totalItems={filteredGuards.length}
+            onPageChange={setPage}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+            }}
+            itemLabel="guard records"
+          />
+        )}
       </div>
     </div>
   );

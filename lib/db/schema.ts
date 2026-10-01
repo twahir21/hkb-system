@@ -73,6 +73,8 @@ export const newsStatusEnum = pgEnum("news_status", [
 ]);
 
 
+export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
+
 // Core Users Table
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -83,6 +85,7 @@ export const users = pgTable("users", {
   fullName: varchar("full_name", { length: 255 }).notNull(),
   avatarUrl: varchar("avatar_url", { length: 512 }),
   role: roleEnum("role").notNull().default("GUARD"),
+  gender: genderEnum("gender").notNull().default("MALE"),
   coverageRequestsLastSeenAt: timestamp("coverage_requests_last_seen_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -95,6 +98,7 @@ export const guardProfiles = pgTable("guard_profiles", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   employeeId: varchar("employee_id", { length: 50 }).notNull().unique(),
+  gender: genderEnum("gender").notNull().default("MALE"),
   age: integer("age").notNull(),
   phone: varchar("phone", { length: 20 }).notNull(),
   homeLocation: varchar("home_location", { length: 255 }).notNull(),
@@ -106,6 +110,8 @@ export const guardProfiles = pgTable("guard_profiles", {
   kinPhone: varchar("kin_phone", { length: 20 }).notNull(),
   registrationDate: date("registration_date").notNull(),
   assignedSupervisorId: uuid("assigned_supervisor_id").references(() => users.id),
+  isActive: boolean("is_active").notNull().default(true),
+  disabledAt: timestamp("disabled_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -143,6 +149,40 @@ export const attendanceLogs = pgTable(
     index("attendance_logs_date_shift_idx").on(table.date, table.shift),
   ]
 );
+
+// Daily Staff Attendance logs (one row per staff member per day)
+export const staffAttendanceLogs = pgTable(
+  "staff_attendance_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    date: date("date").notNull(),
+    status: attendanceStatusEnum("status").notNull(),
+    checkInTime: varchar("check_in_time", { length: 20 }),
+    checkOutTime: varchar("check_out_time", { length: 20 }),
+    absenceCategory: absenceCategoryEnum("absence_category"),
+    allowedDays: integer("allowed_days"),
+    minutesLate: integer("minutes_late"),
+    reason: text("reason"),
+    documentUrl: text("document_url"),
+    recordedById: uuid("recorded_by_id")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("staff_attendance_logs_user_date_unique").on(
+      table.userId,
+      table.date
+    ),
+    index("staff_attendance_logs_date_idx").on(table.date),
+    index("staff_attendance_logs_user_idx").on(table.userId),
+  ]
+);
+
 
 // Guard transfer requests
 export const transferRequests = pgTable("transfer_requests", {
@@ -475,6 +515,7 @@ export const news = pgTable(
 );
 
 export type Role = (typeof roleEnum.enumValues)[number];
+export type Gender = (typeof genderEnum.enumValues)[number];
 export type ShiftType = (typeof shiftTypeEnum.enumValues)[number];
 export type AttendanceStatus = (typeof attendanceStatusEnum.enumValues)[number];
 export type AbsenceCategory = (typeof absenceCategoryEnum.enumValues)[number];
@@ -499,3 +540,4 @@ export type SaleType = (typeof saleTypeEnum.enumValues)[number];
 export type ExpenseCategory = (typeof expenseCategoryEnum.enumValues)[number];
 export type NewsStatus = (typeof newsStatusEnum.enumValues)[number];
 export type NewsArticle = (typeof news.$inferSelect);
+export type StaffAttendanceLog = (typeof staffAttendanceLogs.$inferSelect);

@@ -92,6 +92,21 @@ export function UserForm({
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
+            Gender
+          </label>
+          <select
+            name="gender"
+            defaultValue={editing?.gender ?? "MALE"}
+            required
+            className={inputCls}
+          >
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
             Assigned Role
           </label>
           <select

@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Calendar, CheckCircle2, Clock, XCircle, Award, ArrowLeft } from "lucide-react";
-import { Badge, Button, DataTable, statusTone, type Column } from "@/components/ui";
+import { Badge, Button, DataTable, Pagination, statusTone, type Column } from "@/components/ui";
+import { ShiftHeatmapStrip } from "@/components/ui/charts";
 import { formatDate } from "@/lib/utils";
 import type { GuardMonthlyDetail } from "@/lib/queries/monthly-summary";
 
@@ -65,11 +67,23 @@ export function GuardMonthlyDetail({
   const router = useRouter();
   const sp = useSearchParams();
 
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+
   const updateFilters = (patch: Record<string, string>) => {
+    setPage(1);
     const next = new URLSearchParams(sp.toString());
     Object.entries(patch).forEach(([k, v]) => (v ? next.set(k, v) : next.delete(k)));
     router.replace(`${basePath}?${next.toString()}`);
   };
+
+  const totalPages = Math.max(1, Math.ceil(detail.logs.length / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const paginatedLogs = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return detail.logs.slice(start, start + pageSize);
+  }, [detail.logs, safePage, pageSize]);
 
   const columns: Column<DayRow>[] = [
     {
@@ -224,6 +238,13 @@ export function GuardMonthlyDetail({
         </div>
       </div>
 
+      {/* 30-Day Heatmap Strip */}
+      <ShiftHeatmapStrip
+        year={detail.year}
+        month={detail.month}
+        logs={detail.logs}
+      />
+
       {/* Per-day log */}
       <div className="space-y-4">
         <div>
@@ -239,10 +260,24 @@ export function GuardMonthlyDetail({
         <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
           <DataTable
             columns={columns}
-            rows={detail.logs}
+            rows={paginatedLogs}
             empty="No attendance records for this month yet."
           />
         </div>
+
+        {detail.logs.length > 0 && (
+          <Pagination
+            page={safePage}
+            pageSize={pageSize}
+            totalItems={detail.logs.length}
+            onPageChange={setPage}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+            }}
+            itemLabel="daily records"
+          />
+        )}
       </div>
     </div>
   );

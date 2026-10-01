@@ -13,4 +13,5 @@ export {
   RegionForm,
   StationForm,
 } from "./components/Registry";
+export { StationManager } from "./components/StationManager";
 

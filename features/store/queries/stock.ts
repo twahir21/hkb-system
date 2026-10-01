@@ -22,6 +22,8 @@ export type StationRow = {
   name: string;
   regionId: string;
   regionName: string;
+  supervisorId: string | null;
+  supervisorName: string | null;
 };
 
 export async function listRegions() {
@@ -35,9 +37,12 @@ export async function listStations(): Promise<StationRow[]> {
       name: stations.name,
       regionId: stations.regionId,
       regionName: regions.name,
+      supervisorId: stations.supervisorId,
+      supervisorName: users.fullName,
     })
     .from(stations)
     .innerJoin(regions, eq(stations.regionId, regions.id))
+    .leftJoin(users, eq(stations.supervisorId, users.id))
     .orderBy(regions.name, stations.name);
   return rows;
 }
