@@ -33,6 +33,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/access-denied" ||
     pathname === "/jobs" || // public job poster + application form
     pathname === "/api/request-coverage" || // public lead-capture endpoint
+    pathname === "/api/job-applications" || // public job application (marketing site)
     pathname.startsWith("/api/news") || // public news feed (read-only)
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next");
