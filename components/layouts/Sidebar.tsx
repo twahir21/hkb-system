@@ -24,6 +24,7 @@ import {
   BellRing,
   Newspaper,
   UserCheck,
+  Briefcase,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -237,6 +238,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: "Coverage Requests",
         icon: BellRing,
         roles: ["SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
+      },
+      {
+        href: "/job-applications",
+        label: "Job Applications",
+        icon: Briefcase,
+        roles: ["SUPER_ADMIN", "HR", "SECRETARY"],
       },
       {
         href: "/news",

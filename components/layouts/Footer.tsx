@@ -48,6 +48,7 @@ const QUICK_LINKS = [
   { label: "Training Program", href: mainSite("/#training") },
   { label: "Testimonials", href: mainSite("/#testimonials") },
   { label: "Contact Us", href: mainSite("/contacts") },
+  { label: "Nafasi za Ajira", href: "/jobs" },
 ];
 
 const SERVICES = [

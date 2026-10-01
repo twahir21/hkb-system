@@ -31,6 +31,7 @@ export async function proxy(request: NextRequest) {
   const isBypassed =
     pathname === "/login" ||
     pathname === "/access-denied" ||
+    pathname === "/jobs" || // public job poster + application form
     pathname === "/api/request-coverage" || // public lead-capture endpoint
     pathname.startsWith("/api/news") || // public news feed (read-only)
     pathname.startsWith("/api/auth") ||

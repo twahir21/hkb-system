@@ -40,6 +40,13 @@ export const coverageRequestStatusEnum = pgEnum("coverage_request_status", [
   "REJECTED",
   "ARCHIVED",
 ]);
+export const jobApplicationStatusEnum = pgEnum("job_application_status", [
+  "NEW", // Just submitted — awaiting first review
+  "IN_REVIEW", // Being screened by HR
+  "SHORTLISTED", // Invited for interview / trial
+  "HIRED", // Recruited as a guard
+  "REJECTED", // Not progressing
+]);
 export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
   "IN", // Stock bought / received into the main store
   "ISSUED", // Stock given to a station / storekeeper
@@ -225,6 +232,45 @@ export const coverageRequests = pgTable(
   (table) => [
     index("coverage_requests_status_idx").on(table.status),
     index("coverage_requests_created_at_idx").on(table.createdAt),
+  ]
+);
+
+// Public "Nafasi za Ajira" (job application) submissions from the /jobs page —
+// unauthenticated. Contains applicant PII + Firebase document URLs, readable
+// only by SUPER_ADMIN / HR / SECRETARY.
+export const jobApplications = pgTable(
+  "job_applications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    fullName: varchar("full_name", { length: 255 }).notNull(),
+    phone: varchar("phone", { length: 32 }).notNull(),
+    email: varchar("email", { length: 255 }),
+    age: integer("age").notNull(),
+    gender: genderEnum("gender").notNull(),
+    residence: varchar("residence", { length: 150 }).notNull(), // Mkoa wa kuishi
+    educationLevel: varchar("education_level", { length: 100 }).notNull(),
+    training: varchar("training", { length: 100 }).notNull(), // JKU / JKT / Mgambo
+    preferredStation: varchar("preferred_station", { length: 100 }).notNull(),
+    notes: text("notes"),
+    // Viambatanisho — public Firebase Storage URLs (see features/jobs)
+    letterUrl: text("letter_url").notNull(), // Barua ya maombi ya kazi (PDF)
+    certificatesUrl: text("certificates_url").notNull(), // Vyeti vya taaluma
+    cvUrl: text("cv_url").notNull(), // CV (wasifu wa muombaji)
+    refereesUrl: text("referees_url").notNull(), // Kitambulisho cha mdamini (wawili)
+    healthUrl: text("health_url").notNull(), // Hati ya afya njema
+    conductUrl: text("conduct_url").notNull(), // Hati ya tabia njema
+    source: varchar("source", { length: 100 })
+      .notNull()
+      .default("jobs-page"),
+    status: jobApplicationStatusEnum("status").default("NEW").notNull(),
+    internalNotes: text("internal_notes"),
+    handledById: uuid("handled_by_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("job_applications_status_idx").on(table.status),
+    index("job_applications_created_at_idx").on(table.createdAt),
   ]
 );
 
@@ -522,6 +568,8 @@ export type AbsenceCategory = (typeof absenceCategoryEnum.enumValues)[number];
 export type TransferStatus = (typeof transferStatusEnum.enumValues)[number];
 export type CoverageRequestStatus = (typeof coverageRequestStatusEnum.enumValues)[number];
 export type CoverageRequest = (typeof coverageRequests.$inferSelect);
+export type JobApplicationStatus = (typeof jobApplicationStatusEnum.enumValues)[number];
+export type JobApplication = (typeof jobApplications.$inferSelect);
 export type StockMovementType = (typeof stockMovementTypeEnum.enumValues)[number];
 export type StoreItem = (typeof storeItems.$inferSelect);
 export type StockMovement = (typeof stockMovements.$inferSelect);

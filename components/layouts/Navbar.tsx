@@ -47,6 +47,7 @@ const NAV_LINKS = [
   { label: "Gallery", href: mainSite("/gallery") },
   { label: "About", href: mainSite("/about") },
   { label: "FAQ", href: mainSite("/faq") },
+  { label: "Careers", href: "/jobs" },
 ];
 
 export default function Navbar() {

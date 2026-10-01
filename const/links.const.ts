@@ -18,6 +18,27 @@ export const PHONE_TELS: string[] = PHONES.map((phone) =>
 export const MAIN_SITE_URL = "https://www.hkbprotection.co.tz";
 
 /**
+ * Recruitment line(s) shown on the job poster / application page (/jobs).
+ * Display-formatted local numbers; index 0 is the primary line.
+ */
+export const RECRUITMENT_PHONES = ["0759789196", "0756006679"];
+
+/** `tel:` hrefs for RECRUITMENT_PHONES — e.g. tel:+255759789196 */
+export const RECRUITMENT_PHONE_TELS: string[] = RECRUITMENT_PHONES.map(
+  (phone) => `tel:+255${phone.replace(/\D/g, "").replace(/^0/, "")}`
+);
+
+/** Postal address for walk-in applications (also shown on the poster). */
+export const OFFICE_ADDRESS = "S.L.P. 42500, Temeke – Dar es Salaam";
+
+/**
+ * Google Maps pin for the head office — same location as the "Get Directions"
+ * link on the marketing site's Contact Us page (/contacts).
+ */
+export const OFFICE_MAP_URL =
+  "https://www.google.com/maps/search/?api=1&query=HKB+Protection+%26+Management+Temeke+Dar+es+Salaam";
+
+/**
  * Build an absolute URL on the main website.
  * mainSite()            → https://www.hkbprotection.co.tz
  * mainSite("/contacts") → https://www.hkbprotection.co.tz/contacts

@@ -76,6 +76,10 @@ export const PERMISSIONS = {
   COVERAGE_VIEW: ["SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
   COVERAGE_MANAGE: ["SUPER_ADMIN"],
 
+  // Job applications (public /jobs submissions — guard recruitment)
+  JOB_APPLICATIONS_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY"],
+  JOB_APPLICATIONS_MANAGE: ["SUPER_ADMIN", "HR"],
+
   // News / website content
   NEWS_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY"],
   NEWS_MANAGE: ["SUPER_ADMIN", "SECRETARY"],
