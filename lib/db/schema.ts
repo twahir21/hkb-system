@@ -249,16 +249,18 @@ export const jobApplications = pgTable(
     gender: genderEnum("gender").notNull(),
     residence: varchar("residence", { length: 150 }).notNull(), // Mkoa wa kuishi
     educationLevel: varchar("education_level", { length: 100 }).notNull(),
-    training: varchar("training", { length: 100 }).notNull(), // JKU / JKT / Mgambo
-    preferredStation: varchar("preferred_station", { length: 100 }).notNull(),
+    training: varchar("training", { length: 100 }), // JKU / JKT / Mgambo (hiari)
+    preferredStation: varchar("preferred_station", { length: 100 }), // Historical — no longer collected
     notes: text("notes"),
     // Viambatanisho — public Firebase Storage URLs (see features/jobs)
     letterUrl: text("letter_url").notNull(), // Barua ya maombi ya kazi (PDF)
     certificatesUrl: text("certificates_url").notNull(), // Vyeti vya taaluma
     cvUrl: text("cv_url").notNull(), // CV (wasifu wa muombaji)
-    refereesUrl: text("referees_url").notNull(), // Kitambulisho cha mdamini (wawili)
+    refereesUrl: text("referees_url").notNull(), // Kitambulisho cha mdhamini (wawili)
     healthUrl: text("health_url").notNull(), // Hati ya afya njema
     conductUrl: text("conduct_url").notNull(), // Hati ya tabia njema
+    passportUrl: text("passport_url").notNull(), // Picha ya pasipoti (passport size)
+    localGovLetterUrl: text("local_gov_letter_url").notNull(), // Barua ya utambulisho wa serikali za mitaa
     source: varchar("source", { length: 100 })
       .notNull()
       .default("jobs-page"),

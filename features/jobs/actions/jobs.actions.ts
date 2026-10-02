@@ -23,7 +23,7 @@ export type { JobApplicationState } from "@/features/jobs/lib/submit";
  * Public, unauthenticated submission for the /jobs page (Nafasi za Ajira).
  * Basic per-IP rate limit via Upstash Redis (graceful no-op when unconfigured),
  * then the shared pipeline in features/jobs/lib/submit.ts validates the
- * payload, stores the six attachments in Firebase Storage and inserts a NEW
+ * payload, stores the eight attachments in Firebase Storage and inserts a NEW
  * job_application for HR / Super Admin review.
  *
  * The marketing website posts to `POST /api/job-applications` instead — both
@@ -137,6 +137,8 @@ export async function deleteJobApplication(
     deleteFile(existing.refereesUrl),
     deleteFile(existing.healthUrl),
     deleteFile(existing.conductUrl),
+    deleteFile(existing.passportUrl),
+    deleteFile(existing.localGovLetterUrl),
   ]);
 
   await writeAuditLog({

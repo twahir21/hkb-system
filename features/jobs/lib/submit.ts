@@ -32,18 +32,27 @@ export type JobApplicationState = ActionState & {
 /** Form field name → job_applications column for each attachment. */
 const DOCUMENT_COLUMNS: Record<
   string,
-  "letterUrl" | "certificatesUrl" | "cvUrl" | "refereesUrl" | "healthUrl" | "conductUrl"
+  | "letterUrl"
+  | "localGovLetterUrl"
+  | "certificatesUrl"
+  | "cvUrl"
+  | "passportUrl"
+  | "refereesUrl"
+  | "healthUrl"
+  | "conductUrl"
 > = {
   letterFile: "letterUrl",
+  localGovLetterFile: "localGovLetterUrl",
   certificatesFile: "certificatesUrl",
   cvFile: "cvUrl",
+  passportFile: "passportUrl",
   refereesFile: "refereesUrl",
   healthFile: "healthUrl",
   conductFile: "conductUrl",
 };
 
 /**
- * Validates the Kiswahili payload, stores the six attachments in Firebase
+ * Validates the Kiswahili payload, stores the eight attachments in Firebase
  * Storage and inserts a NEW job_application for HR / Super Admin review.
  */
 export async function processJobApplicationSubmission(
@@ -57,9 +66,7 @@ export async function processJobApplicationSubmission(
     gender: formData.get("gender") ?? undefined,
     residence: formData.get("residence") ?? undefined,
     educationLevel: formData.get("educationLevel") ?? undefined,
-    training: formData.get("training") ?? undefined,
-    preferredStation: formData.get("preferredStation") ?? undefined,
-    notes: formData.get("notes") || undefined,
+    training: formData.get("training") || undefined, // optional ("" → undefined)
     source: formData.get("source") || undefined,
   });
   if (!parsed.success) {
@@ -131,12 +138,12 @@ export async function processJobApplicationSubmission(
         gender: v.gender,
         residence: v.residence,
         educationLevel: v.educationLevel,
-        training: v.training,
-        preferredStation: v.preferredStation,
-        notes: v.notes || null,
+        training: v.training || null,
         letterUrl: urls.letterUrl!,
+        localGovLetterUrl: urls.localGovLetterUrl!,
         certificatesUrl: urls.certificatesUrl!,
         cvUrl: urls.cvUrl!,
+        passportUrl: urls.passportUrl!,
         refereesUrl: urls.refereesUrl!,
         healthUrl: urls.healthUrl!,
         conductUrl: urls.conductUrl!,

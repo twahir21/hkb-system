@@ -21,9 +21,9 @@ export const MAIN_SITE_URL = "https://www.hkbprotection.co.tz";
  * Recruitment line(s) shown on the job poster / application page (/jobs).
  * Display-formatted local numbers; index 0 is the primary line.
  */
-export const RECRUITMENT_PHONES = ["0759789196", "0756006679"];
+export const RECRUITMENT_PHONES = ["0756006679"];
 
-/** `tel:` hrefs for RECRUITMENT_PHONES — e.g. tel:+255759789196 */
+/** `tel:` hrefs for RECRUITMENT_PHONES — e.g. tel:+255756006679 */
 export const RECRUITMENT_PHONE_TELS: string[] = RECRUITMENT_PHONES.map(
   (phone) => `tel:+255${phone.replace(/\D/g, "").replace(/^0/, "")}`
 );

@@ -23,8 +23,6 @@ export const EDUCATION_LEVELS = [
 
 export const TRAINING_OPTIONS = ["JKU", "JKT", "MGAMBO"] as const;
 
-export const WORK_STATIONS = ["Dar es Salaam", "Dodoma", "Morogoro"] as const;
-
 /* -------------------------------------------------------------------------- */
 /*  Viambatanisho (attachments) — shared by the client form and the action     */
 /* -------------------------------------------------------------------------- */
@@ -53,6 +51,11 @@ export const JOB_DOCUMENT_FIELDS: JobDocumentField[] = [
     pdfOnly: true,
   },
   {
+    name: "localGovLetterFile",
+    label: "Barua ya utambulisho wa serikali za mitaa",
+    pdfOnly: false,
+  },
+  {
     name: "certificatesFile",
     label: "Vyeti vya taaluma",
     pdfOnly: false,
@@ -63,8 +66,13 @@ export const JOB_DOCUMENT_FIELDS: JobDocumentField[] = [
     pdfOnly: false,
   },
   {
+    name: "passportFile",
+    label: "Picha ya pasipoti (passport size)",
+    pdfOnly: false,
+  },
+  {
     name: "refereesFile",
-    label: "Kitambulisho cha mdamini (wawili)",
+    label: "Kitambulisho cha mdhamini (wawili)",
     pdfOnly: false,
   },
   {
@@ -79,7 +87,7 @@ export const JOB_DOCUMENT_FIELDS: JobDocumentField[] = [
   },
 ];
 
-/** Accept attribute shared by the six file inputs. */
+/** Accept attribute shared by the eight file inputs. */
 export const JOB_DOCUMENT_ACCEPT = ".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg";
 
 /** Returns a Kiswahili error message, or null when the file is acceptable. */
@@ -116,7 +124,7 @@ export const jobApplicationSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(phoneRegex, "Weka namba sahihi ya simu (mfano 0759789196).")
+    .regex(phoneRegex, "Weka namba sahihi ya simu (mfano 0712345678).")
     .max(32),
   email: z
     .string()
@@ -138,9 +146,9 @@ export const jobApplicationSchema = z.object({
     .min(2, "Mkoa wa kuishi unahitajika.")
     .max(150),
   educationLevel: z.enum(EDUCATION_LEVELS, { error: "Chagua kiwango cha elimu." }),
-  training: z.enum(TRAINING_OPTIONS, { error: "Chagua mafunzo uliyopita (JKU, JKT au Mgambo)." }),
-  preferredStation: z.enum(WORK_STATIONS, { error: "Chagua eneo la kazi." }),
-  notes: z.string().trim().max(2000, "Maelezo ni ndefu mno.").optional(),
+  training: z
+    .enum(TRAINING_OPTIONS, { error: "Chagua mafunzo uliyopita (JKU, JKT au Mgambo)." })
+    .optional(),
   source: z.string().trim().max(100).optional(),
 });
 

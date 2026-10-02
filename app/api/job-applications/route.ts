@@ -65,7 +65,7 @@ function corsJson(request: Request, data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-// Six documents up to 2 MB each + the textual payload.
+// Eight documents up to 2 MB each (16 MB) + the textual payload.
 const MAX_BODY_BYTES = 20 * 1024 * 1024;
 
 function clientIp(request: Request): string {

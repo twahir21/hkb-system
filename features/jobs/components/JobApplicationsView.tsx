@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button, Badge, DataTable, statusTone, type Column } from "@/components/ui";
-import { MapPin, Phone, GraduationCap } from "lucide-react";
+import { Phone, GraduationCap } from "lucide-react";
 import type { JobApplicationRow } from "@/features/jobs/queries/jobs";
 import { JobApplicationDetailModal } from "./JobApplicationDetailModal";
 
@@ -66,20 +66,10 @@ export function JobApplicationsView({
             {r.age} yrs · {r.gender === "MALE" ? "Male" : "Female"}
           </p>
           <p className="flex items-center gap-1 text-slate-400">
-            <GraduationCap className="h-3 w-3" /> {r.training} ·{" "}
+            <GraduationCap className="h-3 w-3" /> {r.training ?? "—"} ·{" "}
             {r.educationLevel}
           </p>
         </div>
-      ),
-    },
-    {
-      key: "station",
-      header: "Preferred Station",
-      cell: (r) => (
-        <p className="flex items-center gap-1.5 text-slate-700">
-          <MapPin className="h-3 w-3 text-slate-400" />
-          {r.preferredStation}
-        </p>
       ),
     },
     {

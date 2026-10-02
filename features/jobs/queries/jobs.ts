@@ -14,8 +14,7 @@ export type JobApplicationRow = {
   gender: string;
   residence: string;
   educationLevel: string;
-  training: string;
-  preferredStation: string;
+  training: string | null;
   notes: string | null;
   letterUrl: string;
   certificatesUrl: string;
@@ -23,6 +22,8 @@ export type JobApplicationRow = {
   refereesUrl: string;
   healthUrl: string;
   conductUrl: string;
+  passportUrl: string;
+  localGovLetterUrl: string;
   status: JobApplicationStatus;
   internalNotes: string | null;
   handledByName: string | null;
@@ -44,7 +45,6 @@ export async function listJobApplications(
       residence: jobApplications.residence,
       educationLevel: jobApplications.educationLevel,
       training: jobApplications.training,
-      preferredStation: jobApplications.preferredStation,
       notes: jobApplications.notes,
       letterUrl: jobApplications.letterUrl,
       certificatesUrl: jobApplications.certificatesUrl,
@@ -52,6 +52,8 @@ export async function listJobApplications(
       refereesUrl: jobApplications.refereesUrl,
       healthUrl: jobApplications.healthUrl,
       conductUrl: jobApplications.conductUrl,
+      passportUrl: jobApplications.passportUrl,
+      localGovLetterUrl: jobApplications.localGovLetterUrl,
       status: jobApplications.status,
       internalNotes: jobApplications.internalNotes,
       handledByName: users.fullName,

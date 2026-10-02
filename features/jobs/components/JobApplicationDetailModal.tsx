@@ -48,9 +48,11 @@ export function JobApplicationDetailModal({
 
   const documents = [
     { label: "Barua ya maombi ya kazi", url: application.letterUrl },
+    { label: "Barua ya utambulisho wa serikali za mitaa", url: application.localGovLetterUrl },
     { label: "Vyeti vya taaluma", url: application.certificatesUrl },
     { label: "CV (Wasifu wa muombaji)", url: application.cvUrl },
-    { label: "Kitambulisho cha mdamini (wawili)", url: application.refereesUrl },
+    { label: "Picha ya pasipoti (passport size)", url: application.passportUrl },
+    { label: "Kitambulisho cha mdhamini (wawili)", url: application.refereesUrl },
     { label: "Hati ya afya njema", url: application.healthUrl },
     { label: "Hati ya tabia njema", url: application.conductUrl },
   ];
@@ -68,8 +70,7 @@ export function JobApplicationDetailModal({
           <Detail label="Age / Gender" value={`${application.age} · ${application.gender === "MALE" ? "Male" : "Female"}`} />
           <Detail label="Residence" value={application.residence} />
           <Detail label="Education" value={application.educationLevel} />
-          <Detail label="Training" value={application.training} />
-          <Detail label="Preferred Station" value={application.preferredStation} />
+          <Detail label="Training" value={application.training || "—"} />
           <Detail
             label="Received"
             value={new Date(application.createdAt).toLocaleString("en-GB")}
@@ -94,7 +95,9 @@ export function JobApplicationDetailModal({
             Viambatanisho (documents)
           </p>
           <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-            {documents.map((doc) => (
+            {/* Legacy applications predate the two new attachments — skip
+                their empty ("") URLs rather than render a dead link. */}
+            {documents.filter((doc) => doc.url).map((doc) => (
               <li key={doc.label}>
                 <a
                   href={doc.url}

@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     ];
   },
   // Legacy server-action uploads (superseded by POST /api/job-applications):
-  // the /jobs application form uploads up to six documents (2 MB each) —
+  // the /jobs application form uploads up to eight documents (2 MB each) —
   // the default 1 MB body limit would reject it.
   experimental: {
     serverActions: {
