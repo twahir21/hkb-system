@@ -37,22 +37,32 @@ const DOCUMENT_COLUMNS: Record<
   | "certificatesUrl"
   | "cvUrl"
   | "passportUrl"
-  | "refereesUrl"
   | "healthUrl"
   | "conductUrl"
+  | "mdhamini1LocalGovUrl"
+  | "mdhamini1NidaUrl"
+  | "mdhamini1SponsorUrl"
+  | "mdhamini2LocalGovUrl"
+  | "mdhamini2NidaUrl"
+  | "mdhamini2SponsorUrl"
 > = {
   letterFile: "letterUrl",
   localGovLetterFile: "localGovLetterUrl",
   certificatesFile: "certificatesUrl",
   cvFile: "cvUrl",
   passportFile: "passportUrl",
-  refereesFile: "refereesUrl",
   healthFile: "healthUrl",
   conductFile: "conductUrl",
+  mdhamini1LocalGovFile: "mdhamini1LocalGovUrl",
+  mdhamini1NidaFile: "mdhamini1NidaUrl",
+  mdhamini1SponsorFile: "mdhamini1SponsorUrl",
+  mdhamini2LocalGovFile: "mdhamini2LocalGovUrl",
+  mdhamini2NidaFile: "mdhamini2NidaUrl",
+  mdhamini2SponsorFile: "mdhamini2SponsorUrl",
 };
 
 /**
- * Validates the Kiswahili payload, stores the eight attachments in Firebase
+ * Validates the Kiswahili payload, stores the attachments in Firebase
  * Storage and inserts a NEW job_application for HR / Super Admin review.
  */
 export async function processJobApplicationSubmission(
@@ -87,13 +97,16 @@ export async function processJobApplicationSubmission(
   const fieldErrors: Record<string, string> = {};
   for (const doc of JOB_DOCUMENT_FIELDS) {
     const raw = formData.get(doc.name);
-    if (
+    const missing =
       typeof File === "undefined" ||
       !(raw instanceof File) ||
       raw.size === 0 ||
-      !raw.name
-    ) {
-      fieldErrors[doc.name] = `${doc.label}: faili linahitajika.`;
+      !raw.name;
+    if (missing) {
+      // Optional documents (e.g. Vyeti vya taaluma) may be left blank.
+      if (doc.required) {
+        fieldErrors[doc.name] = `${doc.label}: faili linahitajika.`;
+      }
       continue;
     }
     const invalid = isAllowedJobDocument(raw, doc.pdfOnly);
@@ -114,7 +127,8 @@ export async function processJobApplicationSubmission(
   // Phase 2 — upload to Firebase Storage (folder: job-applications).
   const urls: Partial<Record<keyof typeof DOCUMENT_COLUMNS, string>> = {};
   for (const doc of JOB_DOCUMENT_FIELDS) {
-    const file = files.get(doc.name)!;
+    const file = files.get(doc.name);
+    if (!file) continue; // optional document left blank
     const buffer = Buffer.from(await file.arrayBuffer());
     const url = await uploadFile(buffer, file.name, file.type, "job-applications");
     if (!url) {
@@ -141,12 +155,18 @@ export async function processJobApplicationSubmission(
         training: v.training || null,
         letterUrl: urls.letterUrl!,
         localGovLetterUrl: urls.localGovLetterUrl!,
-        certificatesUrl: urls.certificatesUrl!,
+        certificatesUrl: urls.certificatesUrl ?? null, // hiari (optional)
         cvUrl: urls.cvUrl!,
         passportUrl: urls.passportUrl!,
-        refereesUrl: urls.refereesUrl!,
+        refereesUrl: null, // historical — no longer collected
         healthUrl: urls.healthUrl!,
         conductUrl: urls.conductUrl!,
+        mdhamini1LocalGovUrl: urls.mdhamini1LocalGovUrl ?? "",
+        mdhamini1NidaUrl: urls.mdhamini1NidaUrl ?? "",
+        mdhamini1SponsorUrl: urls.mdhamini1SponsorUrl ?? "",
+        mdhamini2LocalGovUrl: urls.mdhamini2LocalGovUrl ?? "",
+        mdhamini2NidaUrl: urls.mdhamini2NidaUrl ?? "",
+        mdhamini2SponsorUrl: urls.mdhamini2SponsorUrl ?? "",
         source: v.source || "jobs-page",
         status: "NEW",
       })

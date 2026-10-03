@@ -42,52 +42,29 @@ export type JobDocumentField = {
   label: string;
   /** `letterFile` must be a PDF per the poster; others may be PDF/JPG/PNG. */
   pdfOnly: boolean;
+  /** false → hiari (optional): the applicant may leave this field blank. */
+  required: boolean;
 };
 
 export const JOB_DOCUMENT_FIELDS: JobDocumentField[] = [
-  {
-    name: "letterFile",
-    label: "Barua ya maombi ya kazi",
-    pdfOnly: true,
-  },
-  {
-    name: "localGovLetterFile",
-    label: "Barua ya utambulisho wa serikali za mitaa",
-    pdfOnly: false,
-  },
-  {
-    name: "certificatesFile",
-    label: "Vyeti vya taaluma",
-    pdfOnly: false,
-  },
-  {
-    name: "cvFile",
-    label: "CV (Wasifu wa muombaji)",
-    pdfOnly: false,
-  },
-  {
-    name: "passportFile",
-    label: "Picha ya pasipoti (passport size)",
-    pdfOnly: false,
-  },
-  {
-    name: "refereesFile",
-    label: "Kitambulisho cha mdhamini (wawili)",
-    pdfOnly: false,
-  },
-  {
-    name: "healthFile",
-    label: "Hati ya afya njema",
-    pdfOnly: false,
-  },
-  {
-    name: "conductFile",
-    label: "Hati ya tabia njema",
-    pdfOnly: false,
-  },
+  { name: "letterFile", label: "Barua ya maombi ya kazi", pdfOnly: true, required: true },
+  { name: "localGovLetterFile", label: "Barua ya utambulisho wa serikali za mitaa", pdfOnly: false, required: true },
+  { name: "certificatesFile", label: "Vyeti vya taaluma", pdfOnly: false, required: false }, // hiari (optional)
+  { name: "cvFile", label: "CV (Wasifu wa muombaji)", pdfOnly: false, required: true },
+  { name: "passportFile", label: "Picha ya pasipoti (passport size)", pdfOnly: false, required: true },
+  { name: "healthFile", label: "Hati ya afya njema", pdfOnly: false, required: true },
+  { name: "conductFile", label: "Hati ya tabia njema", pdfOnly: false, required: true },
+  // Mdhamini 1 — lazima (required)
+  { name: "mdhamini1LocalGovFile", label: "Mdhamini 1 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)", pdfOnly: false, required: true },
+  { name: "mdhamini1NidaFile", label: "Mdhamini 1 — Copy ya NIDA au kitambulisho cha kura", pdfOnly: false, required: true },
+  { name: "mdhamini1SponsorFile", label: "Mdhamini 1 — Barua ya kumdhamini muomba kazi", pdfOnly: false, required: true },
+  // Mdhamini 2 — lazima (required)
+  { name: "mdhamini2LocalGovFile", label: "Mdhamini 2 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)", pdfOnly: false, required: true },
+  { name: "mdhamini2NidaFile", label: "Mdhamini 2 — Copy ya NIDA au kitambulisho cha kura", pdfOnly: false, required: true },
+  { name: "mdhamini2SponsorFile", label: "Mdhamini 2 — Barua ya kumdhamini muomba kazi", pdfOnly: false, required: true },
 ];
 
-/** Accept attribute shared by the eight file inputs. */
+/** Accept attribute shared by every file input. */
 export const JOB_DOCUMENT_ACCEPT = ".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg";
 
 /** Returns a Kiswahili error message, or null when the file is acceptable. */

@@ -65,8 +65,8 @@ function corsJson(request: Request, data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-// Eight documents up to 2 MB each (16 MB) + the textual payload.
-const MAX_BODY_BYTES = 20 * 1024 * 1024;
+// Thirteen documents up to 2 MB each (26 MB) + the textual payload.
+const MAX_BODY_BYTES = 30 * 1024 * 1024;
 
 function clientIp(request: Request): string {
   const fwd = request.headers.get("x-forwarded-for");
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
   if (contentLength > MAX_BODY_BYTES) {
     return corsJson(
       request,
-      { ok: false, error: "Faili ni kubwa mno (jumla ya viambatanisho ni MB 20)." },
+      { ok: false, error: "Faili ni kubwa mno (jumla ya viambatanisho ni MB 30)." },
       413
     );
   }

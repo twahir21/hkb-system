@@ -17,13 +17,19 @@ export type JobApplicationRow = {
   training: string | null;
   notes: string | null;
   letterUrl: string;
-  certificatesUrl: string;
+  certificatesUrl: string | null;
   cvUrl: string;
-  refereesUrl: string;
+  refereesUrl: string | null;
   healthUrl: string;
   conductUrl: string;
   passportUrl: string;
   localGovLetterUrl: string;
+  mdhamini1LocalGovUrl: string;
+  mdhamini1NidaUrl: string;
+  mdhamini1SponsorUrl: string;
+  mdhamini2LocalGovUrl: string;
+  mdhamini2NidaUrl: string;
+  mdhamini2SponsorUrl: string;
   status: JobApplicationStatus;
   internalNotes: string | null;
   handledByName: string | null;
@@ -54,6 +60,12 @@ export async function listJobApplications(
       conductUrl: jobApplications.conductUrl,
       passportUrl: jobApplications.passportUrl,
       localGovLetterUrl: jobApplications.localGovLetterUrl,
+      mdhamini1LocalGovUrl: jobApplications.mdhamini1LocalGovUrl,
+      mdhamini1NidaUrl: jobApplications.mdhamini1NidaUrl,
+      mdhamini1SponsorUrl: jobApplications.mdhamini1SponsorUrl,
+      mdhamini2LocalGovUrl: jobApplications.mdhamini2LocalGovUrl,
+      mdhamini2NidaUrl: jobApplications.mdhamini2NidaUrl,
+      mdhamini2SponsorUrl: jobApplications.mdhamini2SponsorUrl,
       status: jobApplications.status,
       internalNotes: jobApplications.internalNotes,
       handledByName: users.fullName,

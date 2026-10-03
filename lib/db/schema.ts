@@ -254,13 +254,21 @@ export const jobApplications = pgTable(
     notes: text("notes"),
     // Viambatanisho — public Firebase Storage URLs (see features/jobs)
     letterUrl: text("letter_url").notNull(), // Barua ya maombi ya kazi (PDF)
-    certificatesUrl: text("certificates_url").notNull(), // Vyeti vya taaluma
+    certificatesUrl: text("certificates_url"), // Vyeti vya taaluma (hiari / optional)
     cvUrl: text("cv_url").notNull(), // CV (wasifu wa muombaji)
-    refereesUrl: text("referees_url").notNull(), // Kitambulisho cha mdhamini (wawili)
+    refereesUrl: text("referees_url"), // Historical — replaced by the Mdhamini 1 / Mdhamini 2 documents below
     healthUrl: text("health_url").notNull(), // Hati ya afya njema
     conductUrl: text("conduct_url").notNull(), // Hati ya tabia njema
     passportUrl: text("passport_url").notNull(), // Picha ya pasipoti (passport size)
     localGovLetterUrl: text("local_gov_letter_url").notNull(), // Barua ya utambulisho wa serikali za mitaa
+    // Mdhamini 1 — kila kitambatanisho ni lazima (*)
+    mdhamini1LocalGovUrl: text("mdhamini1_local_gov_url").notNull(), // Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)
+    mdhamini1NidaUrl: text("mdhamini1_nida_url").notNull(), // Copy ya NIDA au kitambulisho cha kura
+    mdhamini1SponsorUrl: text("mdhamini1_sponsor_url").notNull(), // Barua ya kumdhamini muomba kazi
+    // Mdhamini 2 — kila kitambatanisho ni lazima (*)
+    mdhamini2LocalGovUrl: text("mdhamini2_local_gov_url").notNull(), // Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)
+    mdhamini2NidaUrl: text("mdhamini2_nida_url").notNull(), // Copy ya NIDA au kitambulisho cha kura
+    mdhamini2SponsorUrl: text("mdhamini2_sponsor_url").notNull(), // Barua ya kumdhamini muomba kazi
     source: varchar("source", { length: 100 })
       .notNull()
       .default("jobs-page"),

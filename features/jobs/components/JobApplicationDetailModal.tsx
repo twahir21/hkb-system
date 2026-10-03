@@ -49,12 +49,23 @@ export function JobApplicationDetailModal({
   const documents = [
     { label: "Barua ya maombi ya kazi", url: application.letterUrl },
     { label: "Barua ya utambulisho wa serikali za mitaa", url: application.localGovLetterUrl },
-    { label: "Vyeti vya taaluma", url: application.certificatesUrl },
+    { label: "Vyeti vya taaluma (hiari)", url: application.certificatesUrl ?? "" },
     { label: "CV (Wasifu wa muombaji)", url: application.cvUrl },
     { label: "Picha ya pasipoti (passport size)", url: application.passportUrl },
-    { label: "Kitambulisho cha mdhamini (wawili)", url: application.refereesUrl },
     { label: "Hati ya afya njema", url: application.healthUrl },
     { label: "Hati ya tabia njema", url: application.conductUrl },
+    {
+      label: "Mdhamini 1 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)",
+      url: application.mdhamini1LocalGovUrl,
+    },
+    { label: "Mdhamini 1 — Copy ya NIDA au kitambulisho cha kura", url: application.mdhamini1NidaUrl },
+    { label: "Mdhamini 1 — Barua ya kumdhamini muomba kazi", url: application.mdhamini1SponsorUrl },
+    {
+      label: "Mdhamini 2 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)",
+      url: application.mdhamini2LocalGovUrl,
+    },
+    { label: "Mdhamini 2 — Copy ya NIDA au kitambulisho cha kura", url: application.mdhamini2NidaUrl },
+    { label: "Mdhamini 2 — Barua ya kumdhamini muomba kazi", url: application.mdhamini2SponsorUrl },
   ];
 
   return (
@@ -95,8 +106,8 @@ export function JobApplicationDetailModal({
             Viambatanisho (documents)
           </p>
           <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-            {/* Legacy applications predate the two new attachments — skip
-                their empty ("") URLs rather than render a dead link. */}
+            {/* Legacy / optional documents come back empty ("" or null) —
+                skip them rather than render a dead link. */}
             {documents.filter((doc) => doc.url).map((doc) => (
               <li key={doc.label}>
                 <a
