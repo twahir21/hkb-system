@@ -52,19 +52,19 @@ export function JobApplicationDetailModal({
     { label: "Vyeti vya taaluma (hiari)", url: application.certificatesUrl ?? "" },
     { label: "CV (Wasifu wa muombaji)", url: application.cvUrl },
     { label: "Picha ya pasipoti (passport size)", url: application.passportUrl },
-    { label: "Hati ya afya njema", url: application.healthUrl },
-    { label: "Hati ya tabia njema", url: application.conductUrl },
+    { label: "Hati ya afya njema (hiari)", url: application.healthUrl },
+    { label: "Hati ya tabia njema (hiari)", url: application.conductUrl },
     {
       label: "Mdhamini 1 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)",
       url: application.mdhamini1LocalGovUrl,
     },
-    { label: "Mdhamini 1 — Copy ya NIDA au kitambulisho cha kura", url: application.mdhamini1NidaUrl },
+    { label: "Mdhamini 1 — Copy ya kitambulisho (NIDA, kura, pasipoti au leseni ya udereva)", url: application.mdhamini1NidaUrl },
     { label: "Mdhamini 1 — Barua ya kumdhamini muomba kazi", url: application.mdhamini1SponsorUrl },
     {
       label: "Mdhamini 2 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)",
       url: application.mdhamini2LocalGovUrl,
     },
-    { label: "Mdhamini 2 — Copy ya NIDA au kitambulisho cha kura", url: application.mdhamini2NidaUrl },
+    { label: "Mdhamini 2 — Copy ya kitambulisho (NIDA, kura, pasipoti au leseni ya udereva)", url: application.mdhamini2NidaUrl },
     { label: "Mdhamini 2 — Barua ya kumdhamini muomba kazi", url: application.mdhamini2SponsorUrl },
   ];
 

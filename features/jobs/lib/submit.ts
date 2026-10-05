@@ -159,8 +159,8 @@ export async function processJobApplicationSubmission(
         cvUrl: urls.cvUrl!,
         passportUrl: urls.passportUrl!,
         refereesUrl: null, // historical — no longer collected
-        healthUrl: urls.healthUrl!,
-        conductUrl: urls.conductUrl!,
+        healthUrl: urls.healthUrl ?? "",
+        conductUrl: urls.conductUrl ?? "",
         mdhamini1LocalGovUrl: urls.mdhamini1LocalGovUrl ?? "",
         mdhamini1NidaUrl: urls.mdhamini1NidaUrl ?? "",
         mdhamini1SponsorUrl: urls.mdhamini1SponsorUrl ?? "",

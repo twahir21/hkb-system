@@ -52,15 +52,15 @@ export const JOB_DOCUMENT_FIELDS: JobDocumentField[] = [
   { name: "certificatesFile", label: "Vyeti vya taaluma", pdfOnly: false, required: false }, // hiari (optional)
   { name: "cvFile", label: "CV (Wasifu wa muombaji)", pdfOnly: false, required: true },
   { name: "passportFile", label: "Picha ya pasipoti (passport size)", pdfOnly: false, required: true },
-  { name: "healthFile", label: "Hati ya afya njema", pdfOnly: false, required: true },
-  { name: "conductFile", label: "Hati ya tabia njema", pdfOnly: false, required: true },
+  { name: "healthFile", label: "Hati ya afya njema", pdfOnly: false, required: false }, // hiari (optional)
+  { name: "conductFile", label: "Hati ya tabia njema", pdfOnly: false, required: false }, // hiari (optional)
   // Mdhamini 1 — lazima (required)
   { name: "mdhamini1LocalGovFile", label: "Mdhamini 1 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)", pdfOnly: false, required: true },
-  { name: "mdhamini1NidaFile", label: "Mdhamini 1 — Copy ya NIDA au kitambulisho cha kura", pdfOnly: false, required: true },
+  { name: "mdhamini1NidaFile", label: "Mdhamini 1 — Copy ya kitambulisho (NIDA, kura, pasipoti au leseni ya udereva)", pdfOnly: false, required: true },
   { name: "mdhamini1SponsorFile", label: "Mdhamini 1 — Barua ya kumdhamini muomba kazi", pdfOnly: false, required: true },
   // Mdhamini 2 — lazima (required)
   { name: "mdhamini2LocalGovFile", label: "Mdhamini 2 — Barua ya serikali ya mtaa (makazi na utambulisho wa ndugu)", pdfOnly: false, required: true },
-  { name: "mdhamini2NidaFile", label: "Mdhamini 2 — Copy ya NIDA au kitambulisho cha kura", pdfOnly: false, required: true },
+  { name: "mdhamini2NidaFile", label: "Mdhamini 2 — Copy ya kitambulisho (NIDA, kura, pasipoti au leseni ya udereva)", pdfOnly: false, required: true },
   { name: "mdhamini2SponsorFile", label: "Mdhamini 2 — Barua ya kumdhamini muomba kazi", pdfOnly: false, required: true },
 ];
 
