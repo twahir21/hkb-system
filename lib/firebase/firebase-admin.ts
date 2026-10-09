@@ -23,18 +23,25 @@ import { env } from "@/lib/env";
  * so any future key-rotation issues are immediately diagnosable in the logs.
  */
 function normalizePrivateKey(raw: string): string {
-  // Strategy 1 — already a valid PEM (real newlines, no escaping needed).
-  if (raw.includes("-----BEGIN")) {
-    console.log("[firebase] private key: already contains PEM header — using as-is");
+  // The correct discriminator: a properly-formatted PEM key has an ACTUAL newline
+  // character (char code 10) after the header line. A key stored with literal \n
+  // (backslash + n, two chars) does NOT have char-10 there — even though it still
+  // contains the text "-----BEGIN".
+  const PEM_HEADER = "-----BEGIN PRIVATE KEY-----\n";
+
+  // Strategy 1 — already valid PEM with real newline characters.
+  if (raw.includes(PEM_HEADER)) {
+    console.log("[firebase] private key: already valid PEM (real newlines) — using as-is");
     return raw;
   }
 
-  // Strategy 2 — JSON-stringified key (starts with a quote character).
+  // Strategy 2 — JSON-stringified key (the env var was set to the raw JSON field
+  // value including its surrounding double-quotes, e.g. "-----BEGIN ...\n...").
   if (raw.startsWith('"') || raw.startsWith("'")) {
     try {
       const jsonInput = raw.startsWith("'") ? `"${raw.slice(1, -1)}"` : raw;
       const parsed: unknown = JSON.parse(jsonInput);
-      if (typeof parsed === "string" && parsed.includes("-----BEGIN")) {
+      if (typeof parsed === "string" && parsed.includes(PEM_HEADER)) {
         console.log("[firebase] private key: decoded via JSON.parse — OK");
         return parsed;
       }
@@ -43,25 +50,29 @@ function normalizePrivateKey(raw: string): string {
     }
   }
 
-  // Strategy 3 — double-escaped newlines (\\\\n in raw = \\n after JS string parsing).
+  // Strategy 3 — double-escaped (some platforms JSON.stringify the key twice,
+  // producing \\\\n in the raw env string which JS reads as two chars: \\ and n).
   const doubleUnescaped = raw.replace(/\\\\n/g, "\n");
-  if (doubleUnescaped.includes("-----BEGIN")) {
-    console.log("[firebase] private key: decoded via double-unescape (\\\\n → \\n) — OK");
+  if (doubleUnescaped.includes(PEM_HEADER)) {
+    console.log("[firebase] private key: decoded via double-unescape (\\\\n → newline) — OK");
     return doubleUnescaped;
   }
 
-  // Strategy 4 — single-escaped newlines (the most common hosting-platform format).
+  // Strategy 4 — single-escaped (most common: Vercel / Railway / Render store the
+  // JSON private_key field value verbatim, which has literal \\n for newlines).
   const singleUnescaped = raw.replace(/\\n/g, "\n");
-  if (singleUnescaped.includes("-----BEGIN")) {
+  if (singleUnescaped.includes(PEM_HEADER)) {
     console.log("[firebase] private key: decoded via single-unescape (\\n → newline) — OK");
     return singleUnescaped;
   }
 
-  // Nothing worked — log enough detail to diagnose and return the best-effort value.
+  // Nothing worked — log diagnostic info without leaking key material.
   console.error(
-    "[firebase] private key: could not find PEM header after all decode strategies.\n" +
-      `Key prefix (first 60 chars): ${raw.slice(0, 60).replace(/\n/g, "\\n")}\n` +
-      "Fix: check how FIREBASE_PRIVATE_KEY is stored in your hosting environment."
+    "[firebase] private key: could not produce a valid PEM after all strategies.\n" +
+      `Key prefix (60 chars): ${raw.slice(0, 60).replace(/\n/g, "\\n")}\n` +
+      "Fix: in your hosting env vars, set FIREBASE_PRIVATE_KEY to the value of the \n" +
+      "\"private_key\" field from firebase.json — exactly as it appears in the JSON file,\n" +
+      "with literal \\\\n characters (do NOT convert to real newlines)."
   );
   return singleUnescaped;
 }
