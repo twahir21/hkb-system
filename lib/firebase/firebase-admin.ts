@@ -28,10 +28,9 @@ import { env } from "@/lib/env";
 // AWS_ENDPOINT_URL_S3 and AWS_REGION from process.env automatically.
 const s3 = new S3Client({ forcePathStyle: true });
 
-// Bucket name: use STORAGE_BUCKET env var, fall back to "assets" (Neon default).
+// Bucket name: use STORAGE_BUCKET env var, fall back to "hkb-jobs" (this project's Neon bucket).
 function getBucket(): string {
-  const bucket = env.STORAGE_BUCKET ?? "assets";
-  return bucket;
+  return env.STORAGE_BUCKET ?? "hkb-jobs";
 }
 
 // Whether storage is configured at all (at least the access key must be present).
