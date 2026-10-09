@@ -4,7 +4,9 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "@/lib/env";
 
 /**
@@ -128,5 +130,41 @@ export async function deleteFile(objectPathOrUrl: string | null | undefined): Pr
     console.log(`[storage] deleted object: ${key}`);
   } catch (error) {
     console.warn("[storage] delete skipped (object may not exist):", error);
+  }
+}
+
+/**
+ * Generate a temporary presigned URL that allows the holder to GET (download)
+ * a private object from Neon Storage without any credentials.
+ *
+ * Use this in Server Actions / Route Handlers — never expose raw S3 URLs
+ * directly to the browser, since Neon objects are private by default.
+ *
+ * @param objectPathOrUrl - S3 key path (e.g. "job-applications/…") OR
+ *                          the full storage URL returned by uploadFile()
+ * @param expiresIn       - seconds until the link expires (default: 1 hour)
+ * @returns signed URL string, or null when storage is not configured
+ */
+export async function getSignedDownloadUrl(
+  objectPathOrUrl: string | null | undefined,
+  expiresIn = 3600
+): Promise<string | null> {
+  if (!objectPathOrUrl || !isConfigured()) return null;
+
+  const key = objectPathOrUrl.startsWith("http")
+    ? storagePathFromUrl(objectPathOrUrl)
+    : objectPathOrUrl;
+  if (!key) return null;
+
+  try {
+    const url = await getSignedUrl(
+      s3,
+      new GetObjectCommand({ Bucket: getBucket(), Key: key }),
+      { expiresIn }
+    );
+    return url;
+  } catch (error) {
+    console.error("[storage] failed to generate presigned URL:", error);
+    return null;
   }
 }

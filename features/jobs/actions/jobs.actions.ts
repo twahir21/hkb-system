@@ -6,8 +6,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { jobApplications } from "@/lib/db/schema";
 import { redis } from "@/lib/redis";
-import { deleteFile } from "@/lib/firebase/firebase-admin";
-import { requirePermission } from "@/lib/auth/dal";
+import { deleteFile, getSignedDownloadUrl } from "@/lib/firebase/firebase-admin";
+import { requirePermission, getCurrentUser } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { jobApplicationUpdateSchema } from "@/features/jobs/validators/jobs.schema";
 import {
@@ -161,4 +161,23 @@ export async function deleteJobApplication(
 
   revalidatePath("/job-applications");
   return { ok: true, message: "Job application deleted." };
+}
+
+/**
+ * Generate a short-lived presigned download URL for a single document.
+ * Gated behind HR / Super Admin permission — the browser never holds a
+ * permanent S3 URL; every click gets a fresh 1-hour signed link.
+ */
+export async function getDocumentDownloadUrl(
+  storageUrl: string
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const actor = await getCurrentUser();
+  if (!actor || !["HR", "SUPER_ADMIN"].includes(actor.role)) {
+    return { ok: false, error: "Huna ruhusa ya kufikia hati hii." };
+  }
+
+  const url = await getSignedDownloadUrl(storageUrl, 3600);
+  if (!url) return { ok: false, error: "Imeshindikana kupata kiungo cha hati. Jaribu tena." };
+
+  return { ok: true, url };
 }

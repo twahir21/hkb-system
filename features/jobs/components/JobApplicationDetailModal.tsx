@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { FileText, Trash2 } from "lucide-react";
+import { useActionState, useState, useTransition } from "react";
+import { FileText, Loader2, Trash2 } from "lucide-react";
 import { Badge, Button, Modal, statusTone } from "@/components/ui";
 import type { JobApplicationRow } from "@/features/jobs/queries/jobs";
 import {
   deleteJobApplication,
   updateJobApplication,
+  getDocumentDownloadUrl,
   type ActionState,
 } from "@/features/jobs/actions/jobs.actions";
 
@@ -20,6 +21,46 @@ function Detail({ label, value }: { label: string; value: React.ReactNode }) {
       </dt>
       <dd className="text-slate-800">{value}</dd>
     </div>
+  );
+}
+
+/**
+ * Fetches a fresh presigned S3 URL on every click and opens it in a new tab.
+ * The browser never holds a raw (unauthenticated) storage URL.
+ */
+function DocLink({ label, storageUrl }: { label: string; storageUrl: string }) {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function handleClick(e: React.MouseEvent) {
+    e.preventDefault();
+    setError(null);
+    startTransition(async () => {
+      const result = await getDocumentDownloadUrl(storageUrl);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      window.open(result.url, "_blank", "noopener,noreferrer");
+    });
+  }
+
+  return (
+    <li>
+      <button
+        onClick={handleClick}
+        disabled={isPending}
+        className="flex w-full items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:opacity-60"
+      >
+        {isPending ? (
+          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-slate-400" />
+        ) : (
+          <FileText className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+        )}
+        {label}
+      </button>
+      {error && <p className="mt-0.5 px-2.5 text-xs text-rose-600">{error}</p>}
+    </li>
   );
 }
 
@@ -109,17 +150,7 @@ export function JobApplicationDetailModal({
             {/* Legacy / optional documents come back empty ("" or null) —
                 skip them rather than render a dead link. */}
             {documents.filter((doc) => doc.url).map((doc) => (
-              <li key={doc.label}>
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-brand-50 hover:text-brand-700"
-                >
-                  <FileText className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  {doc.label}
-                </a>
-              </li>
+              <DocLink key={doc.label} label={doc.label} storageUrl={doc.url} />
             ))}
           </ul>
         </div>
