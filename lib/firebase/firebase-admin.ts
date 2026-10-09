@@ -10,58 +10,45 @@ import { env } from "@/lib/env";
 /**
  * Neon Object Storage (S3-compatible) — server-side only.
  *
- * Drop-in replacement for the old Firebase Admin Storage module.
- * All exported function signatures are identical so every caller
- * (features/jobs, features/news, features/attendance, …) compiles
- * without changes.
+ * Follows the exact pattern from the Neon docs:
+ *   const s3 = new S3Client({ forcePathStyle: true });
  *
- * Required env vars (set in hosting platform + .env.local for dev):
+ * The AWS SDK automatically reads these env vars from process.env:
  *   AWS_ACCESS_KEY_ID       — Neon Storage access key
  *   AWS_SECRET_ACCESS_KEY   — Neon Storage secret key
- *   AWS_ENDPOINT_URL_S3     — e.g. https://storage.neon.tech
- *   AWS_REGION              — e.g. us-east-1  (or your Neon region)
- *   STORAGE_BUCKET          — Neon bucket name, e.g. "assets"
+ *   AWS_ENDPOINT_URL_S3     — e.g. https://<account>.storage.neon.tech
+ *   AWS_REGION              — e.g. us-east-1 (defaults to us-east-1)
+ *
+ * Bucket name (optional env var, defaults to "assets"):
+ *   STORAGE_BUCKET          — your Neon bucket name
  */
 
-let cachedClient: S3Client | null = null;
+// Match the Neon sample exactly — no explicit credentials/endpoint config.
+// The AWS SDK reads AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+// AWS_ENDPOINT_URL_S3 and AWS_REGION from process.env automatically.
+const s3 = new S3Client({ forcePathStyle: true });
 
-function getS3Client(): S3Client | null {
-  if (
-    !env.AWS_ACCESS_KEY_ID ||
-    !env.AWS_SECRET_ACCESS_KEY ||
-    !env.AWS_ENDPOINT_URL_S3 ||
-    !env.STORAGE_BUCKET
-  ) {
+// Bucket name: use STORAGE_BUCKET env var, fall back to "assets" (Neon default).
+function getBucket(): string {
+  const bucket = env.STORAGE_BUCKET ?? "assets";
+  return bucket;
+}
+
+// Whether storage is configured at all (at least the access key must be present).
+function isConfigured(): boolean {
+  const ok = Boolean(env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY);
+  if (!ok) {
     console.warn(
-      "[storage] skipping init — missing env var(s):",
+      "[storage] not configured — missing env var(s):",
       [
         !env.AWS_ACCESS_KEY_ID && "AWS_ACCESS_KEY_ID",
         !env.AWS_SECRET_ACCESS_KEY && "AWS_SECRET_ACCESS_KEY",
-        !env.AWS_ENDPOINT_URL_S3 && "AWS_ENDPOINT_URL_S3",
-        !env.STORAGE_BUCKET && "STORAGE_BUCKET",
       ]
         .filter(Boolean)
         .join(", ")
     );
-    return null;
   }
-
-  if (cachedClient) return cachedClient;
-
-  cachedClient = new S3Client({
-    region: env.AWS_REGION ?? "us-east-1",
-    endpoint: env.AWS_ENDPOINT_URL_S3,
-    forcePathStyle: true, // required for Neon / MinIO-style S3
-    credentials: {
-      accessKeyId: env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-    },
-  });
-
-  console.log(
-    `[storage] S3 client initialized — endpoint: ${env.AWS_ENDPOINT_URL_S3}, bucket: ${env.STORAGE_BUCKET}`
-  );
-  return cachedClient;
+  return ok;
 }
 
 /**
@@ -79,25 +66,21 @@ export async function uploadFile(
   contentType = "application/pdf",
   folder = "sick-notes"
 ): Promise<string | null> {
-  const client = getS3Client();
-  if (!client || !env.STORAGE_BUCKET) return null;
+  if (!isConfigured()) return null;
 
+  const bucket = getBucket();
   const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
   const key = `${folder}/${Date.now()}-${safeName}`;
 
-  console.log(
-    `[storage] uploading to bucket "${env.STORAGE_BUCKET}" at key "${key}" (${contentType})`
-  );
+  console.log(`[storage] uploading — bucket: "${bucket}", key: "${key}", type: ${contentType}`);
 
   try {
-    await client.send(
+    await s3.send(
       new PutObjectCommand({
-        Bucket: env.STORAGE_BUCKET,
+        Bucket: bucket,
         Key: key,
         Body: buffer,
         ContentType: contentType,
-        // Objects are publicly readable — matches the old Firebase behaviour.
-        ACL: "public-read",
       })
     );
   } catch (error) {
@@ -105,20 +88,26 @@ export async function uploadFile(
     return null;
   }
 
-  // Construct the public URL.
-  // Neon Storage serves objects at: <endpoint>/<bucket>/<key>
-  const publicUrl = `${env.AWS_ENDPOINT_URL_S3}/${env.STORAGE_BUCKET}/${key}`;
+  // Neon Storage public URL format: <endpoint>/<bucket>/<key>
+  // AWS_ENDPOINT_URL_S3 is read by the SDK automatically, but we also need it
+  // to build the public URL. Fall back to a generic pattern if not set.
+  const endpoint = env.AWS_ENDPOINT_URL_S3?.replace(/\/$/, "") ?? "";
+  const publicUrl = endpoint
+    ? `${endpoint}/${bucket}/${key}`
+    : `https://storage.neon.tech/${bucket}/${key}`;
+
   console.log(`[storage] uploaded successfully → ${publicUrl}`);
   return publicUrl;
 }
 
 /**
  * Extract the S3 object key from a Neon Storage public URL.
- * e.g. `https://storage.neon.tech/assets/news/123-x.jpg` → `news/123-x.jpg`
+ * e.g. `https://<endpoint>/assets/news/123-x.jpg` → `news/123-x.jpg`
  */
 export function storagePathFromUrl(url: string): string | null {
-  if (!env.AWS_ENDPOINT_URL_S3 || !env.STORAGE_BUCKET) return null;
-  const marker = `${env.AWS_ENDPOINT_URL_S3}/${env.STORAGE_BUCKET}/`;
+  const bucket = getBucket();
+  const endpoint = env.AWS_ENDPOINT_URL_S3?.replace(/\/$/, "") ?? "https://storage.neon.tech";
+  const marker = `${endpoint}/${bucket}/`;
   if (!url.startsWith(marker)) return null;
   return decodeURIComponent(url.slice(marker.length));
 }
@@ -128,9 +117,7 @@ export function storagePathFromUrl(url: string): string | null {
  * Idempotent: missing objects / unconfigured storage are silently ignored.
  */
 export async function deleteFile(objectPathOrUrl: string | null | undefined): Promise<void> {
-  if (!objectPathOrUrl) return;
-  const client = getS3Client();
-  if (!client || !env.STORAGE_BUCKET) return;
+  if (!objectPathOrUrl || !isConfigured()) return;
 
   const key = objectPathOrUrl.startsWith("http")
     ? storagePathFromUrl(objectPathOrUrl)
@@ -138,9 +125,7 @@ export async function deleteFile(objectPathOrUrl: string | null | undefined): Pr
   if (!key) return;
 
   try {
-    await client.send(
-      new DeleteObjectCommand({ Bucket: env.STORAGE_BUCKET, Key: key })
-    );
+    await s3.send(new DeleteObjectCommand({ Bucket: getBucket(), Key: key }));
     console.log(`[storage] deleted object: ${key}`);
   } catch (error) {
     console.warn("[storage] delete skipped (object may not exist):", error);
