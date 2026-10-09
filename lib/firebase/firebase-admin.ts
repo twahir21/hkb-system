@@ -1,92 +1,44 @@
 import "server-only";
 
-import { initializeApp, cert, getApps, type App } from "firebase-admin/app";
-import { getStorage } from "firebase-admin/storage";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { env } from "@/lib/env";
 
 /**
- * Firebase Admin SDK — server-side only. Never exposed to the client.
- * Returns null when Firebase env vars are absent (local dev without storage).
+ * Neon Object Storage (S3-compatible) — server-side only.
+ *
+ * Drop-in replacement for the old Firebase Admin Storage module.
+ * All exported function signatures are identical so every caller
+ * (features/jobs, features/news, features/attendance, …) compiles
+ * without changes.
+ *
+ * Required env vars (set in hosting platform + .env.local for dev):
+ *   AWS_ACCESS_KEY_ID       — Neon Storage access key
+ *   AWS_SECRET_ACCESS_KEY   — Neon Storage secret key
+ *   AWS_ENDPOINT_URL_S3     — e.g. https://storage.neon.tech
+ *   AWS_REGION              — e.g. us-east-1  (or your Neon region)
+ *   STORAGE_BUCKET          — Neon bucket name, e.g. "assets"
  */
 
-/**
- * Normalize the FIREBASE_PRIVATE_KEY environment variable into a valid PEM
- * string that OpenSSL / the Firebase Admin SDK can parse.
- *
- * Hosting platforms encode the key differently:
- *  1. Already valid PEM   — real newlines present, no escaping needed.
- *  2. JSON-stringified    — the whole value is wrapped in `"…"`.
- *  3. Double-escaped      — literal \\n (4 chars) instead of \n (2 chars).
- *  4. Single-escaped      — literal \n (2 chars) — the most common case.
- *
- * We try each strategy in order and log which one produced a well-formed PEM
- * so any future key-rotation issues are immediately diagnosable in the logs.
- */
-function normalizePrivateKey(raw: string): string {
-  // The correct discriminator: a properly-formatted PEM key has an ACTUAL newline
-  // character (char code 10) after the header line. A key stored with literal \n
-  // (backslash + n, two chars) does NOT have char-10 there — even though it still
-  // contains the text "-----BEGIN".
-  const PEM_HEADER = "-----BEGIN PRIVATE KEY-----\n";
+let cachedClient: S3Client | null = null;
 
-  // Strategy 1 — already valid PEM with real newline characters.
-  if (raw.includes(PEM_HEADER)) {
-    console.log("[firebase] private key: already valid PEM (real newlines) — using as-is");
-    return raw;
-  }
-
-  // Strategy 2 — JSON-stringified key (the env var was set to the raw JSON field
-  // value including its surrounding double-quotes, e.g. "-----BEGIN ...\n...").
-  if (raw.startsWith('"') || raw.startsWith("'")) {
-    try {
-      const jsonInput = raw.startsWith("'") ? `"${raw.slice(1, -1)}"` : raw;
-      const parsed: unknown = JSON.parse(jsonInput);
-      if (typeof parsed === "string" && parsed.includes(PEM_HEADER)) {
-        console.log("[firebase] private key: decoded via JSON.parse — OK");
-        return parsed;
-      }
-    } catch {
-      // fall through to next strategy
-    }
-  }
-
-  // Strategy 3 — double-escaped (some platforms JSON.stringify the key twice,
-  // producing \\\\n in the raw env string which JS reads as two chars: \\ and n).
-  const doubleUnescaped = raw.replace(/\\\\n/g, "\n");
-  if (doubleUnescaped.includes(PEM_HEADER)) {
-    console.log("[firebase] private key: decoded via double-unescape (\\\\n → newline) — OK");
-    return doubleUnescaped;
-  }
-
-  // Strategy 4 — single-escaped (most common: Vercel / Railway / Render store the
-  // JSON private_key field value verbatim, which has literal \\n for newlines).
-  const singleUnescaped = raw.replace(/\\n/g, "\n");
-  if (singleUnescaped.includes(PEM_HEADER)) {
-    console.log("[firebase] private key: decoded via single-unescape (\\n → newline) — OK");
-    return singleUnescaped;
-  }
-
-  // Nothing worked — log diagnostic info without leaking key material.
-  console.error(
-    "[firebase] private key: could not produce a valid PEM after all strategies.\n" +
-      `Key prefix (60 chars): ${raw.slice(0, 60).replace(/\n/g, "\\n")}\n` +
-      "Fix: in your hosting env vars, set FIREBASE_PRIVATE_KEY to the value of the \n" +
-      "\"private_key\" field from firebase.json — exactly as it appears in the JSON file,\n" +
-      "with literal \\\\n characters (do NOT convert to real newlines)."
-  );
-  return singleUnescaped;
-}
-
-let cached: { app: App } | null = null;
-
-function getFirebaseApp() {
-  if (!env.FIREBASE_PROJECT_ID || !env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) {
+function getS3Client(): S3Client | null {
+  if (
+    !env.AWS_ACCESS_KEY_ID ||
+    !env.AWS_SECRET_ACCESS_KEY ||
+    !env.AWS_ENDPOINT_URL_S3 ||
+    !env.STORAGE_BUCKET
+  ) {
     console.warn(
-      "[firebase] skipping init — missing env var(s):",
+      "[storage] skipping init — missing env var(s):",
       [
-        !env.FIREBASE_PROJECT_ID && "FIREBASE_PROJECT_ID",
-        !env.FIREBASE_CLIENT_EMAIL && "FIREBASE_CLIENT_EMAIL",
-        !env.FIREBASE_PRIVATE_KEY && "FIREBASE_PRIVATE_KEY",
+        !env.AWS_ACCESS_KEY_ID && "AWS_ACCESS_KEY_ID",
+        !env.AWS_SECRET_ACCESS_KEY && "AWS_SECRET_ACCESS_KEY",
+        !env.AWS_ENDPOINT_URL_S3 && "AWS_ENDPOINT_URL_S3",
+        !env.STORAGE_BUCKET && "STORAGE_BUCKET",
       ]
         .filter(Boolean)
         .join(", ")
@@ -94,33 +46,32 @@ function getFirebaseApp() {
     return null;
   }
 
-  if (cached) return cached.app;
+  if (cachedClient) return cachedClient;
 
-  const privateKey = normalizePrivateKey(env.FIREBASE_PRIVATE_KEY);
+  cachedClient = new S3Client({
+    region: env.AWS_REGION ?? "us-east-1",
+    endpoint: env.AWS_ENDPOINT_URL_S3,
+    forcePathStyle: true, // required for Neon / MinIO-style S3
+    credentials: {
+      accessKeyId: env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
 
-  const apps = getApps();
-  const app =
-    apps.length > 0
-      ? apps[0]
-      : initializeApp({
-          projectId: env.FIREBASE_PROJECT_ID,
-          credential: cert({
-            projectId: env.FIREBASE_PROJECT_ID,
-            clientEmail: env.FIREBASE_CLIENT_EMAIL,
-            privateKey,
-          }),
-          storageBucket: env.FIREBASE_STORAGE_BUCKET,
-        });
-
-  cached = { app };
-  console.log(`[firebase] app initialized — project: ${env.FIREBASE_PROJECT_ID}`);
-  return app;
+  console.log(
+    `[storage] S3 client initialized — endpoint: ${env.AWS_ENDPOINT_URL_S3}, bucket: ${env.STORAGE_BUCKET}`
+  );
+  return cachedClient;
 }
 
 /**
- * Upload a buffer to Firebase Storage and return its public URL.
- * `folder` groups objects by feature (sick-notes, news, ...). Defaults to the
- * historical "sick-notes" prefix so existing callers keep working unchanged.
+ * Upload a buffer to Neon Object Storage and return its public URL.
+ *
+ * @param buffer      - file contents
+ * @param filename    - original filename (sanitized before storage)
+ * @param contentType - MIME type, defaults to "application/pdf"
+ * @param folder      - storage prefix / virtual folder, e.g. "job-applications"
+ * @returns public URL string, or null when storage is not configured
  */
 export async function uploadFile(
   buffer: Buffer,
@@ -128,54 +79,70 @@ export async function uploadFile(
   contentType = "application/pdf",
   folder = "sick-notes"
 ): Promise<string | null> {
-  const app = getFirebaseApp();
-  if (!app) return null;
+  const client = getS3Client();
+  if (!client || !env.STORAGE_BUCKET) return null;
 
-  const bucket = getStorage(app).bucket(env.FIREBASE_STORAGE_BUCKET);
   const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const destination = `${folder}/${Date.now()}-${safeName}`;
-  const file = bucket.file(destination);
+  const key = `${folder}/${Date.now()}-${safeName}`;
 
-  await file.save(buffer, { contentType, resumable: false });
+  console.log(
+    `[storage] uploading to bucket "${env.STORAGE_BUCKET}" at key "${key}" (${contentType})`
+  );
+
   try {
-    // With uniform bucket-level access, objects are already public via IAM and
-    // makePublic() throws — never fail an upload because of that.
-    await file.makePublic();
+    await client.send(
+      new PutObjectCommand({
+        Bucket: env.STORAGE_BUCKET,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType,
+        // Objects are publicly readable — matches the old Firebase behaviour.
+        ACL: "public-read",
+      })
+    );
   } catch (error) {
-    console.warn("[firebase] makePublic skipped (bucket may be public via IAM):", error);
+    console.error("[storage] upload failed:", error);
+    return null;
   }
 
-  return `https://storage.googleapis.com/${env.FIREBASE_STORAGE_BUCKET}/${destination}`;
+  // Construct the public URL.
+  // Neon Storage serves objects at: <endpoint>/<bucket>/<key>
+  const publicUrl = `${env.AWS_ENDPOINT_URL_S3}/${env.STORAGE_BUCKET}/${key}`;
+  console.log(`[storage] uploaded successfully → ${publicUrl}`);
+  return publicUrl;
 }
 
 /**
- * Extract the bucket object path from a Firebase Storage public URL.
- * e.g. `https://storage.googleapis.com/<bucket>/news/123-x.jpg` → `news/123-x.jpg`
+ * Extract the S3 object key from a Neon Storage public URL.
+ * e.g. `https://storage.neon.tech/assets/news/123-x.jpg` → `news/123-x.jpg`
  */
 export function storagePathFromUrl(url: string): string | null {
-  if (!env.FIREBASE_STORAGE_BUCKET) return null;
-  const marker = `https://storage.googleapis.com/${env.FIREBASE_STORAGE_BUCKET}/`;
+  if (!env.AWS_ENDPOINT_URL_S3 || !env.STORAGE_BUCKET) return null;
+  const marker = `${env.AWS_ENDPOINT_URL_S3}/${env.STORAGE_BUCKET}/`;
   if (!url.startsWith(marker)) return null;
   return decodeURIComponent(url.slice(marker.length));
 }
 
 /**
- * Delete an object from Firebase Storage by its bucket path or public URL.
+ * Delete an object from Neon Object Storage by its key path or public URL.
  * Idempotent: missing objects / unconfigured storage are silently ignored.
  */
 export async function deleteFile(objectPathOrUrl: string | null | undefined): Promise<void> {
   if (!objectPathOrUrl) return;
-  const app = getFirebaseApp();
-  if (!app) return;
+  const client = getS3Client();
+  if (!client || !env.STORAGE_BUCKET) return;
 
-  const path = objectPathOrUrl.startsWith("http")
+  const key = objectPathOrUrl.startsWith("http")
     ? storagePathFromUrl(objectPathOrUrl)
     : objectPathOrUrl;
-  if (!path) return;
+  if (!key) return;
 
   try {
-    await getStorage(app).bucket(env.FIREBASE_STORAGE_BUCKET).file(path).delete();
+    await client.send(
+      new DeleteObjectCommand({ Bucket: env.STORAGE_BUCKET, Key: key })
+    );
+    console.log(`[storage] deleted object: ${key}`);
   } catch (error) {
-    console.warn("[firebase] delete skipped (object may not exist):", error);
+    console.warn("[storage] delete skipped (object may not exist):", error);
   }
 }
