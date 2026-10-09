@@ -8,14 +8,84 @@ import { env } from "@/lib/env";
  * Firebase Admin SDK — server-side only. Never exposed to the client.
  * Returns null when Firebase env vars are absent (local dev without storage).
  */
+
+/**
+ * Normalize the FIREBASE_PRIVATE_KEY environment variable into a valid PEM
+ * string that OpenSSL / the Firebase Admin SDK can parse.
+ *
+ * Hosting platforms encode the key differently:
+ *  1. Already valid PEM   — real newlines present, no escaping needed.
+ *  2. JSON-stringified    — the whole value is wrapped in `"…"`.
+ *  3. Double-escaped      — literal \\n (4 chars) instead of \n (2 chars).
+ *  4. Single-escaped      — literal \n (2 chars) — the most common case.
+ *
+ * We try each strategy in order and log which one produced a well-formed PEM
+ * so any future key-rotation issues are immediately diagnosable in the logs.
+ */
+function normalizePrivateKey(raw: string): string {
+  // Strategy 1 — already a valid PEM (real newlines, no escaping needed).
+  if (raw.includes("-----BEGIN")) {
+    console.log("[firebase] private key: already contains PEM header — using as-is");
+    return raw;
+  }
+
+  // Strategy 2 — JSON-stringified key (starts with a quote character).
+  if (raw.startsWith('"') || raw.startsWith("'")) {
+    try {
+      const jsonInput = raw.startsWith("'") ? `"${raw.slice(1, -1)}"` : raw;
+      const parsed: unknown = JSON.parse(jsonInput);
+      if (typeof parsed === "string" && parsed.includes("-----BEGIN")) {
+        console.log("[firebase] private key: decoded via JSON.parse — OK");
+        return parsed;
+      }
+    } catch {
+      // fall through to next strategy
+    }
+  }
+
+  // Strategy 3 — double-escaped newlines (\\\\n in raw = \\n after JS string parsing).
+  const doubleUnescaped = raw.replace(/\\\\n/g, "\n");
+  if (doubleUnescaped.includes("-----BEGIN")) {
+    console.log("[firebase] private key: decoded via double-unescape (\\\\n → \\n) — OK");
+    return doubleUnescaped;
+  }
+
+  // Strategy 4 — single-escaped newlines (the most common hosting-platform format).
+  const singleUnescaped = raw.replace(/\\n/g, "\n");
+  if (singleUnescaped.includes("-----BEGIN")) {
+    console.log("[firebase] private key: decoded via single-unescape (\\n → newline) — OK");
+    return singleUnescaped;
+  }
+
+  // Nothing worked — log enough detail to diagnose and return the best-effort value.
+  console.error(
+    "[firebase] private key: could not find PEM header after all decode strategies.\n" +
+      `Key prefix (first 60 chars): ${raw.slice(0, 60).replace(/\n/g, "\\n")}\n` +
+      "Fix: check how FIREBASE_PRIVATE_KEY is stored in your hosting environment."
+  );
+  return singleUnescaped;
+}
+
 let cached: { app: App } | null = null;
 
 function getFirebaseApp() {
   if (!env.FIREBASE_PROJECT_ID || !env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) {
+    console.warn(
+      "[firebase] skipping init — missing env var(s):",
+      [
+        !env.FIREBASE_PROJECT_ID && "FIREBASE_PROJECT_ID",
+        !env.FIREBASE_CLIENT_EMAIL && "FIREBASE_CLIENT_EMAIL",
+        !env.FIREBASE_PRIVATE_KEY && "FIREBASE_PRIVATE_KEY",
+      ]
+        .filter(Boolean)
+        .join(", ")
+    );
     return null;
   }
 
   if (cached) return cached.app;
+
+  const privateKey = normalizePrivateKey(env.FIREBASE_PRIVATE_KEY);
 
   const apps = getApps();
   const app =
@@ -26,12 +96,13 @@ function getFirebaseApp() {
           credential: cert({
             projectId: env.FIREBASE_PROJECT_ID,
             clientEmail: env.FIREBASE_CLIENT_EMAIL,
-            privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+            privateKey,
           }),
           storageBucket: env.FIREBASE_STORAGE_BUCKET,
         });
 
   cached = { app };
+  console.log(`[firebase] app initialized — project: ${env.FIREBASE_PROJECT_ID}`);
   return app;
 }
 
