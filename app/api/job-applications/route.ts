@@ -75,15 +75,24 @@ function clientIp(request: Request): string {
 }
 
 export async function POST(request: Request) {
-  // Abuse guard: 5 submissions per IP per 10 minutes (same bucket as the
-  // server action, so both entry points share one budget per applicant).
+  const ip = clientIp(request);
+  const origin = request.headers.get("origin") ?? "(none)";
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  const requestId = Math.random().toString(36).slice(2, 8); // short id to correlate log lines
+
+  console.log(
+    `[job-applications][${requestId}] POST arrived — origin: ${origin}, ip: ${ip}, content-length: ${contentLength}`
+  );
+
+  // ── Rate limit ──────────────────────────────────────────────────────────────
   if (redis) {
-    const ip = clientIp(request);
     const key = `rl:job-application:${ip}`;
     try {
       const count = await redis.incr(key);
       if (count === 1) await redis.expire(key, 600);
+      console.log(`[job-applications][${requestId}] rate-limit count for ${ip}: ${count}/5`);
       if (count > 5) {
+        console.warn(`[job-applications][${requestId}] rate-limited — returning 429`);
         return corsJson(
           request,
           {
@@ -94,13 +103,19 @@ export async function POST(request: Request) {
           429
         );
       }
-    } catch {
+    } catch (redisErr) {
       // Redis hiccup — never block a legitimate applicant because of it.
+      console.warn(`[job-applications][${requestId}] redis error (ignored):`, redisErr);
     }
+  } else {
+    console.log(`[job-applications][${requestId}] redis not configured — rate limiting skipped`);
   }
 
-  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  // ── Body size guard ─────────────────────────────────────────────────────────
   if (contentLength > MAX_BODY_BYTES) {
+    console.warn(
+      `[job-applications][${requestId}] body too large: ${contentLength} bytes — returning 413`
+    );
     return corsJson(
       request,
       { ok: false, error: "Faili ni kubwa mno (jumla ya viambatanisho ni MB 30)." },
@@ -108,10 +123,19 @@ export async function POST(request: Request) {
     );
   }
 
+  // ── Parse multipart payload ──────────────────────────────────────────────────
   let formData: FormData;
   try {
     formData = await request.formData();
-  } catch {
+    const fieldNames = [...formData.keys()];
+    console.log(
+      `[job-applications][${requestId}] formData parsed — fields: [${fieldNames.join(", ")}]`
+    );
+  } catch (parseErr) {
+    console.error(
+      `[job-applications][${requestId}] failed to parse multipart body:`,
+      parseErr
+    );
     return corsJson(
       request,
       { ok: false, error: "Invalid multipart/form-data payload." },
@@ -119,13 +143,18 @@ export async function POST(request: Request) {
     );
   }
 
+  // ── Run submission pipeline ──────────────────────────────────────────────────
+  console.log(`[job-applications][${requestId}] calling processJobApplicationSubmission…`);
   let result: JobApplicationState;
   try {
-    result = await processJobApplicationSubmission(formData);
+    result = await processJobApplicationSubmission(formData, requestId);
   } catch (error) {
     // Never leak an uncaught 500 — the marketing site needs the CORS echo to
     // be able to read this JSON error body at all.
-    console.error("[job-applications] submission failed:", error);
+    console.error(
+      `[job-applications][${requestId}] pipeline threw an uncaught error:`,
+      error
+    );
     return corsJson(
       request,
       {
@@ -137,10 +166,21 @@ export async function POST(request: Request) {
     );
   }
 
-  if (result.ok) return corsJson(request, result, 201);
+  if (result.ok) {
+    console.log(
+      `[job-applications][${requestId}] success — application id: ${result.url} — returning 201`
+    );
+    return corsJson(request, result, 201);
+  }
+
+  const statusCode = result.fieldErrors ? 400 : 500;
+  console.warn(
+    `[job-applications][${requestId}] pipeline returned error (${statusCode}):`,
+    { error: result.error, fieldErrors: result.fieldErrors }
+  );
   // Per-field problems are the applicant's to fix (400); everything else is an
   // internal failure (upload / database).
-  return corsJson(request, result, result.fieldErrors ? 400 : 500);
+  return corsJson(request, result, statusCode);
 }
 
 /**

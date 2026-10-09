@@ -1,4 +1,8 @@
-import { revalidatePath } from "next/cache";
+// NOTE: revalidatePath is intentionally NOT imported here.
+// This pipeline is shared by both a Server Action and a Route Handler.
+// revalidatePath throws when called from a Route Handler context
+// ("called outside a request scope"). The server action (jobs.actions.ts)
+// calls revalidatePath itself after this function returns.
 import { db } from "@/lib/db";
 import { jobApplications } from "@/lib/db/schema";
 import { uploadFile } from "@/lib/firebase/firebase-admin";
@@ -64,10 +68,18 @@ const DOCUMENT_COLUMNS: Record<
 /**
  * Validates the Kiswahili payload, stores the attachments in Firebase
  * Storage and inserts a NEW job_application for HR / Super Admin review.
+ *
+ * @param requestId - optional short ID passed from the Route Handler so all
+ *   log lines for the same HTTP request can be correlated in production logs.
  */
 export async function processJobApplicationSubmission(
-  formData: FormData
+  formData: FormData,
+  requestId = "direct"
 ): Promise<JobApplicationState> {
+  const tag = `[submit][${requestId}]`;
+  console.log(`${tag} starting — fields present: [${[...formData.keys()].join(", ")}]`);
+
+  // ── Phase 0: Zod validation ──────────────────────────────────────────────
   const parsed = jobApplicationSchema.safeParse({
     fullName: formData.get("fullName") ?? undefined,
     phone: formData.get("phone") ?? undefined,
@@ -82,6 +94,7 @@ export async function processJobApplicationSubmission(
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     const field = issue?.path[0];
+    console.warn(`${tag} Phase 0 FAILED (Zod) — field: ${String(field)}, message: ${issue?.message}`);
     return {
       ok: false,
       error: issue?.message ?? "Taarifa si sahihi. Tafadhali angalia upya.",
@@ -90,9 +103,10 @@ export async function processJobApplicationSubmission(
         : {}),
     };
   }
+  console.log(`${tag} Phase 0 passed — applicant: "${parsed.data.fullName}", source: ${parsed.data.source ?? "(none)"}`);
   const v = parsed.data;
 
-  // Phase 1 — validate every attachment before uploading anything.
+  // ── Phase 1: attachment validation ──────────────────────────────────────
   const files = new Map<string, File>();
   const fieldErrors: Record<string, string> = {};
   for (const doc of JOB_DOCUMENT_FIELDS) {
@@ -103,44 +117,54 @@ export async function processJobApplicationSubmission(
       raw.size === 0 ||
       !raw.name;
     if (missing) {
-      // Optional documents (e.g. Vyeti vya taaluma) may be left blank.
       if (doc.required) {
+        console.warn(`${tag} Phase 1 — missing required file: ${doc.name}`);
         fieldErrors[doc.name] = `${doc.label}: faili linahitajika.`;
+      } else {
+        console.log(`${tag} Phase 1 — optional file skipped: ${doc.name}`);
       }
       continue;
     }
     const invalid = isAllowedJobDocument(raw, doc.pdfOnly);
     if (invalid) {
+      console.warn(`${tag} Phase 1 — invalid file: ${doc.name} (${raw.type}, ${raw.size} bytes) — ${invalid}`);
       fieldErrors[doc.name] = `${doc.label}: ${invalid}`;
       continue;
     }
+    console.log(`${tag} Phase 1 — accepted: ${doc.name} (${raw.type}, ${raw.size} bytes)`);
     files.set(doc.name, raw);
   }
   if (Object.keys(fieldErrors).length > 0) {
+    console.warn(`${tag} Phase 1 FAILED — field errors:`, fieldErrors);
     return {
       ok: false,
       error: "Hakikisha viambatanisho vyote viko sahihi (kila faili uwe MB 2 au chini).",
       fieldErrors,
     };
   }
+  console.log(`${tag} Phase 1 passed — ${files.size} file(s) ready for upload`);
 
-  // Phase 2 — upload to Firebase Storage (folder: job-applications).
+  // ── Phase 2: Firebase Storage uploads ───────────────────────────────────
   const urls: Partial<Record<keyof typeof DOCUMENT_COLUMNS, string>> = {};
   for (const doc of JOB_DOCUMENT_FIELDS) {
     const file = files.get(doc.name);
     if (!file) continue; // optional document left blank
+    console.log(`${tag} Phase 2 — uploading: ${doc.name} (${file.type}, ${file.size} bytes)`);
     const buffer = Buffer.from(await file.arrayBuffer());
     const url = await uploadFile(buffer, file.name, file.type, "job-applications");
     if (!url) {
+      console.error(`${tag} Phase 2 FAILED — uploadFile returned null for: ${doc.name}`);
       return {
         ok: false,
         error: `Imeshindikana kupakia "${doc.label}". Jaribu tena baadaye.`,
       };
     }
+    console.log(`${tag} Phase 2 — uploaded: ${doc.name} → ${url}`);
     urls[DOCUMENT_COLUMNS[doc.name]] = url;
   }
 
-  // Phase 3 — record the application.
+  // ── Phase 3: DB insert ───────────────────────────────────────────────────
+  console.log(`${tag} Phase 2 complete — all uploads done. Starting Phase 3 (DB insert)…`);
   try {
     const [row] = await db
       .insert(jobApplications)
@@ -172,7 +196,8 @@ export async function processJobApplicationSubmission(
       })
       .returning({ id: jobApplications.id });
 
-    revalidatePath("/job-applications");
+    // revalidatePath("/job-applications") is deliberately omitted — see top of file.
+    console.log(`${tag} Phase 3 passed — application saved, id: ${row.id}`);
     return {
       ok: true,
       message:
@@ -180,7 +205,7 @@ export async function processJobApplicationSubmission(
       url: row.id,
     };
   } catch (error) {
-    console.error("[jobs] failed to insert job application:", error);
+    console.error(`${tag} Phase 3 FAILED (DB insert):`, error);
     return {
       ok: false,
       error:

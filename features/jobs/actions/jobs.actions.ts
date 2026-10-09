@@ -56,7 +56,11 @@ export async function submitJobApplication(
     }
   }
 
-  return processJobApplicationSubmission(formData);
+  const result = await processJobApplicationSubmission(formData);
+  // revalidatePath must be called here (not inside the shared pipeline) because
+  // it only works within a Server Action context.
+  if (result.ok) revalidatePath("/job-applications");
+  return result;
 }
 
 /** HR / Super Admin — update status and/or internal notes of an application. */
