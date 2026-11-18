@@ -29,6 +29,7 @@ import {
   Landmark,
   ClipboardList,
   IdCard,
+  Plane,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -78,6 +79,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: t.nav.mpangokazi,
         icon: ClipboardList,
         anyOf: ["MPANGOKAZI_SUBMIT", "MPANGOKAZI_VIEW_ALL", "MPANGOKAZI_VIEW_BRANCH"],
+      },
+      {
+        href: "/leave",
+        label: t.nav.leave,
+        icon: Plane,
+        anyOf: ["LEAVE_REQUEST_OWN"],
       },
       {
         href: "/incidents",

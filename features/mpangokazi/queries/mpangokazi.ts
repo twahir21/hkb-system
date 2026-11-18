@@ -17,6 +17,7 @@ import {
 } from "@/lib/db/schema";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getUserBranch } from "@/features/branches/queries/branches";
+import { getApprovedLeaveOn } from "@/features/leave/queries/leave";
 
 export type ScopeGuard = {
   guardId: string;
@@ -52,6 +53,7 @@ export async function getScopeGuards(opts: {
   const guards = await db
     .select({
       guardId: guardProfiles.id,
+      userId: guardProfiles.userId,
       guardName: guardUser.fullName,
       employeeId: guardProfiles.employeeId,
       stationName: stations.name,
@@ -84,10 +86,21 @@ export async function getScopeGuards(opts: {
       )
     );
 
+  const onLeave = await getApprovedLeaveOn(
+    guards.map((g) => g.userId),
+    opts.date
+  );
+
   // Any shift present → present. Otherwise the absence category decides.
-  const statusOf = (guardId: string): WorkPlanStatus => {
+  // No record: approved leave → Ruhusa / Mgonjwa, else Off.
+  const statusOf = (guardId: string, userId: string): WorkPlanStatus => {
     const mine = logs.filter((l) => l.guardId === guardId);
-    if (mine.length === 0) return "OFF";
+    if (mine.length === 0) {
+      const leave = onLeave.get(userId);
+      if (leave === "SICK") return "SICK";
+      if (leave) return "PERMITTED";
+      return "OFF";
+    }
     if (mine.some((l) => l.status === "PRESENT" || l.status === "LATE")) return "PRESENT";
     const cat = mine[0].absenceCategory;
     if (cat === "SICK") return "SICK";
@@ -100,7 +113,7 @@ export async function getScopeGuards(opts: {
     guardName: g.guardName,
     employeeId: g.employeeId,
     point: g.stationName ?? g.workLocation,
-    status: statusOf(g.guardId),
+    status: statusOf(g.guardId, g.userId),
   }));
 }
 

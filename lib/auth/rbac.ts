@@ -160,6 +160,14 @@ export const PERMISSIONS = {
   // Contracts include salary — HR, Accounts and IT only.
   CONTRACT_VIEW: ["SUPER_ADMIN", "HR", "BURSAR"],
   CONTRACT_MANAGE: ["SUPER_ADMIN", "HR"],
+
+  // Leave (Likizo)
+  LEAVE_REQUEST_OWN: [...ROLE_VALUES],
+  // File a request for another employee (Office Assistant: own branch only).
+  LEAVE_FILE_FOR_OTHERS: ["SUPER_ADMIN", "HR", "SECRETARY", "OFFICE_ASSISTANT"],
+  LEAVE_APPROVE: ["SUPER_ADMIN", "HR"],
+  LEAVE_VIEW_ALL: ["SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER", "BURSAR"],
+  LEAVE_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;

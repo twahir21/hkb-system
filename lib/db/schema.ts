@@ -759,7 +759,53 @@ export const contracts = pgTable(
   ]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Leave management (Likizo)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const leaveTypeEnum = pgEnum("leave_type", [
+  "ANNUAL", // Likizo ya mwaka
+  "SICK", // Ugonjwa
+  "MATERNITY", // Uzazi (mama)
+  "PATERNITY", // Uzazi (baba)
+  "COMPASSIONATE", // Msiba / dharura
+  "UNPAID", // Bila malipo
+]);
+export const leaveStatusEnum = pgEnum("leave_status", ["PENDING", "APPROVED", "REJECTED", "CANCELLED"]);
+
+export const leaveRequests = pgTable(
+  "leave_requests",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    type: leaveTypeEnum("type").notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    days: integer("days").notNull(),
+    reason: text("reason"),
+    status: leaveStatusEnum("status").notNull().default("PENDING"),
+    // Who filed it (the employee, or HR / Secretary / Office Assistant on their behalf).
+    requestedById: uuid("requested_by_id")
+      .references(() => users.id)
+      .notNull(),
+    reviewedById: uuid("reviewed_by_id").references(() => users.id),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewNotes: text("review_notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("leave_requests_user_idx").on(table.userId),
+    index("leave_requests_status_idx").on(table.status),
+    index("leave_requests_dates_idx").on(table.startDate, table.endDate),
+  ]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
+export type LeaveType = (typeof leaveTypeEnum.enumValues)[number];
+export type LeaveStatus = (typeof leaveStatusEnum.enumValues)[number];
 export type Department = (typeof departmentEnum.enumValues)[number];
 export type ContractType = (typeof contractTypeEnum.enumValues)[number];
 export type ContractStatus = (typeof contractStatusEnum.enumValues)[number];
