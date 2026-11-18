@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState, useTransition, useRef } from "react";
 import {
   Download,
@@ -66,19 +67,19 @@ export function PartialGuardModal({
     setValidationError(null);
 
     if (!regionId) {
-      setValidationError("Please select a work region.");
+      setValidationError(t.partial.needRegion);
       return;
     }
     if (!stationId) {
-      setValidationError("Please select a work station.");
+      setValidationError(t.partial.needStation);
       return;
     }
     if (!clientId) {
-      setValidationError("Please select a client (company).");
+      setValidationError(t.partial.needClient);
       return;
     }
     if (!file) {
-      setValidationError("Please select a CSV file to upload.");
+      setValidationError(t.partial.needFile);
       return;
     }
 
@@ -100,25 +101,25 @@ export function PartialGuardModal({
           imported: 0,
           failed: 0,
           errors: [],
-          error: "An unexpected error occurred during partial CSV import.",
+          error: t.bulk.unexpected,
         });
       }
     });
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Partial Guard Import (Batch CSV)" wide>
+    <Modal open={open} onClose={handleClose} title={t.partial.title} wide>
       <div className="space-y-5">
         {/* Instructions & Context Box */}
         <div className="rounded-xl border border-brand-500/20 bg-brand-50/50 p-4 text-xs text-slate-700 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span className="font-bold uppercase tracking-wider text-brand-800">
-                Phase 1: Quick Batch Onboarding
+                {t.partial.phase1}
               </span>
               <p className="mt-0.5 text-slate-600">
-                Upload a simple CSV containing only <span className="font-semibold text-slate-900">full name</span> and{" "}
-                <span className="font-semibold text-slate-900">guard phone number</span>.
+                {t.partial.uploadA} <span className="font-semibold text-slate-900">{t.partial.uploadName}</span>{" "}
+                {t.partial.uploadAnd} <span className="font-semibold text-slate-900">{t.partial.uploadPhone}</span>.
               </p>
             </div>
             <a
@@ -126,33 +127,33 @@ export function PartialGuardModal({
               download="partial_guard_reg.csv"
               className="inline-flex items-center gap-1.5 shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 font-bold text-white shadow-sm transition hover:bg-brand-500"
             >
-              <Download className="h-3.5 w-3.5" /> Download Sample CSV
+              <Download className="h-3.5 w-3.5" /> {t.bulk.sample}
             </a>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] text-slate-600 bg-white/80 p-3 rounded-lg border border-brand-200/70">
             <div className="space-y-1">
               <span className="font-bold text-slate-900 flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-brand-600" /> Batch Tiering
+                <MapPin className="h-3.5 w-3.5 text-brand-600" /> {t.partial.batchTitle}
               </span>
               <p>
-                All guards in this batch will be assigned to the chosen Region, Station, and Client.
+                {t.partial.batchBody}
               </p>
             </div>
             <div className="space-y-1">
               <span className="font-bold text-slate-900 flex items-center gap-1">
-                <Building2 className="h-3.5 w-3.5 text-brand-600" /> Auto-Generated Email
+                <Building2 className="h-3.5 w-3.5 text-brand-600" /> {t.partial.emailTitle}
               </span>
               <p>
-                Emails are randomly generated as <code className="text-brand-700 font-bold">firstname###@hkb.co</code> with collision avoidance.
+                {t.partial.emailBodyA} <code className="text-brand-700 font-bold">firstname###@hkb.co</code> {t.partial.emailBodyB}
               </p>
             </div>
             <div className="space-y-1">
               <span className="font-bold text-slate-900 flex items-center gap-1">
-                <FileSpreadsheet className="h-3.5 w-3.5 text-brand-600" /> Phase 2 Ready
+                <FileSpreadsheet className="h-3.5 w-3.5 text-brand-600" /> {t.partial.phase2Title}
               </span>
               <p>
-                Initial dummy data (ID, Next of Kin, Age, Date) is populated to prevent breaks until Phase 2 full registration.
+                {t.partial.phase2Body}
               </p>
             </div>
           </div>
@@ -163,7 +164,7 @@ export function PartialGuardModal({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
             <label className="block">
               <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
-                Work Region <span className="text-rose-500">*</span>
+                {t.guard.workRegion} <span className="text-rose-500">*</span>
               </span>
               <select
                 value={regionId}
@@ -175,7 +176,7 @@ export function PartialGuardModal({
                 required
                 className={inputCls}
               >
-                <option value="">Select region…</option>
+                <option value="">{t.guard.selectRegion}</option>
                 {regions.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name}
@@ -186,7 +187,7 @@ export function PartialGuardModal({
 
             <label className="block">
               <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
-                Work Site (Station) <span className="text-rose-500">*</span>
+                {t.guard.workSite} <span className="text-rose-500">*</span>
               </span>
               <select
                 value={stationId}
@@ -196,7 +197,7 @@ export function PartialGuardModal({
                 className={inputCls}
               >
                 <option value="">
-                  {regionId ? "Select site…" : "Select a region first"}
+                  {regionId ? t.guard.selectSite : t.guard.regionFirst}
                 </option>
                 {regionStations.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -206,14 +207,14 @@ export function PartialGuardModal({
               </select>
               {regionId && regionStations.length === 0 && (
                 <span className="mt-1 block text-[11px] text-amber-600">
-                  No stations registered in this region.
+                  {t.partial.noStations}
                 </span>
               )}
             </label>
 
             <label className="block">
               <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
-                Client (Company) <span className="text-rose-500">*</span>
+                {t.guard.client} <span className="text-rose-500">*</span>
               </span>
               <select
                 value={clientId}
@@ -222,11 +223,11 @@ export function PartialGuardModal({
                 required
                 className={inputCls}
               >
-                <option value="">Select client…</option>
+                <option value="">{t.guard.selectClient}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
-                    {c.isActive === false ? " (inactive)" : ""}
+                    {c.isActive === false ? ` (${t.guard.inactive})` : ""}
                   </option>
                 ))}
               </select>
@@ -236,7 +237,7 @@ export function PartialGuardModal({
           {/* File Upload Drop Area */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1.5">
-              Select Partial CSV File <span className="text-rose-500">*</span>
+              {t.partial.selectFile} <span className="text-rose-500">*</span>
             </label>
             <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-brand-500 hover:bg-brand-50/20">
               <input
@@ -255,12 +256,12 @@ export function PartialGuardModal({
               />
               <FileSpreadsheet className="h-10 w-10 text-brand-600 mb-2" />
               <p className="text-sm font-semibold text-slate-800">
-                {file ? file.name : "Click or drag & drop partial CSV file here"}
+                {file ? file.name : t.bulk.drop}
               </p>
               <p className="mt-1 text-xs text-slate-400">
                 {file
-                  ? `${(file.size / 1024).toFixed(1)} KB — ready to upload`
-                  : "Supported columns: fullName, phone (.csv UTF-8)"}
+                  ? `${(file.size / 1024).toFixed(1)} KB — ${t.bulk.ready}`
+                  : t.partial.columns}
               </p>
             </div>
           </div>
@@ -286,7 +287,9 @@ export function PartialGuardModal({
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                     <span className="text-sm font-bold text-slate-900">
-                      Import Results: {result.imported} of {result.total} guard(s) registered
+                      {t.bulk.resultGuards
+                        .replace("{n}", String(result.imported))
+                        .replace("{total}", String(result.total))}
                     </span>
                   </div>
 
@@ -294,7 +297,7 @@ export function PartialGuardModal({
                     <div className="mt-2 space-y-2 rounded-lg bg-amber-50 p-3 border border-amber-200">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
                         <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        {result.errors.length} notice(s) during import:
+                        {result.errors.length} {t.bulk.notices}:
                       </div>
                       <ul className="max-h-40 overflow-y-auto space-y-1 text-xs text-amber-900 divide-y divide-amber-200/60">
                         {result.errors.map((err, i) => (
@@ -302,7 +305,7 @@ export function PartialGuardModal({
                             {err.row > 0 ? (
                               <>
                                 <span className="font-mono font-bold">
-                                  Row {err.row}
+                                  {t.bulk.row} {err.row}
                                 </span>{" "}
                                 ({err.identifier}):{" "}
                               </>
@@ -324,7 +327,7 @@ export function PartialGuardModal({
 
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="secondary" size="sm" onClick={handleClose} type="button">
-              {result ? "Close" : "Cancel"}
+              {result ? t.common.close : t.common.cancel}
             </Button>
             <Button
               type="submit"
@@ -334,12 +337,12 @@ export function PartialGuardModal({
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Importing Batch…
+                  {t.partial.importing}
                 </>
               ) : (
                 <>
                   <Upload className="h-4 w-4" />
-                  Upload &amp; Register Batch
+                  {t.partial.upload}
                 </>
               )}
             </Button>

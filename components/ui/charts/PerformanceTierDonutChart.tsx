@@ -1,15 +1,16 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { TierDistribution } from "@/lib/queries/monthly-summary";
 import type { ChartTooltipProps } from "./chart-tooltip.types";
 
 const TIER_CONFIG = [
-  { key: "excellent", label: "Excellent (≥95%)", color: "#10b981" },
-  { key: "good", label: "Good (85-94%)", color: "#6366f1" },
-  { key: "warning", label: "Warning (70-84%)", color: "#f59e0b" },
-  { key: "critical", label: "Critical (<70%)", color: "#f43f5e" },
-  { key: "noData", label: "No Shifts", color: "#94a3b8" },
+  { key: "excellent", short: t.status.EXCELLENT, label: `${t.status.EXCELLENT} (≥95%)`, color: "#10b981" },
+  { key: "good", short: t.status.GOOD, label: `${t.status.GOOD} (85-94%)`, color: "#6366f1" },
+  { key: "warning", short: t.status.WARNING, label: `${t.status.WARNING} (70-84%)`, color: "#f59e0b" },
+  { key: "critical", short: t.status.CRITICAL, label: `${t.status.CRITICAL} (<70%)`, color: "#f43f5e" },
+  { key: "noData", short: t.status.NO_SHIFTS, label: t.status.NO_SHIFTS, color: "#94a3b8" },
 ] as const;
 
 function CustomTooltip({ active, payload }: ChartTooltipProps<{ color: string }>) {
@@ -23,7 +24,7 @@ function CustomTooltip({ active, payload }: ChartTooltipProps<{ color: string }>
             style={{ backgroundColor: entry.payload?.color }}
           />
           <span className="font-medium text-slate-700">{entry.name}:</span>
-          <span className="font-bold text-slate-900">{entry.value} guards</span>
+          <span className="font-bold text-slate-900">{entry.value} {t.charts.guards}</span>
         </div>
       </div>
     );
@@ -59,18 +60,18 @@ export function PerformanceTierDonutChart({
       <div className="flex items-center justify-between mb-2">
         <div>
           <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-            Performance Tiers
+            {t.charts.tierTitle}
           </h3>
-          <p className="text-xs text-slate-500">Guard attendance tier distribution</p>
+          <p className="text-xs text-slate-500">{t.charts.tierSub}</p>
         </div>
         <span className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-700">
-          {highPerfPct}% Good+
+          {highPerfPct}% {t.status.GOOD}+
         </span>
       </div>
 
       <div className="relative flex items-center justify-center" style={{ height: 190 }}>
         {data.length === 0 ? (
-          <div className="text-center text-xs text-slate-400">No tier data available</div>
+          <div className="text-center text-xs text-slate-400">{t.charts.tierEmpty}</div>
         ) : (
           <>
             <ResponsiveContainer width="100%" height="100%">
@@ -96,7 +97,7 @@ export function PerformanceTierDonutChart({
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-black text-slate-900">{totalGuards}</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Guards
+                {t.charts.guardsTitle}
               </span>
             </div>
           </>
@@ -116,7 +117,7 @@ export function PerformanceTierDonutChart({
                   className="h-2 w-2 rounded-full shrink-0"
                   style={{ backgroundColor: c.color }}
                 />
-                {c.label.split(" ")[0]}
+                {c.short}
               </span>
               <span className="font-bold text-slate-900">{val}</span>
             </div>

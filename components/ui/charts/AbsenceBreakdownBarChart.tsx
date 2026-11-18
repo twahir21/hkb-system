@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import {
   BarChart,
   Bar,
@@ -22,7 +23,7 @@ function CustomTooltip({
       <div className="rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur-xs text-xs">
         <p className="font-bold text-slate-800">{data.category}</p>
         <p className="text-slate-600 mt-0.5">
-          Count: <span className="font-bold text-slate-900">{data.count}</span> shifts
+          {t.charts.count}: <span className="font-bold text-slate-900">{data.count}</span> {t.charts.shifts}
         </p>
       </div>
     );
@@ -40,9 +41,9 @@ export function AbsenceBreakdownBarChart({
   notPermittedCount: number;
 }) {
   const data = [
-    { category: "Sick Leave", count: sickCount, color: "#38bdf8" },
-    { category: "Permitted", count: permittedCount, color: "#a855f7" },
-    { category: "Unexcused", count: notPermittedCount, color: "#f43f5e" },
+    { category: t.charts.sick, count: sickCount, color: "#38bdf8" },
+    { category: t.charts.permitted, count: permittedCount, color: "#a855f7" },
+    { category: t.charts.unexcused, count: notPermittedCount, color: "#f43f5e" },
   ];
 
   const totalAbsences = sickCount + permittedCount + notPermittedCount;
@@ -52,19 +53,19 @@ export function AbsenceBreakdownBarChart({
       <div className="flex items-center justify-between mb-3">
         <div>
           <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-            Absence Root-Cause
+            {t.charts.absenceTitle}
           </h3>
-          <p className="text-xs text-slate-500">Categories of recorded absences</p>
+          <p className="text-xs text-slate-500">{t.charts.absenceSub}</p>
         </div>
         <span className="text-xs font-semibold text-rose-700 bg-rose-50 px-2 py-1 rounded-lg">
-          {totalAbsences} total
+          {totalAbsences} {t.charts.total}
         </span>
       </div>
 
       <div style={{ width: "100%", height: 190 }}>
         {totalAbsences === 0 ? (
           <div className="flex h-full items-center justify-center text-xs text-slate-400">
-            No absences recorded this month 🎉
+            {t.charts.noAbsences}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">

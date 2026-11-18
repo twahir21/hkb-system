@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { ROLES } from "@/lib/auth/rbac";
 import { useState, useTransition, useRef } from "react";
 import {
@@ -59,7 +60,7 @@ export function BulkUserModal({
           imported: 0,
           failed: 0,
           errors: [],
-          error: "An unexpected error occurred during CSV import.",
+          error: t.bulk.unexpected,
         });
       }
     });
@@ -69,7 +70,7 @@ export function BulkUserModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title="Bulk Register Users via CSV"
+      title={t.bulk.usersTitle}
       wide
     >
       <div className="space-y-5">
@@ -77,53 +78,43 @@ export function BulkUserModal({
         <div className="rounded-xl border border-brand-500/20 bg-brand-50/50 p-4 text-xs text-slate-700 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="font-bold uppercase tracking-wider text-brand-800">
-              CSV Format Instructions for Super Admin
+              {t.bulk.instructionsAdmin}
             </span>
             <a
               href="/sample-users.csv"
               download="sample-users.csv"
               className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 font-bold text-white shadow-sm transition hover:bg-brand-500"
             >
-              <Download className="h-3.5 w-3.5" /> Download Sample CSV
+              <Download className="h-3.5 w-3.5" /> {t.bulk.sample}
             </a>
           </div>
 
           <p className="leading-relaxed text-slate-600">
-            Ensure your CSV file contains the following columns in the first row
-            (header):
+            {t.bulk.ensureColumns}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] bg-white p-3 rounded-lg border border-brand-200">
             <div>
-              <span className="font-bold text-slate-900">fullName:</span> e.g.
-              John Doe
+              <span className="font-bold text-slate-900">fullName:</span> {t.bulk.eg} Juma Hassani
             </div>
             <div>
-              <span className="font-bold text-slate-900">email:</span> e.g.
-              john@hkb.co
+              <span className="font-bold text-slate-900">email:</span> {t.bulk.eg} juma@hkb.co
             </div>
             <div>
-              <span className="font-bold text-slate-900">username:</span> e.g.
-              jdoe
+              <span className="font-bold text-slate-900">username:</span> {t.bulk.eg} jhassani
             </div>
             <div>
-              <span className="font-bold text-slate-900">password:</span> Min. 6
-              characters
+              <span className="font-bold text-slate-900">password:</span> {t.user.minChars}
             </div>
             <div>
-              <span className="font-bold text-slate-900">gender:</span> Optional (
-              <span className="text-brand-700 font-semibold">MALE</span> or{" "}
-              <span className="text-brand-700 font-semibold">FEMALE</span>, defaults to MALE)
+              <span className="font-bold text-slate-900">gender:</span> {t.bulk.genderHint}
             </div>
             <div className="sm:col-span-2">
-              <span className="font-bold text-slate-900">role:</span> Must be
-              one of:{" "}
+              <span className="font-bold text-slate-900">role:</span> {t.bulk.mustBeOneOf}:{" "}
               <span className="text-brand-700 font-semibold">{ROLES.join(", ")}</span>
             </div>
             <div className="sm:col-span-2">
-              <span className="font-bold text-slate-900">branch:</span> Optional branch
-              name (e.g. <span className="text-brand-700 font-semibold">Tabora</span>), blank
-              = HQ. Office Assistants need a remote branch; Secretaries stay at HQ.
+              <span className="font-bold text-slate-900">branch:</span> {t.bulk.branchHint}
             </div>
           </div>
         </div>
@@ -132,7 +123,7 @@ export function BulkUserModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1.5">
-              Select CSV File
+              {t.bulk.selectFile}
             </label>
             <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-brand-500 hover:bg-brand-50/20">
               <input
@@ -151,12 +142,12 @@ export function BulkUserModal({
               />
               <FileSpreadsheet className="h-10 w-10 text-brand-600 mb-2" />
               <p className="text-sm font-semibold text-slate-800">
-                {file ? file.name : "Click or drag & drop CSV file here"}
+                {file ? file.name : t.bulk.drop}
               </p>
               <p className="mt-1 text-xs text-slate-400">
                 {file
-                  ? `${(file.size / 1024).toFixed(1)} KB — ready to upload`
-                  : "Supported file format: .csv (UTF-8)"}
+                  ? `${(file.size / 1024).toFixed(1)} KB — ${t.bulk.ready}`
+                  : t.bulk.format}
               </p>
             </div>
           </div>
@@ -174,8 +165,9 @@ export function BulkUserModal({
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                     <span className="text-sm font-bold text-slate-900">
-                      Import Results: {result.imported} of {result.total} users
-                      registered
+                      {t.bulk.resultUsers
+                        .replace("{n}", String(result.imported))
+                        .replace("{total}", String(result.total))}
                     </span>
                   </div>
 
@@ -183,13 +175,13 @@ export function BulkUserModal({
                     <div className="mt-2 space-y-2 rounded-lg bg-amber-50 p-3 border border-amber-200">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
                         <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        {result.errors.length} row(s) could not be imported:
+                        {result.errors.length} {t.bulk.rowsFailed}:
                       </div>
                       <ul className="max-h-40 overflow-y-auto space-y-1 text-xs text-amber-900 divide-y divide-amber-200/60">
                         {result.errors.map((err, i) => (
                           <li key={i} className="pt-1 first:pt-0">
                             <span className="font-mono font-bold">
-                              Row {err.row}
+                              {t.bulk.row} {err.row}
                             </span>{" "}
                             ({err.identifier}):{" "}
                             <span className="text-rose-700">{err.reason}</span>
@@ -210,18 +202,18 @@ export function BulkUserModal({
               onClick={handleClose}
               type="button"
             >
-              {result ? "Close" : "Cancel"}
+              {result ? t.common.close : t.common.cancel}
             </Button>
             <Button type="submit" size="sm" disabled={isPending || !file}>
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Importing Users…
+                  {t.bulk.importingUsers}
                 </>
               ) : (
                 <>
                   <Upload className="h-4 w-4" />
-                  Upload &amp; Register Users
+                  {t.bulk.uploadUsers}
                 </>
               )}
             </Button>

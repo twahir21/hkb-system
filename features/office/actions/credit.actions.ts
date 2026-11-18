@@ -42,7 +42,7 @@ export async function recordCredit(
     notes: formData.get("notes") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
   const v = parsed.data;
 
@@ -69,7 +69,7 @@ export async function recordCredit(
   });
 
   revalidateCreditPaths();
-  return { ok: true, message: "Debt recorded for the guard." };
+  return { ok: true, message: "Deni la mlinzi limerekodiwa." };
 }
 
 /**
@@ -91,7 +91,7 @@ export async function settleCredits(
     deductionMonth: formData.get("deductionMonth") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
   const v = parsed.data;
 
@@ -113,7 +113,7 @@ export async function settleCredits(
     .returning({ id: guardCredits.id, amount: guardCredits.amount });
 
   if (rows.length === 0) {
-    return { ok: false, error: "No outstanding debts were found for the selection." };
+    return { ok: false, error: "Hakuna madeni yanayodaiwa kwa uchaguzi huu." };
   }
 
   const total = rows.reduce((sum, r) => sum + Number(r.amount), 0);
@@ -148,7 +148,7 @@ export async function writeOffCredit(
     notes: formData.get("notes") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
   const v = parsed.data;
 
@@ -159,7 +159,7 @@ export async function writeOffCredit(
     .returning({ id: guardCredits.id });
 
   if (rows.length === 0) {
-    return { ok: false, error: "Debt not found or already settled." };
+    return { ok: false, error: "Deni halikupatikana au tayari limelipwa." };
   }
 
   await writeAuditLog({
@@ -171,5 +171,5 @@ export async function writeOffCredit(
   });
 
   revalidateCreditPaths();
-  return { ok: true, message: "Debt written off." };
+  return { ok: true, message: "Deni limefutwa." };
 }

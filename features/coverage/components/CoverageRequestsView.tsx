@@ -5,7 +5,7 @@ import { Button, Badge, DataTable, statusTone, type Column } from "@/components/
 import { Mail, Phone } from "lucide-react";
 import type { CoverageRequestRow } from "@/features/coverage/queries/coverage";
 import { CoverageRequestDetailModal } from "./CoverageRequestDetailModal";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 const STATUS_FILTERS = [
   "ALL",
@@ -38,7 +38,7 @@ export function CoverageRequestsView({
   const columns: Column<CoverageRequestRow>[] = [
     {
       key: "name",
-      header: "Contact",
+      header: t.cov.contact,
       cell: (r) => (
         <div>
           <p className="font-medium text-slate-800">{r.fullName}</p>
@@ -50,7 +50,7 @@ export function CoverageRequestsView({
     },
     {
       key: "contact",
-      header: "Email / Phone",
+      header: t.cov.emailPhone,
       cell: (r) => (
         <div className="text-xs text-slate-600">
           <p className="flex items-center gap-1.5">
@@ -66,12 +66,12 @@ export function CoverageRequestsView({
     },
     {
       key: "service",
-      header: "Service",
+      header: t.cov.service,
       cell: (r) => <span className="text-slate-700">{r.service}</span>,
     },
     {
       key: "message",
-      header: "Message",
+      header: t.cov.message,
       cell: (r) => (
         <span className="line-clamp-2 block max-w-xs text-xs text-slate-500">
           {r.message}
@@ -80,7 +80,7 @@ export function CoverageRequestsView({
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
@@ -88,7 +88,7 @@ export function CoverageRequestsView({
       header: "",
       cell: (r) => (
         <Button variant="secondary" size="sm" onClick={() => setSelected(r)}>
-          View
+          {t.common.view}
         </Button>
       ),
     },
@@ -109,7 +109,7 @@ export function CoverageRequestsView({
                 : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50")
             }
           >
-            {s === "ALL" ? "All" : s.replace("_", " ")}
+            {s === "ALL" ? t.common.all : enumLabel(s)}
           </button>
         ))}
         <p className="ml-auto text-sm font-medium text-slate-500">
@@ -120,7 +120,7 @@ export function CoverageRequestsView({
       <DataTable
         columns={columns}
         rows={filtered}
-        empty="No coverage requests yet."
+        empty={t.cov.empty}
       />
 
       <CoverageRequestDetailModal

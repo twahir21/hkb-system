@@ -10,8 +10,8 @@ export const staffAttendanceStatusSchema = z.enum(["PRESENT", "ABSENT", "LATE"])
 
 export const markStaffAttendanceSchema = z
   .object({
-    userId: z.string().uuid("Invalid staff user ID"),
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+    userId: z.string().uuid("Namba ya mtumishi si sahihi"),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tarehe iwe kwa muundo YYYY-MM-DD"),
     status: staffAttendanceStatusSchema,
     checkInTime: z.string().max(20).optional(),
     checkOutTime: z.string().max(20).optional(),
@@ -26,42 +26,42 @@ export const markStaffAttendanceSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["absenceCategory"],
-        message: "Absence category is required when marking ABSENT",
+        message: "Aina ya kutokuwepo inahitajika unaporekodi HAYUPO",
       });
     }
     if (val.absenceCategory === "PERMITTED_REASON" && !val.allowedDays) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["allowedDays"],
-        message: "Allowed days is required for permitted absences",
+        message: "Siku zilizoruhusiwa zinahitajika kwa kutokuwepo kwa ruhusa",
       });
     }
     if (val.status === "LATE" && !val.minutesLate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["minutesLate"],
-        message: "Minutes late is required when marking LATE",
+        message: "Dakika za kuchelewa zinahitajika unaporekodi AMECHELEWA",
       });
     }
   });
 
 export const batchMarkStaffPresentSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tarehe iwe kwa muundo YYYY-MM-DD"),
   checkInTime: z.string().max(20).optional(),
 });
 
 /** Super Admin-only: edit the recorded check-in / sign-out times of an existing log.
  *  Empty string means "clear the time". */
 export const updateStaffTimesSchema = z.object({
-  userId: z.string().uuid("Invalid staff user ID"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  userId: z.string().uuid("Namba ya mtumishi si sahihi"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tarehe iwe kwa muundo YYYY-MM-DD"),
   checkInTime: z.string().max(20).optional(),
   checkOutTime: z.string().max(20).optional(),
 });
 
 export const clearStaffAttendanceSchema = z.object({
-  userId: z.string().uuid("Invalid staff user ID"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  userId: z.string().uuid("Namba ya mtumishi si sahihi"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tarehe iwe kwa muundo YYYY-MM-DD"),
 });
 
 /** Super Admin-only quick sign-out (userId + date + optional client-stamped time) */

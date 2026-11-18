@@ -1,5 +1,6 @@
 "use client";
 
+import { enumLabel, t } from "@/lib/i18n";
 import { useActionState, useState, useTransition } from "react";
 import { FileText, Loader2, Trash2 } from "lucide-react";
 import { Badge, Button, Modal, statusTone } from "@/components/ui";
@@ -113,28 +114,28 @@ export function JobApplicationDetailModal({
     <Modal
       open
       onClose={onClose}
-      title={`Job application — ${application.fullName}`}
+      title={`${t.jobs.application} — ${application.fullName}`}
     >
       <div className="space-y-4 text-sm">
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Detail label="Phone" value={application.phone} />
-          <Detail label="Email" value={application.email || "—"} />
-          <Detail label="Age / Gender" value={`${application.age} · ${application.gender === "MALE" ? "Male" : "Female"}`} />
-          <Detail label="Residence" value={application.residence} />
-          <Detail label="Education" value={application.educationLevel} />
-          <Detail label="Training" value={application.training || "—"} />
+          <Detail label={t.common.phone} value={application.phone} />
+          <Detail label={t.common.email} value={application.email || "—"} />
+          <Detail label={t.jobs.ageGender} value={`${application.age} · ${application.gender === "MALE" ? t.user.male : t.user.female}`} />
+          <Detail label={t.jobs.residence} value={application.residence} />
+          <Detail label={t.jobs.education} value={application.educationLevel} />
+          <Detail label={t.jobs.training} value={application.training || "—"} />
           <Detail
-            label="Received"
+            label={t.cov.received}
             value={new Date(application.createdAt).toLocaleString("en-GB")}
           />
-          <Detail label="Status" value={<Badge tone={statusTone(application.status)}>{application.status}</Badge>} />
-          <Detail label="Handled by" value={application.handledByName || "—"} />
+          <Detail label={t.common.status} value={<Badge tone={statusTone(application.status)}>{enumLabel(application.status)}</Badge>} />
+          <Detail label={t.jobs.handledBy} value={application.handledByName || "—"} />
         </dl>
 
         {application.notes && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Applicant notes
+              {t.jobs.applicantNotes}
             </p>
             <p className="mt-1 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-slate-700">
               {application.notes}
@@ -144,7 +145,7 @@ export function JobApplicationDetailModal({
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Viambatanisho (documents)
+            {t.jobs.documents}
           </p>
           <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
             {/* Legacy / optional documents come back empty ("" or null) —
@@ -158,7 +159,7 @@ export function JobApplicationDetailModal({
         {application.internalNotes && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Internal notes
+              {t.cov.internalNotes}
             </p>
             <p className="mt-1 whitespace-pre-wrap rounded-lg bg-amber-50 p-3 text-amber-800">
               {application.internalNotes}
@@ -172,7 +173,7 @@ export function JobApplicationDetailModal({
               <input type="hidden" name="id" value={application.id} />
               <label className="block">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Status
+                  {t.common.status}
                 </span>
                 <select
                   name="status"
@@ -181,28 +182,27 @@ export function JobApplicationDetailModal({
                 >
                   {STATUSES.map((s) => (
                     <option key={s} value={s}>
-                      {s.replace("_", " ")}
+                      {enumLabel(s)}
                     </option>
                   ))}
                 </select>
               </label>
               <label className="block">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Internal notes
+                  {t.cov.internalNotes}
                 </span>
                 <textarea
                   name="internalNotes"
                   rows={3}
                   defaultValue={application.internalNotes ?? ""}
-                  placeholder="Staff-only notes (interview date, trial shift, follow-ups…)"
+                  placeholder={t.jobs.notesPlaceholder}
                   className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
               </label>
               <div className="flex items-center justify-between gap-3">
                 {confirmDelete ? (
                   <span className="text-xs font-medium text-rose-600">
-                    Click “Confirm delete” below to remove this application
-                    permanently.
+                    {t.jobs.confirmHint}
                   </span>
                 ) : (
                   <Button
@@ -211,11 +211,11 @@ export function JobApplicationDetailModal({
                     onClick={() => setConfirmDelete(true)}
                     className="text-rose-600 hover:bg-rose-50"
                   >
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                    <Trash2 className="h-3.5 w-3.5" /> {t.common.delete}
                   </Button>
                 )}
                 <Button type="submit" disabled={updatePending}>
-                  {updatePending ? "Saving…" : "Save changes"}
+                  {updatePending ? t.common.saving : t.cov.saveChanges}
                 </Button>
               </div>
               {updateState.error && (
@@ -227,10 +227,10 @@ export function JobApplicationDetailModal({
               <form action={deleteAction} className="flex items-center gap-2">
                 <input type="hidden" name="id" value={application.id} />
                 <Button type="submit" variant="danger" size="sm" disabled={deletePending}>
-                  {deletePending ? "Deleting…" : "Confirm delete"}
+                  {deletePending ? t.common.deleting : t.cov.confirmDelete}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 {deleteState.error && (
                   <p className="text-xs text-rose-600">{deleteState.error}</p>
@@ -248,8 +248,7 @@ export function JobApplicationDetailModal({
 
         {!canManage && (
           <p className="border-t border-slate-100 pt-3 text-xs text-slate-400">
-            Read-only — only HR or the Super Admin can update or delete
-            applications.
+            {t.jobs.readOnly}
           </p>
         )}
       </div>

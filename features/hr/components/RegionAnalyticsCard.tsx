@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import type { RegionAnalytics } from "@/features/hr/queries/locations";
 
 /** Sites & guards per region — data-consistency snapshot for HR. */
@@ -17,21 +18,21 @@ export function RegionAnalyticsCard({
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-5 py-4">
         <div>
-          <h3 className="font-semibold text-slate-900">Sites by Region</h3>
+          <h3 className="font-semibold text-slate-900">{t.region.title}</h3>
           <p className="text-xs text-slate-500">
-            Total work sites (stations) and posted guards per region.
+            {t.region.subtitle}
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <span className="rounded-lg bg-brand-50 px-3 py-1.5 font-semibold text-brand-700">
-            {totalSites} sites
+            {totalSites} {t.region.sites}
           </span>
           <span className="rounded-lg bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700">
-            {totalGuards} guards posted
+            {totalGuards} {t.region.guardsPosted}
           </span>
           {unassignedGuards > 0 && (
             <span className="rounded-lg bg-amber-50 px-3 py-1.5 font-semibold text-amber-700">
-              {unassignedGuards} unassigned
+              {unassignedGuards} {t.dash.unassigned}
             </span>
           )}
         </div>
@@ -42,8 +43,8 @@ export function RegionAnalyticsCard({
             <div className="flex items-baseline justify-between">
               <h4 className="font-semibold text-slate-800">{r.regionName}</h4>
               <span className="text-xs text-slate-500">
-                {r.siteCount} site{r.siteCount === 1 ? "" : "s"} · {r.guardCount} guard
-                {r.guardCount === 1 ? "" : "s"}
+                {r.siteCount} {r.siteCount === 1 ? t.region.site : t.region.sites} · {r.guardCount}{" "}
+                {r.guardCount === 1 ? t.shift.guard : t.charts.guards}
               </span>
             </div>
             {r.sites.length > 0 ? (
@@ -58,13 +59,13 @@ export function RegionAnalyticsCard({
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-xs text-slate-400">No sites registered yet.</p>
+              <p className="mt-2 text-xs text-slate-400">{t.region.noSites}</p>
             )}
           </div>
         ))}
         {regions.length === 0 && (
           <p className="text-sm text-slate-400">
-            No regions yet — add regions and sites under Store → Regions &amp; Stations.
+            {t.region.empty}
           </p>
         )}
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useMemo } from "react";
 import { Button, Card, DataTable, Pagination, type Column } from "@/components/ui";
@@ -48,7 +49,7 @@ export function StockReportView({
   const columns: Column<StationReportRow>[] = [
     {
       key: "station",
-      header: "Station",
+      header: t.common.station,
       cell: (r) => (
         <div>
           <p className="font-medium text-slate-800">{r.stationName}</p>
@@ -56,23 +57,23 @@ export function StockReportView({
         </div>
       ),
     },
-    { key: "item", header: "Item", cell: (r) => <span>{r.itemName}</span> },
-    { key: "holding", header: "Holding", cell: (r) => <b>{r.holding} {r.unit}</b> },
-    { key: "issued", header: "Given", cell: (r) => <span>{r.issued}</span> },
+    { key: "item", header: t.store.item, cell: (r) => <span>{r.itemName}</span> },
+    { key: "holding", header: t.store.holding, cell: (r) => <b>{r.holding} {r.unit}</b> },
+    { key: "issued", header: t.storeForms.given, cell: (r) => <span>{r.issued}</span> },
     {
       key: "lost",
-      header: "Lost",
+      header: t.status.LOST,
       cell: (r) => (
         <span className={r.lost > 0 ? "font-semibold text-rose-600" : "text-slate-500"}>
           {r.lost}
         </span>
       ),
     },
-    { key: "returned", header: "Returned", cell: (r) => <span className="text-emerald-700">{r.returned}</span> },
-    { key: "out", header: "Given out", cell: (r) => <span>{r.out}</span> },
+    { key: "returned", header: t.status.RETURNED, cell: (r) => <span className="text-emerald-700">{r.returned}</span> },
+    { key: "out", header: t.storeForms.givenOut, cell: (r) => <span>{r.out}</span> },
     {
       key: "purchased",
-      header: "Bought",
+      header: t.storeForms.bought,
       cell: (r) => (
         <div className="text-xs">
           <p>{r.purchased}</p>
@@ -86,16 +87,16 @@ export function StockReportView({
 
   return (
     <div className="space-y-4">
-      <Card title="Filters" subtitle="Report of holdings, given, lost, returned and bought stock">
+      <Card title={t.storeForms.filters} subtitle={t.storeForms.filtersSub}>
         <div className="flex flex-wrap items-end gap-3">
           <label className="block">
-            <span className={labelSpanCls}>Station</span>
+            <span className={labelSpanCls}>{t.common.station}</span>
             <select
               className={inputCls}
               value={stationId}
               onChange={(e) => setStationId(e.target.value)}
             >
-              <option value="">All stations</option>
+              <option value="">{t.store.allStations}</option>
               {stations.map((s) => (
                 <option key={s.id} value={s.id}>{s.name} — {s.regionName}</option>
               ))}
@@ -103,17 +104,17 @@ export function StockReportView({
           </label>
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              From
+              {t.common.from}
             </span>
             <input type="date" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} />
           </label>
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              To
+              {t.common.to}
             </span>
             <input type="date" className={inputCls} value={to} onChange={(e) => setTo(e.target.value)} />
           </label>
-          <Button size="md" onClick={apply}>Apply</Button>
+          <Button size="md" onClick={apply}>{t.office.apply}</Button>
         </div>
       </Card>
 
@@ -122,7 +123,7 @@ export function StockReportView({
       <DataTable
         columns={columns}
         rows={paginatedRows.map((r) => ({ ...r, id: `${r.stationId}-${r.itemId}` }))}
-        empty="No stock data for this selection."
+        empty={t.storeForms.noData}
       />
 
       {rows.length > 0 && (
@@ -135,7 +136,7 @@ export function StockReportView({
             setPageSize(newSize);
             setPage(1);
           }}
-          itemLabel="stock report items"
+          itemLabel={t.storeForms.reportItems}
         />
       )}
     </div>

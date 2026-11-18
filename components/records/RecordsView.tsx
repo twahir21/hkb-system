@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
 import type { LogRow } from "@/features/attendance/queries/attendance";
 import { getSickNoteUrl } from "@/features/attendance/actions/attendance.actions";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 export type RecordRow = Omit<LogRow, "documentUrl"> & { hasDocument: boolean };
 
@@ -34,7 +34,7 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
       }
     } catch {
       tab?.close();
-      setDocError("Could not open the document.");
+      setDocError(t.records.docError);
     } finally {
       setOpeningDoc(null);
     }
@@ -55,21 +55,21 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
   const columns: Column<RecordRow>[] = [
     {
       key: "date",
-      header: "Date",
+      header: t.common.date,
       cell: (r) => (
         <span className="whitespace-nowrap text-slate-700">{r.date}</span>
       ),
     },
     {
       key: "shift",
-      header: "Shift",
+      header: t.records.shift,
       cell: (r) => (
         <Badge tone={r.shift === "DAY" ? "amber" : "slate"}>{enumLabel(r.shift)}</Badge>
       ),
     },
     {
       key: "guard",
-      header: "Guard",
+      header: t.records.guard,
       cell: (r) => (
         <div>
           <p className="font-medium text-slate-800">{r.guardName}</p>
@@ -79,7 +79,7 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => (
         <Badge tone={statusTone(r.status)}>
           {enumLabel(r.status)}
@@ -89,7 +89,7 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
     },
     {
       key: "absence",
-      header: "Absence / Delay",
+      header: t.records.absenceDelay,
       cell: (r) =>
         r.absenceCategory ? (
           <div>
@@ -98,7 +98,7 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
             </Badge>
             {r.allowedDays && (
               <p className="mt-1 text-xs text-slate-400">
-                {r.allowedDays} allowed days
+                {r.allowedDays} {t.records.allowedDays}
               </p>
             )}
           </div>
@@ -115,14 +115,14 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
     },
     {
       key: "supervisor",
-      header: "Recorded by",
+      header: t.records.recordedBy,
       cell: (r) => (
         <span className="text-slate-600">{r.supervisorName || "—"}</span>
       ),
     },
     {
       key: "doc",
-      header: "Doc",
+      header: t.records.doc,
       cell: (r) =>
         !r.hasDocument ? (
           <span className="text-xs text-slate-400">—</span>
@@ -133,11 +133,11 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
             disabled={openingDoc === r.id}
             className="text-brand-600 hover:underline disabled:opacity-50"
           >
-            {openingDoc === r.id ? "Opening…" : "View"}
+            {openingDoc === r.id ? t.records.opening : t.common.view}
           </button>
         ) : (
-          <span className="text-xs text-slate-500" title="Only HR can open sick notes">
-            Attached
+          <span className="text-xs text-slate-500" title={t.records.hrOnly}>
+            {t.records.attached}
           </span>
         ),
     },
@@ -156,7 +156,7 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by name or employee ID"
+            placeholder={t.records.search}
             className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
@@ -172,7 +172,7 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
                   : "border-slate-300 text-slate-600 hover:bg-slate-50")
               }
             >
-              {s.charAt(0) + s.slice(1).toLowerCase()}
+              {s === "ALL" ? t.common.all : enumLabel(s)}
             </button>
           ))}
         </div>
@@ -181,10 +181,12 @@ export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAudi
       <DataTable
         columns={columns}
         rows={filtered}
-        empty="No attendance records match your filters."
+        empty={t.records.empty}
       />
       <p className="text-xs text-slate-400">
-        Showing {filtered.length} of {logs.length} records
+        {t.records.showing
+          .replace("{n}", String(filtered.length))
+          .replace("{total}", String(logs.length))}
       </p>
     </div>
   );

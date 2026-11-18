@@ -9,7 +9,7 @@ import {
   type ActionState,
 } from "@/features/store/actions/stock.actions";
 import type { StockTransferRow } from "@/features/store/queries/stock";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 type ItemOpt = { id: string; name: string };
 type StationOpt = { id: string; name: string; regionName: string };
@@ -29,14 +29,14 @@ function RequestTransferModal({ items, stations }: { items: ItemOpt[]; stations:
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <Plus className="h-4 w-4" /> Request transfer
+        <Plus className="h-4 w-4" /> {t.transfer.request}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Request a stock transfer">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.ops.transferTitle}>
         <form action={formAction} className="space-y-4">
           <label className="block">
-            <span className={labelSpanCls}>Item</span>
+            <span className={labelSpanCls}>{t.store.item}</span>
             <select name="itemId" required className={inputCls} defaultValue="">
-              <option value="" disabled>Select item…</option>
+              <option value="" disabled>{t.ops.selectItem}</option>
               {items.map((i) => (
                 <option key={i.id} value={i.id}>{i.name}</option>
               ))}
@@ -44,18 +44,18 @@ function RequestTransferModal({ items, stations }: { items: ItemOpt[]; stations:
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className={labelSpanCls}>From station</span>
+              <span className={labelSpanCls}>{t.ops.fromStation}</span>
               <select name="fromStationId" required className={inputCls} defaultValue="">
-                <option value="" disabled>From…</option>
+                <option value="" disabled>{t.ops.fromDots}</option>
                 {stations.map((s) => (
                   <option key={s.id} value={s.id}>{s.name} — {s.regionName}</option>
                 ))}
               </select>
             </label>
             <label className="block">
-              <span className={labelSpanCls}>To station</span>
+              <span className={labelSpanCls}>{t.ops.toStation}</span>
               <select name="toStationId" required className={inputCls} defaultValue="">
-                <option value="" disabled>To…</option>
+                <option value="" disabled>{t.ops.toDots}</option>
                 {stations.map((s) => (
                   <option key={s.id} value={s.id}>{s.name} — {s.regionName}</option>
                 ))}
@@ -63,11 +63,11 @@ function RequestTransferModal({ items, stations }: { items: ItemOpt[]; stations:
             </label>
           </div>
           <label className="block">
-            <span className={labelSpanCls}>Quantity</span>
+            <span className={labelSpanCls}>{t.office.qty}</span>
             <input name="quantity" type="number" min={1} required className={inputCls} />
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Reason</span>
+            <span className={labelSpanCls}>{t.common.reason}</span>
             <textarea name="reason" rows={3} required className={inputCls} />
           </label>
           {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
@@ -78,10 +78,10 @@ function RequestTransferModal({ items, stations }: { items: ItemOpt[]; stations:
           )}
           <div className="flex justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={() => setOpen(false)} type="button">
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button type="submit" size="sm" disabled={pending}>
-              {pending ? "Submitting…" : "Submit request"}
+              {pending ? t.common.submitting : t.transfer.submit}
             </Button>
           </div>
         </form>
@@ -100,10 +100,10 @@ function ReviewCell({ transferId }: { transferId: string }) {
     <form action={formAction} className="flex items-center gap-2">
       <input type="hidden" name="id" value={transferId} />
       <Button type="submit" size="sm" variant="success" disabled={pending} name="action" value="APPROVE">
-        Approve
+        {t.leave.approve}
       </Button>
       <Button type="submit" size="sm" variant="danger" disabled={pending} name="action" value="REJECT">
-        Reject
+        {t.leave.reject}
       </Button>
       {state.error && <span className="text-xs text-rose-600">{state.error}</span>}
     </form>
@@ -126,7 +126,7 @@ export function StockTransferView({
   const columns: Column<StockTransferRow>[] = [
     {
       key: "item",
-      header: "Item",
+      header: t.store.item,
       cell: (r) => (
         <p className="font-medium text-slate-800">
           {r.itemName} <span className="text-xs text-slate-400">× {r.quantity} {r.unit}</span>
@@ -135,7 +135,7 @@ export function StockTransferView({
     },
     {
       key: "route",
-      header: "From → To",
+      header: t.store.fromTo,
       cell: (r) => (
         <p className="flex items-center gap-1.5 text-xs text-slate-600">
           <span>{r.fromStation}</span>
@@ -146,22 +146,22 @@ export function StockTransferView({
     },
     {
       key: "reason",
-      header: "Reason",
+      header: t.common.reason,
       cell: (r) => <span className="text-slate-600">{r.reason}</span>,
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
       key: "meta",
-      header: "Requested",
+      header: t.transfer.requested,
       cell: (r) => (
         <div className="text-xs text-slate-500">
-          <p>by {r.requestedBy}</p>
+          <p>{t.store.by} {r.requestedBy}</p>
           <p>{new Date(r.createdAt).toLocaleDateString("en-GB")}</p>
-          {r.reviewerNotes && <p className="text-slate-400">Note: {r.reviewerNotes}</p>}
+          {r.reviewerNotes && <p className="text-slate-400">{t.transfer.note}: {r.reviewerNotes}</p>}
         </div>
       ),
     },
@@ -170,7 +170,7 @@ export function StockTransferView({
   if (canApprove) {
     columns.push({
       key: "action",
-      header: "Review",
+      header: t.dash.review,
       cell: (r) =>
         r.status === "PENDING" ? (
           <ReviewCell transferId={r.id} />
@@ -188,7 +188,7 @@ export function StockTransferView({
         </p>
         {canRequest && <RequestTransferModal items={items} stations={stations} />}
       </div>
-      <DataTable columns={columns} rows={transfers} empty="No stock transfer requests yet." />
+      <DataTable columns={columns} rows={transfers} empty={t.ops.noTransfers} />
     </div>
   );
 }

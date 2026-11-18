@@ -23,7 +23,7 @@ export async function createItem(
     category: formData.get("category") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid item" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Kifaa si sahihi" };
   }
 
   try {
@@ -36,12 +36,12 @@ export async function createItem(
       metadata: { name: parsed.data.name },
     });
   } catch {
-    return { ok: false, error: "An item with this name already exists." };
+    return { ok: false, error: "Kifaa chenye jina hili tayari kipo." };
   }
 
   revalidatePath("/store/items");
   revalidatePath("/store");
-  return { ok: true, message: "Item created." };
+  return { ok: true, message: "Kifaa kimeongezwa." };
 }
 
 export async function updateItem(
@@ -58,7 +58,7 @@ export async function updateItem(
     isActive: formData.get("isActive") === "true",
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid item" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Kifaa si sahihi" };
   }
   const { id, ...values } = parsed.data;
 
@@ -69,5 +69,5 @@ export async function updateItem(
 
   revalidatePath("/store/items");
   revalidatePath("/store");
-  return { ok: true, message: "Item updated." };
+  return { ok: true, message: "Kifaa kimesasishwa." };
 }

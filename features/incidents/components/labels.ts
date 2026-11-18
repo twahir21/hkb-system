@@ -1,12 +1,13 @@
+import { t } from "@/lib/i18n";
 import type { IncidentLevel, IncidentStatus } from "@/lib/db/schema";
 
 export const LEVELS: IncidentLevel[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 export const LEVEL_LABELS: Record<IncidentLevel, string> = {
-  LOW: "Low",
-  MEDIUM: "Medium",
-  HIGH: "High",
-  CRITICAL: "Critical",
+  LOW: t.status.LOW,
+  MEDIUM: t.status.MEDIUM,
+  HIGH: t.status.HIGH,
+  CRITICAL: t.status.CRITICAL,
 };
 
 export const LEVEL_TONES: Record<IncidentLevel, "slate" | "amber" | "rose" | "violet"> = {
@@ -17,8 +18,8 @@ export const LEVEL_TONES: Record<IncidentLevel, "slate" | "amber" | "rose" | "vi
 };
 
 export const STATUS_LABELS: Record<IncidentStatus, string> = {
-  OPEN: "Not solved",
-  RESOLVED: "Solved",
+  OPEN: t.incidentsPage.open,
+  RESOLVED: t.incidentsPage.resolved,
 };
 
 export function formatDateTime(d: Date | string) {

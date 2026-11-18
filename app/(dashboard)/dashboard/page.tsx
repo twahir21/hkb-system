@@ -133,10 +133,10 @@ export default async function DashboardPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
-            Welcome back, {name.split(" ")[0]}.
+            {t.dash.welcome}, {name.split(" ")[0]}.
           </h2>
           <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Overview for {today} · Role: <span className="font-semibold text-slate-700">{ROLE_LABELS[role]}</span>
+            {t.dash.overviewFor} {today} · {t.dash.role}: <span className="font-semibold text-slate-700">{ROLE_LABELS[role]}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export default async function DashboardPage() {
             href="/attendance"
             className="rounded-lg bg-brand-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-brand-500"
           >
-            Open Shift Sheet →
+            {t.dash.openShiftSheet} →
           </Link>
           )}
         </div>
@@ -164,11 +164,11 @@ export default async function DashboardPage() {
         >
           <span className="flex items-center gap-2 text-sm font-semibold">
             <Siren className="h-4 w-4" />
-            {incidentCounts.open} open incident{incidentCounts.open === 1 ? "" : "s"}
-            {incidentScope.kind === "branch" ? " in your branch" : ""}
+            {t.dash.openIncidents.replace("{n}", String(incidentCounts.open))}
+            {incidentScope.kind === "branch" ? ` ${t.dash.inYourBranch}` : ""}
           </span>
           {incidentCounts.critical > 0 && (
-            <span className="text-xs font-bold">{incidentCounts.critical} high / critical</span>
+            <span className="text-xs font-bold">{incidentCounts.critical} {t.dash.highCritical}</span>
           )}
         </Link>
       )}
@@ -195,43 +195,43 @@ export default async function DashboardPage() {
       {/* Top 5 KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat
-          label={limited ? "Your Guards" : "Registered Guards"}
+          label={limited ? t.dash.yourGuards : t.dash.registeredGuards}
           value={limited ? counts.assignedGuards : counts.totalGuards}
           icon={<Users className="h-5 w-5" />}
           href={canSeeGuards ? "/guards" : undefined}
           subtitle={
             canSeeGuards && counts.unassignedGuards > 0
-              ? `${counts.unassignedGuards} unassigned`
+              ? `${counts.unassignedGuards} ${t.dash.unassigned}`
               : undefined
           }
         />
         <Stat
-          label="Present Today"
+          label={t.dash.presentToday}
           value={present}
           icon={<ClipboardCheck className="h-5 w-5 text-emerald-600" />}
           href="/attendance"
-          subtitle="On-time clock-in"
+          subtitle={t.dash.onTime}
         />
         <Stat
-          label="Late Today"
+          label={t.dash.lateToday}
           value={late}
           icon={<Clock className="h-5 w-5 text-amber-600" />}
           href="/attendance"
-          subtitle="Late arrivals"
+          subtitle={t.dash.lateArrivals}
         />
         <Stat
-          label="Absent Today"
+          label={t.dash.absentToday}
           value={absent}
           icon={<ClipboardCheck className="h-5 w-5 text-rose-500" />}
           href="/records"
-          subtitle="Sick / unexcused"
+          subtitle={t.dash.sickUnexcused}
         />
         <Stat
-          label={`${monthlySummary.monthName} Rate`}
+          label={`${t.dash.rate} ${monthlySummary.monthName}`}
           value={`${monthlySummary.overallAttendancePercentage}%`}
           icon={<Award className="h-5 w-5 text-brand-600" />}
           href={canOpenReports ? "/reports" : undefined}
-          subtitle={`${monthlySummary.totalShifts} shifts logged`}
+          subtitle={`${t.dash.shiftsLogged.replace("{n}", String(monthlySummary.totalShifts))}`}
         />
       </div>
 
@@ -240,8 +240,8 @@ export default async function DashboardPage() {
         <div className="lg:col-span-2">
           <AttendanceTrendAreaChart
             data={sevenDayTrend}
-            title="7-Day Attendance Trend"
-            subtitle="Daily operational flow across all active stations"
+            title={t.dash.trendTitle}
+            subtitle={t.dash.trendSubtitle}
             height={260}
           />
         </div>
@@ -261,14 +261,14 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {canSeeTransfers && (
           <Card
-            title="Pending Guard Transfers"
-            subtitle="Awaiting Admin / HR approval"
+            title={t.dash.pendingTransfers}
+            subtitle={t.dash.awaitingApproval}
             action={
               <Link
                 href="/transfers"
                 className="text-xs font-semibold text-brand-600 hover:underline"
               >
-                Review →
+                {t.dash.review} →
               </Link>
             }
           >
@@ -278,7 +278,7 @@ export default async function DashboardPage() {
                 {counts.pendingTransfers}
               </p>
               <Badge tone={counts.pendingTransfers > 0 ? "amber" : "emerald"}>
-                {counts.pendingTransfers > 0 ? "Action needed" : "All caught up"}
+                {counts.pendingTransfers > 0 ? t.dash.actionNeeded : t.dash.allCaughtUp}
               </Badge>
             </div>
           </Card>
@@ -286,14 +286,14 @@ export default async function DashboardPage() {
 
         {canStock && (
           <Card
-            title="Stock Transfers"
-            subtitle="Inter-station inventory movements"
+            title={t.nav.stockTransfers}
+            subtitle={t.dash.stockTransfersSub}
             action={
               <Link
                 href="/store/transfers"
                 className="text-xs font-semibold text-brand-600 hover:underline"
               >
-                View →
+                {t.common.view} →
               </Link>
             }
           >
@@ -303,7 +303,7 @@ export default async function DashboardPage() {
                 {counts.pendingStockTransfers}
               </p>
               <Badge tone={counts.pendingStockTransfers > 0 ? "amber" : "slate"}>
-                {counts.pendingStockTransfers > 0 ? "Pending" : "No pending"}
+                {counts.pendingStockTransfers > 0 ? t.dash.pending : t.dash.noPending}
               </Badge>
             </div>
           </Card>
@@ -311,14 +311,14 @@ export default async function DashboardPage() {
 
         {canCoverage && (
           <Card
-            title="Coverage Inquiries"
-            subtitle="Client security requests"
+            title={t.nav.coverage}
+            subtitle={t.dash.coverageSub}
             action={
               <Link
                 href="/coverage-requests"
                 className="text-xs font-semibold text-brand-600 hover:underline"
               >
-                Inquiries →
+                {t.dash.inquiries} →
               </Link>
             }
           >
@@ -328,7 +328,7 @@ export default async function DashboardPage() {
                 {counts.pendingCoverageRequests}
               </p>
               <Badge tone={counts.pendingCoverageRequests > 0 ? "amber" : "slate"}>
-                {counts.pendingCoverageRequests > 0 ? "New" : "Cleared"}
+                {counts.pendingCoverageRequests > 0 ? t.dash.new : t.dash.cleared}
               </Badge>
             </div>
           </Card>
@@ -336,14 +336,14 @@ export default async function DashboardPage() {
       </div>
 
       {/* Module Shortcuts */}
-      <Card title="Quick Navigation" subtitle="Jump directly to key management modules">
+      <Card title={t.dash.quickNav} subtitle={t.dash.quickNavSub}>
         <div className="flex flex-wrap gap-2">
           {(showAttendance || hasPermission(role, "ATTENDANCE_VIEW_OWN")) && (
           <Link
             href="/records"
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            <FileText className="h-3.5 w-3.5 text-slate-500" /> Attendance Records
+            <FileText className="h-3.5 w-3.5 text-slate-500" /> {t.nav.records}
           </Link>
           )}
           {incidentScope.kind !== "none" && (
@@ -351,7 +351,7 @@ export default async function DashboardPage() {
               href="/incidents"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              <Siren className="h-3.5 w-3.5 text-slate-500" /> Incidents
+              <Siren className="h-3.5 w-3.5 text-slate-500" /> {t.nav.incidents}
             </Link>
           )}
           {canRecord && (
@@ -359,7 +359,7 @@ export default async function DashboardPage() {
               href="/attendance"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              <ClipboardCheck className="h-3.5 w-3.5 text-slate-500" /> Shift Sheet
+              <ClipboardCheck className="h-3.5 w-3.5 text-slate-500" /> {t.nav.shiftSheet}
             </Link>
           )}
           {canSeeReports && (
@@ -367,7 +367,7 @@ export default async function DashboardPage() {
               href="/reports"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              <Award className="h-3.5 w-3.5 text-slate-500" /> Monthly Reports &amp; PDF
+              <Award className="h-3.5 w-3.5 text-slate-500" /> {t.dash.monthlyReports}
             </Link>
           )}
           {canSeeGuards && (
@@ -375,7 +375,7 @@ export default async function DashboardPage() {
               href="/guards"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              <Users className="h-3.5 w-3.5 text-slate-500" /> Guard Registry
+              <Users className="h-3.5 w-3.5 text-slate-500" /> {t.nav.guards}
             </Link>
           )}
         </div>

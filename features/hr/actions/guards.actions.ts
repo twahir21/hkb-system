@@ -76,18 +76,18 @@ export async function createGuard(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid guard data",
+      error: parsed.error.issues[0]?.message ?? "Taarifa za mlinzi si sahihi",
     };
   }
   const v = parsed.data;
 
   const station = await resolveStation(v.stationId);
   if (!station) {
-    return { ok: false, error: "Selected work site no longer exists — pick another site." };
+    return { ok: false, error: "Kituo ulichochagua hakipo tena — chagua kituo kingine." };
   }
   const client = await resolveClient(v.clientId);
   if (!client) {
-    return { ok: false, error: "Selected client no longer exists — pick another client." };
+    return { ok: false, error: "Mteja uliyemchagua hayupo tena — chagua mteja mwingine." };
   }
   // Reject duplicate employee IDs up front so the form shows a friendly
   // message instead of the DB unique-constraint error breaking the page.
@@ -97,7 +97,7 @@ export async function createGuard(
   if (existingProfile) {
     return {
       ok: false,
-      error: `Employee ID "${v.employeeId}" is already registered to another guard. Use a different ID.`,
+      error: `Namba ya mtumishi "${v.employeeId}" tayari imesajiliwa kwa mlinzi mwingine. Tumia namba nyingine.`,
     };
   }
 
@@ -151,10 +151,10 @@ export async function createGuard(
       if (constraint === "guard_profiles_employee_id_unique") {
         return {
           ok: false,
-          error: `Employee ID "${v.employeeId}" is already registered to another guard. Use a different ID.`,
+          error: `Namba ya mtumishi "${v.employeeId}" tayari imesajiliwa kwa mlinzi mwingine. Tumia namba nyingine.`,
         };
       }
-      return { ok: false, error: "A guard with these details already exists." };
+      return { ok: false, error: "Mlinzi mwenye taarifa hizi tayari yupo." };
     }
     throw err;
   }
@@ -170,7 +170,7 @@ export async function createGuard(
   revalidatePath("/guards");
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
-  return { ok: true, guardId: profile.id, message: "Guard registered." };
+  return { ok: true, guardId: profile.id, message: "Mlinzi amesajiliwa." };
 }
 
 /** Update a guard profile (PII + supervisor assignment). */
@@ -181,7 +181,7 @@ export async function updateGuard(
   const actor = await requirePermission("GUARD_MANAGE");
 
   const id = formData.get("id");
-  if (typeof id !== "string") return { ok: false, error: "Missing guard id" };
+  if (typeof id !== "string") return { ok: false, error: "Namba ya mlinzi haipo" };
 
   const parsed = guardSchema.partial().safeParse({
     email: formData.get("email") || undefined,
@@ -203,7 +203,7 @@ export async function updateGuard(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid update",
+      error: parsed.error.issues[0]?.message ?? "Mabadiliko si sahihi",
     };
   }
   const v = parsed.data;
@@ -211,7 +211,7 @@ export async function updateGuard(
   const currentGuard = await db.query.guardProfiles.findFirst({
     where: eq(guardProfiles.id, id),
   });
-  if (!currentGuard) return { ok: false, error: "Guard profile not found" };
+  if (!currentGuard) return { ok: false, error: "Wasifu wa mlinzi haukupatikana" };
 
   // If employee ID changed, ensure new ID is not already used
   if (
@@ -224,7 +224,7 @@ export async function updateGuard(
     if (existing) {
       return {
         ok: false,
-        error: `Employee ID "${v.employeeId}" is already registered to another guard. Use a different ID.`,
+        error: `Namba ya mtumishi "${v.employeeId}" tayari imesajiliwa kwa mlinzi mwingine. Tumia namba nyingine.`,
       };
     }
   }
@@ -241,7 +241,7 @@ export async function updateGuard(
     if (existingUser) {
       return {
         ok: false,
-        error: `Email "${v.email}" is already used by another account.`,
+        error: `Barua pepe "${v.email}" tayari inatumiwa na akaunti nyingine.`,
       };
     }
   }
@@ -264,7 +264,7 @@ export async function updateGuard(
   if (v.stationId) {
     stationUpdate = await resolveStation(v.stationId);
     if (!stationUpdate) {
-      return { ok: false, error: "Selected work site no longer exists — pick another site." };
+      return { ok: false, error: "Kituo ulichochagua hakipo tena — chagua kituo kingine." };
     }
   }
 
@@ -273,7 +273,7 @@ export async function updateGuard(
   if (v.clientId) {
     const client = await resolveClient(v.clientId);
     if (!client) {
-      return { ok: false, error: "Selected client no longer exists — pick another client." };
+      return { ok: false, error: "Mteja uliyemchagua hayupo tena — chagua mteja mwingine." };
     }
     clientUpdate = { clientId: client.id };
   }
@@ -311,7 +311,7 @@ export async function updateGuard(
 
   revalidatePath("/guards");
   revalidatePath("/attendance");
-  return { ok: true, guardId: id, message: "Guard updated." };
+  return { ok: true, guardId: id, message: "Taarifa za mlinzi zimesasishwa." };
 }
 
 /**
@@ -327,15 +327,15 @@ export async function disableGuard(
   const actor = await requirePermission("GUARD_MANAGE");
 
   if (typeof guardId !== "string" || !guardId) {
-    return { ok: false, error: "Missing guard id" };
+    return { ok: false, error: "Namba ya mlinzi haipo" };
   }
 
   const guard = await db.query.guardProfiles.findFirst({
     where: eq(guardProfiles.id, guardId),
   });
-  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (!guard) return { ok: false, error: "Wasifu wa mlinzi haukupatikana." };
   if (!guard.isActive) {
-    return { ok: true, guardId, message: "Guard is already disabled." };
+    return { ok: true, guardId, message: "Mlinzi tayari amezimwa." };
   }
 
   const now = new Date();
@@ -351,7 +351,7 @@ export async function disableGuard(
     .update(transferRequests)
     .set({
       status: "REJECTED",
-      reviewerNotes: "Closed automatically — the guard was disabled.",
+      reviewerNotes: "Imefungwa kiotomatiki — mlinzi amezimwa.",
       updatedAt: now,
     })
     .where(
@@ -382,7 +382,7 @@ export async function disableGuard(
   return {
     ok: true,
     guardId,
-    message: "Guard disabled — they are no longer counted as a guard.",
+    message: "Mlinzi amezimwa — hahesabiwi tena kama mlinzi.",
   };
 }
 
@@ -391,15 +391,15 @@ export async function enableGuard(guardId: string): Promise<GuardState> {
   const actor = await requirePermission("GUARD_MANAGE");
 
   if (typeof guardId !== "string" || !guardId) {
-    return { ok: false, error: "Missing guard id" };
+    return { ok: false, error: "Namba ya mlinzi haipo" };
   }
 
   const guard = await db.query.guardProfiles.findFirst({
     where: eq(guardProfiles.id, guardId),
   });
-  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (!guard) return { ok: false, error: "Wasifu wa mlinzi haukupatikana." };
   if (guard.isActive) {
-    return { ok: true, guardId, message: "Guard is already active." };
+    return { ok: true, guardId, message: "Mlinzi tayari yuko hai." };
   }
 
   const now = new Date();
@@ -425,7 +425,7 @@ export async function enableGuard(guardId: string): Promise<GuardState> {
   return {
     ok: true,
     guardId,
-    message: "Guard re-activated — they are counted as a guard again.",
+    message: "Mlinzi amerudishwa — anahesabiwa tena kama mlinzi.",
   };
 }
 
@@ -444,16 +444,16 @@ export async function deleteGuard(
   const actor = await requirePermission("GUARD_MANAGE");
 
   if (typeof guardId !== "string" || !guardId) {
-    return { ok: false, error: "Missing guard id" };
+    return { ok: false, error: "Namba ya mlinzi haipo" };
   }
 
   const guard = await db.query.guardProfiles.findFirst({
     where: eq(guardProfiles.id, guardId),
   });
-  if (!guard) return { ok: false, error: "Guard profile not found." };
+  if (!guard) return { ok: false, error: "Wasifu wa mlinzi haukupatikana." };
 
   if (actor.userId === guard.userId) {
-    return { ok: false, error: "You cannot delete your own account." };
+    return { ok: false, error: "Huwezi kufuta akaunti yako mwenyewe." };
   }
 
   const userRow = await db.query.users.findFirst({
@@ -476,7 +476,7 @@ export async function deleteGuard(
   if (outstanding > 0) {
     return {
       ok: false,
-      error: `This guard still owes TZS ${outstanding.toLocaleString()} — record the deduction or write it off under Office → Credit first, or just disable the guard.`,
+      error: `Mlinzi huyu bado anadaiwa TZS ${outstanding.toLocaleString()} — rekodi makato au futa deni kwenye Ofisi → Madeni kwanza, au mzime mlinzi tu.`,
     };
   }
 
@@ -509,7 +509,7 @@ export async function deleteGuard(
       return {
         ok: false,
         error:
-          "Other records still reference this account (audit trail, transfers or attendance where they acted as supervisor), so it cannot be deleted — disable the guard instead.",
+          "Kumbukumbu nyingine bado zinahusiana na akaunti hii (ukaguzi, uhamisho au mahudhurio aliyorekodi kama msimamizi), kwa hiyo haiwezi kufutwa — mzime mlinzi badala yake.",
       };
     }
     throw err;
@@ -540,7 +540,7 @@ export async function deleteGuard(
   return {
     ok: true,
     guardId,
-    message: "Guard permanently deleted — profile, account and history removed.",
+    message: "Mlinzi amefutwa kabisa — wasifu, akaunti na historia vimeondolewa.",
   };
 }
 
@@ -588,15 +588,15 @@ function describeRowInsertError(err: unknown): string {
   const constraint = (err as { constraint?: string } | null)?.constraint;
   if (code === "23505") {
     if (constraint === "guard_profiles_employee_id_unique") {
-      return "Employee ID is already registered to another guard";
+      return "Namba ya mtumishi tayari imesajiliwa kwa mlinzi mwingine";
     }
     if (constraint === "users_email_unique") {
-      return "Email is already in use by another account";
+      return "Barua pepe tayari inatumiwa na akaunti nyingine";
     }
-    return "A guard with these details already exists";
+    return "Mlinzi mwenye taarifa hizi tayari yupo";
   }
   const message = err instanceof Error ? err.message : String(err);
-  return `Database rejected this row: ${message.slice(0, 160)}`;
+  return `Database imekataa mstari huu: ${message.slice(0, 160)}`;
 }
 
 /** Bulk register guards from a CSV file (mirrors bulkImportUsers). */
@@ -607,7 +607,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
 
   const file = formData.get("file") as File | null;
   if (!file) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "No CSV file provided." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Hakuna faili la CSV lililowekwa." };
   }
 
   const csvContent = await file.text();
@@ -620,7 +620,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       imported: 0,
       failed: 0,
       errors: [],
-      error: "The uploaded CSV file is empty or does not contain valid data rows.",
+      error: "Faili la CSV ni tupu au halina mistari sahihi ya taarifa.",
     };
   }
 
@@ -636,7 +636,7 @@ export async function bulkImportGuards(formData: FormData): Promise<BulkImportRe
       imported: 0,
       failed: rows.length,
       errors: [],
-      error: `Bulk import failed and no guards were registered. ${message.slice(0, 200)}`,
+      error: `Usajili wa wengi umeshindikana na hakuna mlinzi aliyesajiliwa. ${message.slice(0, 200)}`,
     };
   }
 }
@@ -711,7 +711,7 @@ async function importGuardRows(
       errors.push({
         row: 0,
         identifier: name,
-        reason: `Client '${name}' did not exist — created automatically`,
+        reason: `Mteja '${name}' hakuwepo — ameongezwa kiotomatiki`,
       });
     }
   }
@@ -747,7 +747,7 @@ async function importGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: `${issue?.path.join(".") || "row"}: ${issue?.message || "Invalid guard data"}`,
+        reason: `${issue?.path.join(".") || "row"}: ${issue?.message || "Taarifa za mlinzi si sahihi"}`,
       });
       continue;
     }
@@ -765,8 +765,8 @@ async function importGuardRows(
         identifier,
         reason:
           regionName && stationName
-            ? `Work site '${stationName}' under region '${regionName}' not found — add it under Store → Regions & Stations first`
-            : "Missing 'region' and/or 'station' column — both are required",
+            ? `Kituo '${stationName}' kwenye mkoa '${regionName}' hakikupatikana — kiongeze kwanza kwenye Stoo → Mikoa na Vituo`
+            : "Safu ya 'region' na/au 'station' haipo — zote mbili zinahitajika",
       });
       continue;
     }
@@ -781,8 +781,8 @@ async function importGuardRows(
         row: rowNum,
         identifier,
         reason: clientName
-          ? `Client '${clientName}' could not be registered — check the name and retry`
-          : "Missing 'client' column — the client (company) is required",
+          ? `Mteja '${clientName}' hakuweza kusajiliwa — hakiki jina kisha jaribu tena`
+          : "Safu ya 'client' haipo — mteja (kampuni) anahitajika",
       });
       continue;
     }
@@ -791,7 +791,7 @@ async function importGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Guard with name '${v.fullName}' is already registered in the system — row skipped`,
+        reason: `Mlinzi mwenye jina '${v.fullName}' tayari amesajiliwa kwenye mfumo — mstari umerukwa`,
       });
       continue;
     }
@@ -800,23 +800,23 @@ async function importGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Duplicate guard name '${v.fullName}' found in the same CSV — row skipped`,
+        reason: `Jina la mlinzi '${v.fullName}' limejirudia kwenye CSV hiyo hiyo — mstari umerukwa`,
       });
       continue;
     }
 
     if (existingEmployeeIds.has(v.employeeId.toLowerCase())) {
-      errors.push({ row: rowNum, identifier, reason: `Employee ID '${v.employeeId}' is already registered in the system` });
+      errors.push({ row: rowNum, identifier, reason: `Namba ya mtumishi '${v.employeeId}' tayari imesajiliwa kwenye mfumo` });
       continue;
     }
 
     if (seenInBatchEmployeeIds.has(v.employeeId.toLowerCase())) {
-      errors.push({ row: rowNum, identifier, reason: `Duplicate employee ID '${v.employeeId}' found in the same CSV` });
+      errors.push({ row: rowNum, identifier, reason: `Namba ya mtumishi '${v.employeeId}' imejirudia kwenye CSV hiyo hiyo` });
       continue;
     }
 
     if (seenInBatchEmails.has(v.email)) {
-      errors.push({ row: rowNum, identifier, reason: `Duplicate email '${v.email}' found in the same CSV` });
+      errors.push({ row: rowNum, identifier, reason: `Barua pepe '${v.email}' imejirudia kwenye CSV hiyo hiyo` });
       continue;
     }
 
@@ -867,7 +867,7 @@ async function importGuardRows(
     errors.push({
       row: e.rowNum,
       identifier: e.identifier,
-      reason: `Email '${e.email}' already has a guard profile (employee ID '${existingEmployeeId}') — skipped to avoid a duplicate profile`,
+      reason: `Barua pepe '${e.email}' tayari ina wasifu wa mlinzi (namba '${existingEmployeeId}') — imerukwa ili kuepuka wasifu unaojirudia`,
     });
     return false;
   });
@@ -883,8 +883,8 @@ async function importGuardRows(
     imported,
     failed: failedRows,
     errors,
-    message: `Successfully registered ${imported} guard(s). ${
-      failedRows > 0 ? `${failedRows} row(s) skipped due to errors.` : ""
+    message: `Walinzi ${imported} wamesajiliwa. ${
+      failedRows > 0 ? `Mistari ${failedRows} imerukwa kwa sababu ya makosa.` : ""
     }`,
   };
 }
@@ -920,7 +920,7 @@ async function insertImportedGuards(
       errors.push({
         row: 0,
         identifier: e.employeeId,
-        reason: `Supervisor '${e.supervisorEmail}' not found — imported without supervisor assignment`,
+        reason: `Msimamizi '${e.supervisorEmail}' hakupatikana — amesajiliwa bila msimamizi`,
       });
     }
   }
@@ -1042,25 +1042,25 @@ export async function partialBulkImportGuards(formData: FormData): Promise<BulkI
   const clientId = formData.get("clientId") as string | null;
 
   if (!file) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "No CSV file provided." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Hakuna faili la CSV lililowekwa." };
   }
 
   if (!stationId) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Please select a work site (station)." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Tafadhali chagua kituo cha kazi." };
   }
 
   if (!clientId) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Please select a client (company)." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Tafadhali chagua mteja (kampuni)." };
   }
 
   const station = await resolveStation(stationId);
   if (!station) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Selected work site does not exist." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Kituo ulichochagua hakipo." };
   }
 
   const client = await resolveClient(clientId);
   if (!client) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Selected client does not exist." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Mteja uliyemchagua hayupo." };
   }
 
   // Resolve default supervisor for this station if configured
@@ -1080,7 +1080,7 @@ export async function partialBulkImportGuards(formData: FormData): Promise<BulkI
       imported: 0,
       failed: 0,
       errors: [],
-      error: "The uploaded CSV file is empty or does not contain valid data rows.",
+      error: "Faili la CSV ni tupu au halina mistari sahihi ya taarifa.",
     };
   }
 
@@ -1099,7 +1099,7 @@ export async function partialBulkImportGuards(formData: FormData): Promise<BulkI
       imported: 0,
       failed: rows.length,
       errors: [],
-      error: `Partial bulk import failed. ${message.slice(0, 200)}`,
+      error: `Usajili wa kundi umeshindikana. ${message.slice(0, 200)}`,
     };
   }
 }
@@ -1165,7 +1165,7 @@ async function importPartialGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: "Guard full name is missing or too short (minimum 2 characters).",
+        reason: "Jina kamili la mlinzi halipo au ni fupi mno (angalau herufi 2).",
       });
       continue;
     }
@@ -1174,7 +1174,7 @@ async function importPartialGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Phone number '${phone || "empty"}' is invalid (must be between 7 and 20 characters).`,
+        reason: `Namba ya simu '${phone || "tupu"}' si sahihi (iwe kati ya herufi 7 na 20).`,
       });
       continue;
     }
@@ -1184,7 +1184,7 @@ async function importPartialGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Guard with name '${fullName}' is already registered in the system — row skipped.`,
+        reason: `Mlinzi mwenye jina '${fullName}' tayari amesajiliwa kwenye mfumo — mstari umerukwa.`,
       });
       continue;
     }
@@ -1193,7 +1193,7 @@ async function importPartialGuardRows(
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Duplicate guard name '${fullName}' found in the same CSV — row skipped.`,
+        reason: `Jina la mlinzi '${fullName}' limejirudia kwenye CSV hiyo hiyo — mstari umerukwa.`,
       });
       continue;
     }
@@ -1229,7 +1229,7 @@ async function importPartialGuardRows(
         errors.push({
           row: rowNum,
           identifier,
-          reason: `Employee ID '${employeeId}' is already registered in the system or duplicate in CSV.`,
+          reason: `Namba ya mtumishi '${employeeId}' tayari imesajiliwa kwenye mfumo au imejirudia kwenye CSV.`,
         });
         continue;
       }
@@ -1293,8 +1293,8 @@ async function importPartialGuardRows(
     imported,
     failed: failedRows,
     errors,
-    message: `Successfully registered ${imported} guard(s) to ${tier.workLocation}. ${
-      failedRows > 0 ? `${failedRows} row(s) skipped.` : ""
+    message: `Walinzi ${imported} wamesajiliwa kwenda ${tier.workLocation}. ${
+      failedRows > 0 ? `Mistari ${failedRows} imerukwa.` : ""
     }`,
   };
 }

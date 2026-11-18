@@ -7,22 +7,9 @@ import { Badge, Button, DataTable, Pagination, statusTone, type Column } from "@
 import { ShiftHeatmapStrip } from "@/components/ui/charts";
 import { formatDate } from "@/lib/utils";
 import type { GuardMonthlyDetail } from "@/lib/queries/monthly-summary";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
-const MONTHS = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-];
+const MONTHS = t.calendar.months.map((label, i) => ({ value: i + 1, label }));
 
 const TIER_TONE = {
   EXCELLENT: "emerald",
@@ -81,17 +68,17 @@ export function GuardMonthlyDetail({
   const columns: Column<DayRow>[] = [
     {
       key: "date",
-      header: "Date",
+      header: t.common.date,
       cell: (r) => <span className="font-semibold text-slate-800">{formatDate(r.date)}</span>,
     },
     {
       key: "shift",
-      header: "Shift",
+      header: t.records.shift,
       cell: (r) => <Badge tone={r.shift === "DAY" ? "brand" : "violet"}>{enumLabel(r.shift)}</Badge>,
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => (
         <span className="flex items-center gap-2">
           <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>
@@ -103,7 +90,7 @@ export function GuardMonthlyDetail({
     },
     {
       key: "category",
-      header: "Absence Category",
+      header: t.gmd.absenceCategory,
       cell: (r) =>
         r.absenceCategory ? (
           <Badge tone={statusTone(r.absenceCategory)}>
@@ -116,12 +103,12 @@ export function GuardMonthlyDetail({
     },
     {
       key: "reason",
-      header: "Reason / Notes",
+      header: t.gmd.reasonNotes,
       cell: (r) => <span className="text-slate-600">{r.reason || "—"}</span>,
     },
     {
       key: "supervisor",
-      header: "Recorded By",
+      header: t.records.recordedBy,
       cell: (r) => <span className="text-slate-600">{r.supervisorName || "—"}</span>,
     },
   ];
@@ -160,7 +147,7 @@ export function GuardMonthlyDetail({
 
         <a href={basePath}>
           <Button variant="secondary" size="sm">
-            <ArrowLeft className="h-4 w-4" /> Back
+            <ArrowLeft className="h-4 w-4" /> {t.common.back}
           </Button>
         </a>
       </div>
@@ -170,7 +157,7 @@ export function GuardMonthlyDetail({
         <div className="relative overflow-hidden rounded-2xl border border-brand-500/30 bg-linear-to-br from-brand-50 to-white p-5 shadow-sm sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-brand-800">
-              Attendance
+              {t.gmd.attendance}
             </span>
             <Award className="h-5 w-5 text-brand-600" />
           </div>
@@ -183,7 +170,7 @@ export function GuardMonthlyDetail({
               />
             </div>
             <p className="mt-2 text-[11px] text-slate-500">
-              On-time:{" "}
+              {t.gmd.onTime}:{" "}
               <span className="font-semibold text-slate-700">{detail.onTimePercentage}%</span>
             </p>
           </div>
@@ -191,42 +178,42 @@ export function GuardMonthlyDetail({
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold uppercase text-slate-500">
-            <span>Total Shifts</span>
+            <span>{t.gmd.totalShifts}</span>
             <Calendar className="h-4 w-4 text-slate-400" />
           </div>
           <p className="mt-3 text-2xl font-bold text-slate-900">{detail.totalShifts}</p>
-          <p className="mt-1 text-xs text-slate-400">recorded this month</p>
+          <p className="mt-1 text-xs text-slate-400">{t.gmd.recordedThisMonth}</p>
         </div>
 
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold uppercase text-emerald-800">
-            <span>Present</span>
+            <span>{t.gmd.present}</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <p className="mt-3 text-2xl font-bold text-emerald-900">{detail.presentCount}</p>
-          <p className="mt-1 text-xs text-emerald-700">on-time clock-ins</p>
+          <p className="mt-1 text-xs text-emerald-700">{t.gmd.onTimeClockIns}</p>
         </div>
 
         <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold uppercase text-amber-800">
-            <span>Late Arrivals</span>
+            <span>{t.gmd.lateArrivals}</span>
             <Clock className="h-4 w-4 text-amber-600" />
           </div>
           <p className="mt-3 text-2xl font-bold text-amber-900">{detail.lateCount}</p>
           <p className="mt-1 text-xs font-medium text-amber-700">
-            {detail.totalMinutesLate} min total delay
+            {detail.totalMinutesLate} {t.gmd.minTotalDelay}
           </p>
         </div>
 
         <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-5 shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold uppercase text-rose-800">
-            <span>Absences</span>
+            <span>{t.gmd.absences}</span>
             <XCircle className="h-4 w-4 text-rose-600" />
           </div>
           <p className="mt-3 text-2xl font-bold text-rose-900">{detail.absentCount}</p>
           <p className="mt-1 text-[11px] text-rose-700">
-            {detail.sickCount} sick · {detail.permittedCount} perm · {detail.notPermittedCount}{" "}
-            unexcused
+            {detail.sickCount} {t.gmd.sick} · {detail.permittedCount} {t.gmd.perm} ·{" "}
+            {detail.notPermittedCount} {t.gmd.unexcused}
           </p>
         </div>
       </div>
@@ -242,11 +229,13 @@ export function GuardMonthlyDetail({
       <div className="space-y-4">
         <div>
           <h3 className="text-base font-bold text-slate-900">
-            Daily Attendance Log — {detail.monthName} {detail.year}
+            {t.gmd.dailyLog} — {detail.monthName} {detail.year}
           </h3>
           <p className="text-xs text-slate-500">
-            Every recorded shift for {detail.guard.fullName} ({detail.guard.employeeId}) between{" "}
-            {detail.startDate} and {detail.endDate}.
+            {t.gmd.everyShift
+              .replace("{name}", `${detail.guard.fullName} (${detail.guard.employeeId})`)
+              .replace("{from}", detail.startDate)
+              .replace("{to}", detail.endDate)}
           </p>
         </div>
 
@@ -254,7 +243,7 @@ export function GuardMonthlyDetail({
           <DataTable
             columns={columns}
             rows={paginatedLogs}
-            empty="No attendance records for this month yet."
+            empty={t.gmd.empty}
           />
         </div>
 
@@ -268,7 +257,7 @@ export function GuardMonthlyDetail({
               setPageSize(newSize);
               setPage(1);
             }}
-            itemLabel="daily records"
+            itemLabel={t.gmd.dailyRecords}
           />
         )}
       </div>

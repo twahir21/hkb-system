@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Badge, Button, Modal } from "@/components/ui";
 import {
@@ -36,11 +37,11 @@ function AddActionForm({ incidentId }: { incidentId: string }) {
         required
         rows={2}
         className={inputCls}
-        placeholder="Action taken (e.g. Police informed, extra guard posted)"
+        placeholder={t.inc.actionPlaceholder}
       />
       <Feedback state={state} />
       <Button type="submit" size="sm" disabled={pending}>
-        {pending ? "Saving…" : "Add action"}
+        {pending ? t.common.saving : t.inc.addAction}
       </Button>
     </form>
   );
@@ -58,11 +59,11 @@ function StatusForm({ incident }: { incident: IncidentRow }) {
       <input
         name="note"
         className={inputCls}
-        placeholder={resolve ? "How was it solved? (optional)" : "Why reopen? (optional)"}
+        placeholder={resolve ? t.inc.howSolved : t.inc.whyReopen}
       />
       <Feedback state={state} />
       <Button type="submit" size="sm" variant={resolve ? "success" : "secondary"} disabled={pending}>
-        {pending ? "Saving…" : resolve ? "Mark as solved" : "Reopen"}
+        {pending ? t.common.saving : resolve ? t.inc.markSolved : t.inc.reopen}
       </Button>
     </form>
   );
@@ -78,12 +79,12 @@ export function IncidentList({ rows, canAct }: { rows: IncidentRow[]; canAct: bo
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-              <th className="px-4 py-3 font-semibold">Incident</th>
-              <th className="px-4 py-3 font-semibold">Site / Client</th>
-              <th className="px-4 py-3 font-semibold">Level</th>
-              <th className="px-4 py-3 font-semibold">Reported by</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 text-right font-semibold">Actions</th>
+              <th className="px-4 py-3 font-semibold">{t.inc.incident}</th>
+              <th className="px-4 py-3 font-semibold">{t.inc.siteClient}</th>
+              <th className="px-4 py-3 font-semibold">{t.inc.levelShort}</th>
+              <th className="px-4 py-3 font-semibold">{t.inc.reportedBy}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.status}</th>
+              <th className="px-4 py-3 text-right font-semibold">{t.common.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -92,12 +93,12 @@ export function IncidentList({ rows, canAct }: { rows: IncidentRow[]; canAct: bo
                 <td className="px-4 py-3">
                   <p className="font-medium text-slate-800">{r.title}</p>
                   <p className="text-xs text-slate-500">
-                    {formatDateTime(r.occurredAt)} · {r.branchName ?? "No branch"}
+                    {formatDateTime(r.occurredAt)} · {r.branchName ?? t.user.noBranch}
                   </p>
                 </td>
                 <td className="px-4 py-3 text-slate-600">
                   <p>{r.stationName ?? "—"}</p>
-                  <p className="text-xs text-slate-400">{r.clientName ?? "No client"}</p>
+                  <p className="text-xs text-slate-400">{r.clientName ?? t.inc.noClient}</p>
                 </td>
                 <td className="px-4 py-3">
                   <Badge tone={LEVEL_TONES[r.level]}>{LEVEL_LABELS[r.level]}</Badge>
@@ -110,7 +111,7 @@ export function IncidentList({ rows, canAct }: { rows: IncidentRow[]; canAct: bo
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Button size="sm" variant="ghost" onClick={() => setOpenId(r.id)}>
-                    {r.actions.length} · Open
+                    {r.actions.length} · {t.common.open}
                   </Button>
                 </td>
               </tr>
@@ -118,7 +119,7 @@ export function IncidentList({ rows, canAct }: { rows: IncidentRow[]; canAct: bo
             {rows.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
-                  No incidents match.
+                  {t.inc.empty}
                 </td>
               </tr>
             )}
@@ -142,33 +143,33 @@ export function IncidentList({ rows, canAct }: { rows: IncidentRow[]; canAct: bo
             </div>
             <dl className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <dt className="font-semibold text-slate-500">Site</dt>
+                <dt className="font-semibold text-slate-500">{t.inc.site}</dt>
                 <dd>
                   {selected.stationName ?? "—"}
                   {selected.regionName ? ` (${selected.regionName})` : ""}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-slate-500">Client</dt>
+                <dt className="font-semibold text-slate-500">{t.clients.client}</dt>
                 <dd>{selected.clientName ?? "—"}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-slate-500">Branch</dt>
+                <dt className="font-semibold text-slate-500">{t.common.branch}</dt>
                 <dd>{selected.branchName ?? "—"}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-slate-500">Happened</dt>
+                <dt className="font-semibold text-slate-500">{t.inc.happened}</dt>
                 <dd>{formatDateTime(selected.occurredAt)}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-slate-500">Reported by</dt>
+                <dt className="font-semibold text-slate-500">{t.inc.reportedBy}</dt>
                 <dd>
                   {selected.reportedByName} · {formatDateTime(selected.createdAt)}
                 </dd>
               </div>
               {selected.resolvedAt && (
                 <div>
-                  <dt className="font-semibold text-slate-500">Solved by</dt>
+                  <dt className="font-semibold text-slate-500">{t.inc.solvedBy}</dt>
                   <dd>
                     {selected.resolvedByName} · {formatDateTime(selected.resolvedAt)}
                   </dd>
@@ -181,10 +182,10 @@ export function IncidentList({ rows, canAct }: { rows: IncidentRow[]; canAct: bo
 
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Actions taken
+                {t.inc.actionsTaken}
               </h4>
               {selected.actions.length === 0 ? (
-                <p className="text-slate-400">No actions yet.</p>
+                <p className="text-slate-400">{t.inc.noActions}</p>
               ) : (
                 <ol className="space-y-2">
                   {selected.actions.map((a) => (

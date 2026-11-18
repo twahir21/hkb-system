@@ -74,33 +74,33 @@ export const movementSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.type === "IN" && !v.toStationId) {
-      ctx.addIssue({ code: "custom", message: "IN requires a destination station" });
+      ctx.addIssue({ code: "custom", message: "Ununuzi unahitaji kituo kinachopokea" });
     }
     if (v.type === "ISSUED" && (!v.fromStationId || !v.toStationId)) {
       ctx.addIssue({
         code: "custom",
-        message: "Issuing stock requires both source and destination stations",
+        message: "Kutoa mali kunahitaji kituo kinachotoa na kinachopokea",
       });
     }
     if (["OUT", "LOST", "ADJUSTMENT", "RETURNED"].includes(v.type) && !v.fromStationId) {
-      ctx.addIssue({ code: "custom", message: "This movement requires a source station" });
+      ctx.addIssue({ code: "custom", message: "Mwenendo huu unahitaji kituo kinachotoa" });
     }
     if (v.type === "TRANSFER" && (!v.fromStationId || !v.toStationId)) {
       ctx.addIssue({
         code: "custom",
-        message: "Transfers require both source and destination stations",
+        message: "Uhamisho unahitaji kituo kinachotoa na kinachopokea",
       });
     }
     if (["LOST", "ADJUSTMENT"].includes(v.type) && !v.reason) {
       ctx.addIssue({
         code: "custom",
-        message: "A reason is required for lost stock and adjustments",
+        message: "Sababu inahitajika kwa mali iliyopotea na marekebisho",
       });
     }
     if (v.type === "RETURNED" && !v.returnedMovementId) {
       ctx.addIssue({
         code: "custom",
-        message: "A return must reference the original issue record",
+        message: "Urudishaji lazima uhusiane na utoaji wa awali",
       });
     }
   });
@@ -114,7 +114,7 @@ export const stockTransferSchema = z
     reason: z.string().trim().min(3).max(2000),
   })
   .refine((v) => v.fromStationId !== v.toStationId, {
-    message: "Source and destination stations must differ",
+    message: "Kituo kinachotoa na kinachopokea lazima viwe tofauti",
   });
 
 export const stockTransferActionSchema = z.object({

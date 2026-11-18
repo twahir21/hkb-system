@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import {
   BarChart,
   Bar,
@@ -33,7 +34,7 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
               </span>
               <span className="font-bold text-slate-900">
                 {entry.value}
-                {entry.name === "Attendance Rate" ? "%" : " shifts"}
+                {entry.name === t.charts.rateSeries ? "%" : ` ${t.charts.shifts}`}
               </span>
             </div>
           ))}
@@ -61,10 +62,10 @@ export function SupervisorComparisonBarChart({
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
           <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-            Supervisor Operational Comparison
+            {t.charts.supTitle}
           </h3>
           <p className="text-xs text-slate-500">
-            Attendance rate and total shifts managed by supervisors
+            {t.charts.supSub}
           </p>
         </div>
       </div>
@@ -72,7 +73,7 @@ export function SupervisorComparisonBarChart({
       <div style={{ width: "100%", height: 260 }}>
         {displayData.length === 0 ? (
           <div className="flex h-full items-center justify-center text-xs text-slate-400">
-            No supervisor stats available.
+            {t.charts.supEmpty}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -101,13 +102,13 @@ export function SupervisorComparisonBarChart({
               />
               <Bar
                 dataKey="attendanceRate"
-                name="Attendance Rate (%)"
+                name={t.charts.rateSeries}
                 fill="#4f46e5"
                 radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="totalShifts"
-                name="Shifts Managed"
+                name={t.charts.shiftsManaged}
                 fill="#94a3b8"
                 radius={[4, 4, 0, 0]}
               />

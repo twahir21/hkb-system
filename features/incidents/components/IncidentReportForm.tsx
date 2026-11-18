@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Button, Card } from "@/components/ui";
 import { reportIncident } from "@/features/incidents/actions/incidents.actions";
@@ -31,17 +32,17 @@ export function IncidentReportForm({
   );
 
   return (
-    <Card title="Report incident" subtitle="Anything that happened at a site and needs follow-up">
+    <Card title={t.inc.report} subtitle={t.inc.reportSub}>
       <form action={formAction} className="space-y-3">
         <label className="block">
-          <span className={labelCls}>Title</span>
-          <input name="title" required className={inputCls} placeholder="e.g. Break-in attempt at gate" />
+          <span className={labelCls}>{t.inc.title}</span>
+          <input name="title" required className={inputCls} placeholder={t.inc.titlePlaceholder} />
         </label>
         <label className="block">
-          <span className={labelCls}>Site</span>
+          <span className={labelCls}>{t.inc.site}</span>
           <select name="stationId" required className={inputCls} defaultValue="">
             <option value="" disabled>
-              Choose site…
+              {t.guard.selectSite}
             </option>
             {sites.map((s) => (
               <option key={s.id} value={s.id}>
@@ -51,9 +52,9 @@ export function IncidentReportForm({
           </select>
         </label>
         <label className="block">
-          <span className={labelCls}>Client (optional)</span>
+          <span className={labelCls}>{t.inc.clientOptional}</span>
           <select name="clientId" className={inputCls} defaultValue="">
-            <option value="">— None —</option>
+            <option value="">— {t.inc.none} —</option>
             {clients
               .filter((c) => c.isActive)
               .map((c) => (
@@ -65,7 +66,7 @@ export function IncidentReportForm({
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className={labelCls}>Emergency level</span>
+            <span className={labelCls}>{t.inc.level}</span>
             <select name="level" required className={inputCls} defaultValue="MEDIUM">
               {LEVELS.map((l) => (
                 <option key={l} value={l}>
@@ -75,7 +76,7 @@ export function IncidentReportForm({
             </select>
           </label>
           <label className="block">
-            <span className={labelCls}>When</span>
+            <span className={labelCls}>{t.inc.when}</span>
             <input
               type="datetime-local"
               required
@@ -87,7 +88,7 @@ export function IncidentReportForm({
           </label>
         </div>
         <label className="block">
-          <span className={labelCls}>What happened</span>
+          <span className={labelCls}>{t.inc.what}</span>
           <textarea name="description" required rows={4} className={inputCls} />
         </label>
         {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
@@ -95,10 +96,10 @@ export function IncidentReportForm({
           <p className="text-sm font-medium text-emerald-700">{state.message}</p>
         )}
         <Button type="submit" size="sm" disabled={pending || sites.length === 0}>
-          {pending ? "Saving…" : "Report incident"}
+          {pending ? t.common.saving : t.inc.report}
         </Button>
         {sites.length === 0 && (
-          <p className="text-xs text-amber-600">No sites available. Ask the Storekeeper to add stations.</p>
+          <p className="text-xs text-amber-600">{t.inc.noSites}</p>
         )}
       </form>
     </Card>

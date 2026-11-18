@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState } from "react";
 import { Button, Card } from "@/components/ui";
 import { createBranch, setHqBranch } from "@/features/branches/actions/branches.actions";
@@ -14,20 +15,20 @@ export function BranchForm() {
   });
 
   return (
-    <Card title="Add branch" subtitle="A remote office run by an Office Assistant (e.g. Tabora)">
+    <Card title={t.branchesPage.add} subtitle={t.branchesPage.addSub}>
       <form action={formAction} className="space-y-3">
         <label className="block">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Name
+            {t.common.name}
           </span>
-          <input name="name" required className={inputCls} placeholder="e.g. Mwanza" />
+          <input name="name" required className={inputCls} placeholder={t.branchesPage.namePlaceholder} />
         </label>
         {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
         {state.ok && state.message && (
           <p className="text-sm font-medium text-emerald-700">{state.message}</p>
         )}
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : "Add branch"}
+          {pending ? t.common.saving : t.branchesPage.add}
         </Button>
       </form>
     </Card>
@@ -42,7 +43,7 @@ export function MakeHqButton({ id }: { id: string }) {
     <form action={formAction} className="inline">
       <input type="hidden" name="id" value={id} />
       <Button type="submit" size="sm" variant="ghost" disabled={pending} title={state.error ?? ""}>
-        Make HQ
+        {t.branchesPage.makeHq}
       </Button>
     </form>
   );

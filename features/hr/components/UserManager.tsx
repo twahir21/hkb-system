@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState, useTransition, useMemo } from "react";
 import {
   UserPlus,
@@ -77,7 +78,7 @@ export function UserManager({
   const handleDelete = (userId: string, fullName: string) => {
     if (
       !confirm(
-        `Are you sure you want to delete account for "${fullName}"? This action cannot be undone.`,
+        t.user.confirmDelete.replace("{name}", fullName),
       )
     ) {
       return;
@@ -91,7 +92,7 @@ export function UserManager({
           setActionError(res.error);
         }
       } catch {
-        setActionError("Failed to delete user account.");
+        setActionError(t.user.deleteFailed);
       } finally {
         setDeletingId(null);
       }
@@ -103,24 +104,24 @@ export function UserManager({
   const columns: Column<UserRow>[] = [
     {
       key: "user",
-      header: "User / Account",
+      header: t.user.account,
       cell: (r) => (
         <div>
           <p className="font-semibold text-slate-900">{r.fullName}</p>
           <p className="font-mono text-xs text-slate-500">
-            {r.username ? `@${r.username}` : "No username"}
+            {r.username ? `@${r.username}` : t.user.noUsername}
           </p>
         </div>
       ),
     },
     {
       key: "email",
-      header: "Email",
+      header: t.common.email,
       cell: (r) => <span className="text-xs text-slate-600">{r.email}</span>,
     },
     {
       key: "gender",
-      header: "Gender",
+      header: t.user.gender,
       cell: (r) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
@@ -129,44 +130,44 @@ export function UserManager({
               : "bg-sky-50 text-sky-700 border border-sky-200"
           }`}
         >
-          {r.gender === "FEMALE" ? "Female" : "Male"}
+          {r.gender === "FEMALE" ? t.user.female : t.user.male}
         </span>
       ),
     },
     {
       key: "role",
-      header: "System Role",
+      header: t.user.role,
       cell: (r) => (
         <div className="space-y-1">
           <Badge tone={getRoleBadgeTone(r.role)}>{ROLE_LABELS[r.role]}</Badge>
-          <p className="text-[11px] text-slate-500">{r.branchName ?? "No branch"}</p>
+          <p className="text-[11px] text-slate-500">{r.branchName ?? t.user.noBranch}</p>
         </div>
       ),
     },
     {
       key: "auth",
-      header: "Sign-In Methods",
+      header: t.user.signIn,
       cell: (r) => (
         <div className="flex items-center gap-1.5 text-xs text-slate-500">
           {r.hasPassword && (
             <span
               className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-700"
-              title="Password authentication enabled"
+              title={t.user.passwordEnabled}
             >
-              <KeyRound className="h-3 w-3 text-slate-500" /> Password
+              <KeyRound className="h-3 w-3 text-slate-500" /> {t.login.password}
             </span>
           )}
           {r.hasGoogle && (
             <span
               className="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-0.5 font-medium text-amber-800"
-              title="Google OAuth linked"
+              title={t.user.googleLinked}
             >
               <Globe className="h-3 w-3 text-amber-700" /> Google
             </span>
           )}
           {!r.hasPassword && !r.hasGoogle && (
             <span className="text-[11px] text-amber-600">
-              Pending initial sign-in
+              {t.user.pendingSignIn}
             </span>
           )}
         </div>
@@ -174,7 +175,7 @@ export function UserManager({
     },
     {
       key: "createdAt",
-      header: "Registered",
+      header: t.user.registered,
       cell: (r) => (
         <span className="text-xs text-slate-500">
           {formatDate(r.createdAt.toISOString())}
@@ -194,7 +195,7 @@ export function UserManager({
             }}
             className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
           >
-            <Pencil className="h-3.5 w-3.5" /> Edit
+            <Pencil className="h-3.5 w-3.5" /> {t.common.edit}
           </button>
           {r.id !== currentUserId && (
             <button
@@ -207,7 +208,7 @@ export function UserManager({
               ) : (
                 <Trash2 className="h-3.5 w-3.5" />
               )}
-              Delete
+              {t.common.delete}
             </button>
           )}
         </div>
@@ -227,17 +228,17 @@ export function UserManager({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-slate-500">Total Staff / Users</p>
+            <p className="text-xs font-medium text-slate-500">{t.user.total}</p>
             <p className="text-xl font-bold text-slate-900">{users.length}</p>
           </div>
           <div className="h-9 w-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-xs">
-            All
+            {t.common.all}
           </div>
         </div>
 
         <div className="rounded-xl border border-sky-100 bg-sky-50/50 p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-sky-700">Male Staff</p>
+            <p className="text-xs font-medium text-sky-700">{t.user.maleStaff}</p>
             <p className="text-xl font-bold text-sky-950">{maleCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">
@@ -247,7 +248,7 @@ export function UserManager({
 
         <div className="rounded-xl border border-fuchsia-100 bg-fuchsia-50/50 p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-fuchsia-700">Female Staff</p>
+            <p className="text-xs font-medium text-fuchsia-700">{t.user.femaleStaff}</p>
             <p className="text-xl font-bold text-fuchsia-950">{femaleCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-fuchsia-100 px-2 py-1 text-xs font-semibold text-fuchsia-800">
@@ -264,7 +265,7 @@ export function UserManager({
               setQ(e.target.value);
               setPage(1);
             }}
-            placeholder="Search by name, email, or username…"
+            placeholder={t.user.search}
             className="w-full sm:w-72 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           <select
@@ -275,7 +276,7 @@ export function UserManager({
             }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
-            <option value="">All Roles</option>
+            <option value="">{t.user.allRoles}</option>
             {Object.entries(ROLE_LABELS).map(([r, label]) => (
               <option key={r} value={r}>
                 {label}
@@ -290,15 +291,15 @@ export function UserManager({
             }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
-            <option value="">All Genders</option>
-            <option value="MALE">Male ({maleCount})</option>
-            <option value="FEMALE">Female ({femaleCount})</option>
+            <option value="">{t.user.allGenders}</option>
+            <option value="MALE">{t.user.male} ({maleCount})</option>
+            <option value="FEMALE">{t.user.female} ({femaleCount})</option>
           </select>
         </div>
 
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => setBulkOpen(true)}>
-            <Upload className="h-4 w-4" /> Bulk Import (CSV)
+            <Upload className="h-4 w-4" /> {t.user.bulk}
           </Button>
           <Button
             onClick={() => {
@@ -306,7 +307,7 @@ export function UserManager({
               setOpen(true);
             }}
           >
-            <UserPlus className="h-4 w-4" /> Register New User
+            <UserPlus className="h-4 w-4" /> {t.user.registerNew}
           </Button>
         </div>
       </div>
@@ -315,7 +316,7 @@ export function UserManager({
         <DataTable
           columns={columns}
           rows={paginatedUsers}
-          empty="No user accounts found matching your criteria."
+          empty={t.user.empty}
         />
       </div>
 
@@ -329,7 +330,7 @@ export function UserManager({
             setPageSize(newSize);
             setPage(1);
           }}
-          itemLabel="user accounts"
+          itemLabel={t.user.accounts}
         />
       )}
 
@@ -338,8 +339,8 @@ export function UserManager({
         onClose={() => setOpen(false)}
         title={
           editing
-            ? `Edit Account — ${editing.fullName}`
-            : "Register New System User"
+            ? `${t.user.editTitle} — ${editing.fullName}`
+            : t.user.registerTitle
         }
       >
         <UserForm

@@ -39,7 +39,7 @@ import { StaffEditTimeModal } from "./StaffEditTimeModal";
 import { formatDate } from "@/lib/utils";
 import { StaffAttendanceCharts } from "./charts/StaffAttendanceCharts";
 import { BarChart3, FileDown } from "lucide-react";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 type ViewTab = "sheet" | "analytics" | "history";
 
@@ -181,15 +181,15 @@ export function StaffAttendanceView({
       }
       const res = await markStaffAttendance({ ok: false }, fd);
       if (!res.ok) {
-        setActionError(res.error || "Failed to mark attendance.");
+        setActionError(res.error || t.sa.markFailed);
       } else {
-        setActionMessage(res.message || "Marked as Present.");
+        setActionMessage(res.message || t.sa.markedPresent);
       }
     });
   };
 
   const handleClear = (userId: string, name: string) => {
-    if (!confirm(`Are you sure you want to clear attendance record for ${name}?`)) {
+    if (!confirm(t.sa.confirmClear.replace("{name}", name))) {
       return;
     }
     setActionError(null);
@@ -200,9 +200,9 @@ export function StaffAttendanceView({
       fd.append("date", date);
       const res = await clearStaffAttendance({ ok: false }, fd);
       if (!res.ok) {
-        setActionError(res.error || "Failed to clear attendance.");
+        setActionError(res.error || t.sa.clearFailed);
       } else {
-        setActionMessage(res.message || "Attendance record cleared.");
+        setActionMessage(res.message || t.sa.cleared);
       }
     });
   };
@@ -222,9 +222,9 @@ export function StaffAttendanceView({
       );
       const res = await signOutStaff({ ok: false }, fd);
       if (!res.ok) {
-        setActionError(res.error || "Failed to sign out.");
+        setActionError(res.error || t.sa.signOutFailed);
       } else {
-        setActionMessage(res.message || "Signed out.");
+        setActionMessage(res.message || t.sa.signedOut);
       }
     });
   };
@@ -239,28 +239,16 @@ export function StaffAttendanceView({
       const res = await markAllStaffPresent({ ok: false }, fd);
       setBatchModalOpen(false);
       if (!res.ok) {
-        setActionError(res.error || "Batch operation failed.");
+        setActionError(res.error || t.sa.batchFailed);
       } else {
-        setActionMessage(res.message || "Batch attendance marked.");
+        setActionMessage(res.message || t.sa.batchDone);
       }
     });
   };
 
   const exportCSV = () => {
     const headers = [
-      "Date",
-      "Staff Name",
-      "Email",
-      "Role",
-      "Gender",
-      "Status",
-      "Check-In Time",
-      "Sign-Out Time",
-      "Late (mins)",
-      "Absence Category",
-      "Allowed Days",
-      "Reason",
-      "Recorded By",
+      ...t.sa.csvHeaders,
     ];
 
     const dataRows = filteredHistory.map((h) => [
@@ -321,10 +309,10 @@ export function StaffAttendanceView({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-            Staff Attendance
+            {t.nav.staffAttendance}
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Track daily roll call, late arrivals, absence records, and analytics for office and operational staff.
+            {t.sa.subtitle}
           </p>
         </div>
 
@@ -342,7 +330,7 @@ export function StaffAttendanceView({
               className="h-9 px-3 text-xs font-semibold shadow-xs"
             >
               <FileDown className="h-4 w-4 mr-1.5 text-indigo-600" />
-              Download PDF Report
+              {t.sa.downloadReport}
             </Button>
           </a>
 
@@ -359,7 +347,7 @@ export function StaffAttendanceView({
               }
             >
               <Calendar className="h-3.5 w-3.5" />
-              Daily Roll Call
+              {t.sa.rollCall}
             </button>
             <button
               type="button"
@@ -372,7 +360,7 @@ export function StaffAttendanceView({
               }
             >
               <BarChart3 className="h-3.5 w-3.5" />
-              Visual Analytics
+              {t.sa.analytics}
             </button>
             <button
               type="button"
@@ -385,7 +373,7 @@ export function StaffAttendanceView({
               }
             >
               <FileText className="h-3.5 w-3.5" />
-              Records
+              {t.sa.records}
             </button>
           </div>
         </div>
@@ -399,7 +387,7 @@ export function StaffAttendanceView({
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between text-slate-500">
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Total Staff
+                  {t.sa.totalStaff}
                 </span>
                 <Users className="h-4 w-4" />
               </div>
@@ -407,14 +395,14 @@ export function StaffAttendanceView({
                 {metrics.total}
               </p>
               <p className="mt-1 text-xs text-slate-400">
-                {metrics.maleCount}M · {metrics.femaleCount}F
+                {metrics.maleCount}{t.sa.m} · {metrics.femaleCount}{t.sa.f}
               </p>
             </div>
 
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 shadow-sm">
               <div className="flex items-center justify-between text-emerald-700">
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Present
+                  {t.gmd.present}
                 </span>
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               </div>
@@ -423,7 +411,7 @@ export function StaffAttendanceView({
               </p>
               <p className="mt-1 text-xs text-emerald-600 font-medium">
                 {metrics.total
-                  ? `${Math.round((metrics.present / metrics.total) * 100)}% on time`
+                  ? `${Math.round((metrics.present / metrics.total) * 100)}% ${t.sa.onTime}`
                   : "0%"}
               </p>
             </div>
@@ -431,7 +419,7 @@ export function StaffAttendanceView({
             <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-4 shadow-sm">
               <div className="flex items-center justify-between text-amber-700">
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Late
+                  {t.charts.late}
                 </span>
                 <Clock className="h-4 w-4 text-amber-600" />
               </div>
@@ -440,7 +428,7 @@ export function StaffAttendanceView({
               </p>
               <p className="mt-1 text-xs text-amber-600 font-medium">
                 {metrics.total
-                  ? `${Math.round((metrics.late / metrics.total) * 100)}% delayed`
+                  ? `${Math.round((metrics.late / metrics.total) * 100)}% ${t.sa.delayed}`
                   : "0%"}
               </p>
             </div>
@@ -448,7 +436,7 @@ export function StaffAttendanceView({
             <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-4 shadow-sm">
               <div className="flex items-center justify-between text-rose-700">
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Absent
+                  {t.charts.absent}
                 </span>
                 <XCircle className="h-4 w-4 text-rose-600" />
               </div>
@@ -457,7 +445,7 @@ export function StaffAttendanceView({
               </p>
               <p className="mt-1 text-xs text-rose-600 font-medium">
                 {metrics.total
-                  ? `${Math.round((metrics.absent / metrics.total) * 100)}% absent`
+                  ? `${Math.round((metrics.absent / metrics.total) * 100)}% ${t.sa.absentPct}`
                   : "0%"}
               </p>
             </div>
@@ -465,7 +453,7 @@ export function StaffAttendanceView({
             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-sm">
               <div className="flex items-center justify-between text-slate-500">
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Unmarked
+                  {t.sa.unmarked}
                 </span>
                 <HelpCircle className="h-4 w-4" />
               </div>
@@ -473,7 +461,7 @@ export function StaffAttendanceView({
                 {metrics.unmarked}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                {metrics.unmarked === 0 ? "All recorded" : "Pending action"}
+                {metrics.unmarked === 0 ? t.sa.allRecorded : t.sa.pendingAction}
               </p>
             </div>
           </div>
@@ -487,7 +475,7 @@ export function StaffAttendanceView({
                 size="sm"
                 onClick={handlePrevDay}
                 className="h-9 px-2.5"
-                title="Previous Day"
+                title={t.sa.prevDay}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -506,7 +494,7 @@ export function StaffAttendanceView({
                 size="sm"
                 onClick={handleNextDay}
                 className="h-9 px-2.5"
-                title="Next Day"
+                title={t.sa.nextDay}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -518,7 +506,7 @@ export function StaffAttendanceView({
                 onClick={handleToday}
                 className="h-9 px-3 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700"
               >
-                Today
+                {t.sa.today}
               </Button>
 
               <span className="ml-2 hidden text-xs font-medium text-slate-500 md:inline">
@@ -537,7 +525,7 @@ export function StaffAttendanceView({
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-9 px-3"
                 >
                   <CheckCheck className="h-3.5 w-3.5 mr-1.5" />
-                  Mark All Unmarked as Present
+                  {t.sa.markAll}
                 </Button>
               </div>
             )}
@@ -549,7 +537,7 @@ export function StaffAttendanceView({
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search staff name or email..."
+                placeholder={t.sa.search}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
@@ -562,7 +550,7 @@ export function StaffAttendanceView({
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none"
               >
-                <option value="">All Roles</option>
+                <option value="">{t.user.allRoles}</option>
                 {STAFF_ROLES.map((r) => (
                   <option key={r} value={r}>
                     {ROLE_LABELS[r]}
@@ -575,11 +563,11 @@ export function StaffAttendanceView({
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none"
               >
-                <option value="">All Statuses</option>
-                <option value="PRESENT">Present</option>
-                <option value="LATE">Late</option>
-                <option value="ABSENT">Absent</option>
-                <option value="UNMARKED">Unmarked</option>
+                <option value="">{t.incidentsPage.allStatuses}</option>
+                <option value="PRESENT">{t.status.PRESENT}</option>
+                <option value="LATE">{t.status.LATE}</option>
+                <option value="ABSENT">{t.status.ABSENT}</option>
+                <option value="UNMARKED">{t.sa.unmarked}</option>
               </select>
 
               {(search || roleFilter || statusFilter) && (
@@ -593,7 +581,7 @@ export function StaffAttendanceView({
                   }}
                   className="text-xs text-slate-500 hover:text-slate-800"
                 >
-                  Clear Filters
+                  {t.sa.clearFilters}
                 </Button>
               )}
             </div>
@@ -605,13 +593,13 @@ export function StaffAttendanceView({
               <table className="w-full text-left text-xs text-slate-600">
                 <thead className="border-b border-slate-200 bg-slate-50/80 font-bold uppercase tracking-wider text-slate-500">
                   <tr>
-                    <th className="px-4 py-3.5">Staff Member</th>
-                    <th className="px-4 py-3.5">Role</th>
-                    <th className="px-4 py-3.5">Gender</th>
-                    <th className="px-4 py-3.5">Status</th>
-                    <th className="px-4 py-3.5">Check-in / Details</th>
-                    <th className="px-4 py-3.5">Recorded By</th>
-                    <th className="px-4 py-3.5 text-right">Actions</th>
+                    <th className="px-4 py-3.5">{t.sa.staffMember}</th>
+                    <th className="px-4 py-3.5">{t.dash.role}</th>
+                    <th className="px-4 py-3.5">{t.user.gender}</th>
+                    <th className="px-4 py-3.5">{t.common.status}</th>
+                    <th className="px-4 py-3.5">{t.sa.checkInDetails}</th>
+                    <th className="px-4 py-3.5">{t.records.recordedBy}</th>
+                    <th className="px-4 py-3.5 text-right">{t.common.actions}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -621,7 +609,7 @@ export function StaffAttendanceView({
                         colSpan={7}
                         className="py-12 text-center text-slate-400"
                       >
-                        No staff members match the selected filters.
+                        {t.sa.noMatch}
                       </td>
                     </tr>
                   ) : (
@@ -662,7 +650,7 @@ export function StaffAttendanceView({
                           {/* Gender */}
                           <td className="px-4 py-3">
                             <span className="font-medium text-slate-600">
-                              {staff.gender === "FEMALE" ? "Female" : "Male"}
+                              {staff.gender === "FEMALE" ? t.user.female : t.user.male}
                             </span>
                           </td>
 
@@ -677,7 +665,7 @@ export function StaffAttendanceView({
                               ) : log.status === "LATE" ? (
                                 <Badge tone="amber">
                                   <Clock className="h-3 w-3 mr-1" />
-                                  {enumLabel("LATE")} (+{log.minutesLate ?? 0}m)
+                                  {enumLabel("LATE")} (+{log.minutesLate ?? 0}{t.myShift.minutes})
                                 </Badge>
                               ) : (
                                 <Badge tone="rose">
@@ -696,12 +684,12 @@ export function StaffAttendanceView({
                               <div className="space-y-0.5">
                                 {log.checkInTime && (
                                   <p className="font-medium text-slate-800">
-                                    In: {log.checkInTime}
+                                    {t.sa.in}: {log.checkInTime}
                                   </p>
                                 )}
                                 {log.checkOutTime && (
                                   <p className="font-medium text-slate-800">
-                                    Out: {log.checkOutTime}
+                                    {t.sa.out}: {log.checkOutTime}
                                   </p>
                                 )}
                                 {log.reason && (
@@ -717,7 +705,7 @@ export function StaffAttendanceView({
                                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:underline"
                                   >
                                     <FileCheck className="h-3 w-3" />
-                                    View Note
+                                    {t.sa.viewNote}
                                   </a>
                                 )}
                                 {!log.checkInTime && !log.checkOutTime && !log.reason && (
@@ -760,7 +748,7 @@ export function StaffAttendanceView({
                                   className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900"
                                 >
                                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 mr-1" />
-                                  Present
+                                  {t.status.PRESENT}
                                 </Button>
 
                                 <StaffLateModal
@@ -805,11 +793,11 @@ export function StaffAttendanceView({
                                       size="sm"
                                       disabled={isPending}
                                       onClick={() => handleSignOut(staff.id)}
-                                      title="Sign out — record the current time"
+                                      title={t.sa.signOutTitle}
                                       className="border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 hover:text-indigo-900"
                                     >
                                       <LogOut className="h-3.5 w-3.5 text-indigo-600 mr-1" />
-                                      Sign Out
+                                      {t.sa.signOut}
                                     </Button>
                                   )}
 
@@ -821,7 +809,7 @@ export function StaffAttendanceView({
                                     onClick={() =>
                                       handleClear(staff.id, staff.fullName)
                                     }
-                                    title="Reset / Clear record"
+                                    title={t.sa.resetTitle}
                                     className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 px-2"
                                   >
                                     <RotateCcw className="h-3.5 w-3.5" />
@@ -858,7 +846,7 @@ export function StaffAttendanceView({
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search history by name or email..."
+                placeholder={t.sa.searchHistory}
                 value={historySearch}
                 onChange={(e) => setHistorySearch(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
@@ -871,7 +859,7 @@ export function StaffAttendanceView({
                 onChange={(e) => setHistoryRoleFilter(e.target.value)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none"
               >
-                <option value="">All Roles</option>
+                <option value="">{t.user.allRoles}</option>
                 {STAFF_ROLES.map((r) => (
                   <option key={r} value={r}>
                     {ROLE_LABELS[r]}
@@ -884,10 +872,10 @@ export function StaffAttendanceView({
                 onChange={(e) => setHistoryStatusFilter(e.target.value)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none"
               >
-                <option value="">All Statuses</option>
-                <option value="PRESENT">Present</option>
-                <option value="LATE">Late</option>
-                <option value="ABSENT">Absent</option>
+                <option value="">{t.incidentsPage.allStatuses}</option>
+                <option value="PRESENT">{t.status.PRESENT}</option>
+                <option value="LATE">{t.status.LATE}</option>
+                <option value="ABSENT">{t.status.ABSENT}</option>
               </select>
 
               <Button
@@ -897,7 +885,7 @@ export function StaffAttendanceView({
                 className="text-xs font-semibold h-9 px-3"
               >
                 <Download className="h-3.5 w-3.5 mr-1.5" />
-                Export CSV
+                {t.sa.exportCsv}
               </Button>
 
               <a
@@ -912,7 +900,7 @@ export function StaffAttendanceView({
                   className="text-xs font-semibold h-9 px-3 text-indigo-700 border-indigo-200 bg-indigo-50 hover:bg-indigo-100"
                 >
                   <FileDown className="h-3.5 w-3.5 mr-1.5 text-indigo-600" />
-                  Download PDF
+                  {t.pex.exportPdf}
                 </Button>
               </a>
             </div>
@@ -925,13 +913,13 @@ export function StaffAttendanceView({
               <table className="w-full text-left text-xs text-slate-600">
                 <thead className="border-b border-slate-200 bg-slate-50/80 font-bold uppercase tracking-wider text-slate-500">
                   <tr>
-                    <th className="px-4 py-3.5">Date</th>
-                    <th className="px-4 py-3.5">Staff Member</th>
-                    <th className="px-4 py-3.5">Role</th>
-                    <th className="px-4 py-3.5">Status</th>
-                    <th className="px-4 py-3.5">Time / Details</th>
-                    <th className="px-4 py-3.5">Absence / Notes</th>
-                    <th className="px-4 py-3.5">Recorded By</th>
+                    <th className="px-4 py-3.5">{t.common.date}</th>
+                    <th className="px-4 py-3.5">{t.sa.staffMember}</th>
+                    <th className="px-4 py-3.5">{t.dash.role}</th>
+                    <th className="px-4 py-3.5">{t.common.status}</th>
+                    <th className="px-4 py-3.5">{t.sa.timeDetails}</th>
+                    <th className="px-4 py-3.5">{t.sa.absenceNotes}</th>
+                    <th className="px-4 py-3.5">{t.records.recordedBy}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -941,7 +929,7 @@ export function StaffAttendanceView({
                         colSpan={7}
                         className="py-12 text-center text-slate-400"
                       >
-                        No historical attendance records found.
+                        {t.sa.noHistory}
                       </td>
                     </tr>
                   ) : (
@@ -971,7 +959,7 @@ export function StaffAttendanceView({
                             <Badge tone="emerald">{enumLabel("PRESENT")}</Badge>
                           ) : item.status === "LATE" ? (
                             <Badge tone="amber">
-                              {enumLabel("LATE")} (+{item.minutesLate ?? 0}m)
+                              {enumLabel("LATE")} (+{item.minutesLate ?? 0}{t.myShift.minutes})
                             </Badge>
                           ) : (
                             <Badge tone="rose">
@@ -992,12 +980,12 @@ export function StaffAttendanceView({
                           <div className="space-y-0.5 max-w-xs">
                             {item.checkInTime && (
                               <p className="font-medium text-slate-800">
-                                In: {item.checkInTime}
+                                {t.sa.in}: {item.checkInTime}
                               </p>
                             )}
                             {item.checkOutTime && (
                               <p className="font-medium text-slate-800">
-                                Out: {item.checkOutTime}
+                                {t.sa.out}: {item.checkOutTime}
                               </p>
                             )}
                             {item.reason && (
@@ -1007,7 +995,7 @@ export function StaffAttendanceView({
                             )}
                             {item.allowedDays && (
                               <p className="text-[10px] text-slate-400">
-                                Allowed days: {item.allowedDays}
+                                {t.att.allowedDays}: {item.allowedDays}
                               </p>
                             )}
                             {item.documentUrl && (
@@ -1018,7 +1006,7 @@ export function StaffAttendanceView({
                                 className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:underline"
                               >
                                 <FileCheck className="h-3 w-3" />
-                                View Document
+                                {t.sa.viewDoc}
                               </a>
                             )}
                             {!item.reason && !item.documentUrl && (
@@ -1048,22 +1036,24 @@ export function StaffAttendanceView({
       <Modal
         open={batchModalOpen}
         onClose={() => setBatchModalOpen(false)}
-        title={`Batch Roll Call — ${formatDate(date)}`}
+        title={`${t.sa.batchTitle} — ${formatDate(date)}`}
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            This will mark all <span className="font-bold text-slate-900">{metrics.unmarked}</span> currently unmarked staff members as <span className="font-bold text-emerald-700">PRESENT</span> for {formatDate(date)}.
+            {t.sa.batchBodyA} <span className="font-bold text-slate-900">{metrics.unmarked}</span>{" "}
+            {t.sa.batchBodyB} <span className="font-bold text-emerald-700">{t.status.PRESENT.toUpperCase()}</span>{" "}
+            {t.sa.batchBodyC} {formatDate(date)}.
           </p>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-              Check-in Time (optional)
+              {t.sa.checkInOptional}
             </label>
             <input
               type="text"
               value={batchTime}
               onChange={(e) => setBatchTime(e.target.value)}
-              placeholder="e.g. 08:30 AM"
+              placeholder={t.sa.batchPlaceholder}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
@@ -1074,7 +1064,7 @@ export function StaffAttendanceView({
               type="button"
               onClick={() => setBatchModalOpen(false)}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
 
             <Button
@@ -1084,7 +1074,7 @@ export function StaffAttendanceView({
               onClick={handleBatchPresent}
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              {isPending ? "Recording..." : "Confirm Batch Present"}
+              {isPending ? t.sa.recording : t.sa.confirmBatch}
             </Button>
           </div>
         </div>

@@ -8,8 +8,8 @@ export const expenseCategories = ["RESTOCK", "TRANSPORT", "OTHER"] as const;
 const uuid = z.string().uuid();
 const money = z.coerce.number().nonnegative().max(100_000_000);
 const qty = z.coerce.number().positive().max(1_000_000);
-const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use a valid date (YYYY-MM-DD)");
-const monthStr = z.string().regex(/^\d{4}-\d{2}$/, "Use a valid month (YYYY-MM)");
+const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tumia tarehe sahihi (YYYY-MM-DD)");
+const monthStr = z.string().regex(/^\d{4}-\d{2}$/, "Tumia mwezi sahihi (YYYY-MM)");
 
 export const recordCreditSchema = z
   .object({
@@ -17,7 +17,7 @@ export const recordCreditSchema = z
     type: z.enum(creditTypes),
     description: z.string().trim().min(2).max(500),
     quantity: qty.optional(),
-    amount: money.refine((v) => v > 0, "Amount must be greater than zero"),
+    amount: money.refine((v) => v > 0, "Kiasi lazima kiwe zaidi ya sifuri"),
     date: dateStr,
     notes: z.string().trim().max(2000).optional(),
   })
@@ -25,26 +25,26 @@ export const recordCreditSchema = z
     if ((v.type === "FISH" || v.type === "MAIZE_FLOUR") && !v.quantity) {
       ctx.addIssue({
         code: "custom",
-        message: "Quantity is required when lending fish or maize flour",
+        message: "Idadi inahitajika unapokopesha samaki au unga",
       });
     }
   });
 
 export const settleCreditsSchema = z.object({
-  creditIds: z.array(uuid).min(1, "Select at least one debt to deduct"),
+  creditIds: z.array(uuid).min(1, "Chagua angalau deni moja la kukata"),
   deductionMonth: monthStr,
 });
 
 export const writeOffCreditSchema = z.object({
   creditId: uuid,
-  notes: z.string().trim().min(3, "A reason is required to write off a debt").max(2000),
+  notes: z.string().trim().min(3, "Sababu inahitajika kufuta deni").max(2000),
 });
 
 export const restockSchema = z.object({
   businessId: uuid,
   date: dateStr,
   quantity: qty,
-  unitCost: money.refine((v) => v > 0, "Unit cost must be greater than zero"),
+  unitCost: money.refine((v) => v > 0, "Bei ya kununua lazima iwe zaidi ya sifuri"),
   description: z.string().trim().min(2).max(500),
 });
 
@@ -53,13 +53,13 @@ export const recordSaleSchema = z
     businessId: uuid,
     date: dateStr,
     quantity: qty,
-    unitPrice: money.refine((v) => v > 0, "Unit price must be greater than zero"),
+    unitPrice: money.refine((v) => v > 0, "Bei ya kuuza lazima iwe zaidi ya sifuri"),
     saleType: z.enum(saleTypes),
     guardId: uuid.optional(),
   })
   .superRefine((v, ctx) => {
     if (v.saleType === "CREDIT_GUARD" && !v.guardId) {
-      ctx.addIssue({ code: "custom", message: "Select the guard buying on credit" });
+      ctx.addIssue({ code: "custom", message: "Chagua mlinzi anayenunua kwa mkopo" });
     }
   });
 
@@ -68,7 +68,7 @@ export const recordExpenseSchema = z.object({
   date: dateStr,
   category: z.enum(expenseCategories),
   description: z.string().trim().min(2).max(500),
-  amount: money.refine((v) => v > 0, "Amount must be greater than zero"),
+  amount: money.refine((v) => v > 0, "Kiasi lazima kiwe zaidi ya sifuri"),
 });
 
 export type RecordCreditInput = z.infer<typeof recordCreditSchema>;

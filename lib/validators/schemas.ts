@@ -7,8 +7,8 @@ import { z } from "zod";
 export const shiftTypeSchema = z.enum(["DAY", "NIGHT"]);
 
 export const loginSchema = z.object({
-  identifier: z.string().trim().min(1, "Username or email is required"),
-  password: z.string().min(1, "Password is required"),
+  identifier: z.string().trim().min(1, "Jina la mtumiaji au barua pepe linahitajika"),
+  password: z.string().min(1, "Nenosiri linahitajika"),
 });
 
 export const reportQuerySchema = z.object({

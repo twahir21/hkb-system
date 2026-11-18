@@ -10,7 +10,7 @@ import { writeAuditLog } from "@/lib/auth/audit";
 import type { ActionState } from "@/features/attendance/actions/attendance.actions";
 
 const branchSchema = z.object({
-  name: z.string().trim().min(2, "Branch name must be at least 2 characters").max(150),
+  name: z.string().trim().min(2, "Jina la tawi liwe na angalau herufi 2").max(150),
 });
 
 /** Add a remote branch (e.g. Tabora, Dodoma). SUPER_ADMIN only. */
@@ -18,7 +18,7 @@ export async function createBranch(_prev: ActionState, formData: FormData): Prom
   const actor = await requirePermission("BRANCH_MANAGE");
   const parsed = branchSchema.safeParse({ name: formData.get("name") ?? undefined });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid branch" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Tawi si sahihi" };
   }
 
   try {
@@ -31,19 +31,19 @@ export async function createBranch(_prev: ActionState, formData: FormData): Prom
       metadata: { name: parsed.data.name },
     });
   } catch {
-    return { ok: false, error: "A branch with this name already exists." };
+    return { ok: false, error: "Tawi lenye jina hili tayari lipo." };
   }
 
   revalidatePath("/branches");
   revalidatePath("/users");
-  return { ok: true, message: "Branch created." };
+  return { ok: true, message: "Tawi limeongezwa." };
 }
 
 /** Make one branch the HQ (only one HQ at a time). SUPER_ADMIN only. */
 export async function setHqBranch(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requirePermission("BRANCH_MANAGE");
   const id = z.string().uuid().safeParse(formData.get("id"));
-  if (!id.success) return { ok: false, error: "Invalid branch." };
+  if (!id.success) return { ok: false, error: "Tawi si sahihi." };
 
   await db.update(branches).set({ isHq: false, updatedAt: new Date() }).where(ne(branches.id, id.data));
   const [branch] = await db
@@ -51,7 +51,7 @@ export async function setHqBranch(_prev: ActionState, formData: FormData): Promi
     .set({ isHq: true, updatedAt: new Date() })
     .where(eq(branches.id, id.data))
     .returning();
-  if (!branch) return { ok: false, error: "Branch no longer exists." };
+  if (!branch) return { ok: false, error: "Tawi hili halipo tena." };
 
   await writeAuditLog({
     actorId: actor.userId,
@@ -62,5 +62,5 @@ export async function setHqBranch(_prev: ActionState, formData: FormData): Promi
   });
 
   revalidatePath("/branches");
-  return { ok: true, message: `${branch.name} is now HQ.` };
+  return { ok: true, message: `${branch.name} sasa ni HQ.` };
 }

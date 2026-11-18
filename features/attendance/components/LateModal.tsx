@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Clock, CheckCircle2 } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
@@ -42,13 +43,13 @@ export function LateModal({
         className="border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 hover:text-amber-900"
       >
         <Clock className="h-3.5 w-3.5 text-amber-600 mr-1" />
-        Late
+        {t.charts.late}
       </Button>
 
       <Modal
         open={open}
         onClose={close}
-        title={`Mark Late Arrival — ${guardName}`}
+        title={`${t.att.markLate} — ${guardName}`}
       >
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="guardId" value={guardId} />
@@ -58,7 +59,7 @@ export function LateModal({
 
           <div>
             <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Quick Delay Selection
+              {t.att.quickDelay}
             </span>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {PRESET_MINUTES.map((m) => (
@@ -73,7 +74,7 @@ export function LateModal({
                       : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50")
                   }
                 >
-                  +{m}m
+                  +{m}{t.myShift.minutes}
                 </button>
               ))}
             </div>
@@ -81,7 +82,7 @@ export function LateModal({
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-              Minutes Late
+              {t.att.minutesLate}
             </label>
             <div className="relative">
               <input
@@ -97,19 +98,19 @@ export function LateModal({
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-xs font-medium text-slate-400">
-                minutes
+                {t.att.minutes}
               </span>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-              Reason / Supervisor Notes
+              {t.att.reasonNotes}
             </label>
             <textarea
               name="reason"
               rows={2}
-              placeholder="e.g. Transport delay, uniform issue, heavy traffic..."
+              placeholder={t.att.latePlaceholder}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
@@ -128,7 +129,7 @@ export function LateModal({
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" size="sm" onClick={close} type="button">
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               type="submit"
@@ -136,7 +137,7 @@ export function LateModal({
               disabled={pending}
               className="bg-amber-600 hover:bg-amber-500 text-white"
             >
-              {pending ? "Saving…" : "Save Late Arrival"}
+              {pending ? t.common.saving : t.att.saveLate}
             </Button>
           </div>
         </form>

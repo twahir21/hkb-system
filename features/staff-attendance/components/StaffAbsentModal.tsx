@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { UploadCloud, CheckCircle2, AlertCircle, FileCheck } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
@@ -11,16 +12,16 @@ import {
 type Category = "SICK" | "PERMITTED_REASON" | "NOT_PERMITTED";
 
 const CATEGORIES: { value: Category; label: string; hint: string }[] = [
-  { value: "SICK", label: "Sick", hint: "Medical leave with doctor's note" },
+  { value: "SICK", label: t.status.SICK, hint: t.att.sickHint },
   {
     value: "PERMITTED_REASON",
-    label: "Permitted",
-    hint: "Funeral / approved leave / personal",
+    label: t.status.PERMITTED_REASON,
+    hint: t.staffAtt.permittedHint,
   },
   {
     value: "NOT_PERMITTED",
-    label: "Not Permitted",
-    hint: "Unauthorized absence / payroll deduction",
+    label: t.status.NOT_PERMITTED,
+    hint: t.staffAtt.notPermittedHint,
   },
 ];
 
@@ -63,13 +64,13 @@ export function StaffAbsentModal({
       fd.append("file", file);
       const res = await uploadStaffSickNote({ ok: false }, fd);
       if (!res.ok) {
-        setUploadError(res.error || "Upload failed.");
+        setUploadError(res.error || t.att.uploadFailed);
       } else if (res.url) {
         setDocumentUrl(res.url);
       }
     } catch (err) {
       setUploadError(
-        err instanceof Error ? err.message : "Failed to upload document.",
+        err instanceof Error ? err.message : t.att.uploadFailed,
       );
     } finally {
       setUploadPending(false);
@@ -90,10 +91,10 @@ export function StaffAbsentModal({
         onClick={() => setOpen(true)}
         className="bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 border-rose-200"
       >
-        Absent
+        {t.charts.absent}
       </Button>
 
-      <Modal open={open} onClose={close} title={`Mark Absent — ${userName}`}>
+      <Modal open={open} onClose={close} title={`${t.att.markAbsent} — ${userName}`}>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="userId" value={userId} />
           <input type="hidden" name="date" value={date} />
@@ -105,7 +106,7 @@ export function StaffAbsentModal({
 
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Absence Category
+              {t.gmd.absenceCategory}
             </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {CATEGORIES.map((c) => {
@@ -142,7 +143,7 @@ export function StaffAbsentModal({
           {category === "PERMITTED_REASON" && (
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Allowed Days
+                {t.att.allowedDays}
               </label>
               <input
                 type="number"
@@ -161,14 +162,14 @@ export function StaffAbsentModal({
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-              Absence Reason / Notes
+              {t.staffAtt.absenceReason}
             </label>
             <textarea
               name="reason"
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g. Doctor appointment, family emergency, approved annual leave..."
+              placeholder={t.staffAtt.absencePlaceholder}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
@@ -176,13 +177,13 @@ export function StaffAbsentModal({
           {category === "SICK" && (
             <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-4 space-y-2">
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600">
-                Medical Document / Sick Note (Optional)
+                {t.staffAtt.medicalDoc}
               </label>
               {documentUrl ? (
                 <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800 border border-emerald-200">
                   <div className="flex items-center gap-2 truncate">
                     <FileCheck className="h-4 w-4 shrink-0 text-emerald-600" />
-                    <span className="truncate">Document attached</span>
+                    <span className="truncate">{t.att.docAttached}</span>
                   </div>
                   <a
                     href={documentUrl}
@@ -190,7 +191,7 @@ export function StaffAbsentModal({
                     rel="noreferrer"
                     className="ml-2 underline hover:text-emerald-900 font-semibold"
                   >
-                    View
+                    {t.common.view}
                   </a>
                 </div>
               ) : (
@@ -210,7 +211,7 @@ export function StaffAbsentModal({
                     className="shrink-0"
                   >
                     <UploadCloud className="h-3.5 w-3.5 mr-1" />
-                    {uploadPending ? "Uploading..." : "Upload"}
+                    {uploadPending ? t.documents.uploading : t.staffAtt.upload}
                   </Button>
                 </div>
               )}
@@ -230,13 +231,13 @@ export function StaffAbsentModal({
           {state.ok && (
             <div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-xs font-medium text-emerald-700 border border-emerald-200">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>{state.message || "Absence recorded."}</span>
+              <span>{state.message || t.staffAtt.absenceRecorded}</span>
             </div>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" type="button" onClick={close}>
-              Cancel
+              {t.common.cancel}
             </Button>
 
             <Button
@@ -245,7 +246,7 @@ export function StaffAbsentModal({
               disabled={pending}
               className="bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500"
             >
-              {pending ? "Saving..." : "Confirm Absence"}
+              {pending ? t.common.saving : t.staffAtt.confirmAbsence}
             </Button>
           </div>
         </form>

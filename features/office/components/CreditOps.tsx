@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { HandCoins, Plus, Ban } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
@@ -16,10 +17,10 @@ const inputCls =
 const labelSpanCls = "mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500";
 
 export const CREDIT_TYPE_LABELS: Record<string, string> = {
-  FISH: "Fish",
-  MAIZE_FLOUR: "Maize Flour",
-  MEDICAL: "Medical Treatment",
-  OTHER: "Other",
+  FISH: t.credit.types.FISH,
+  MAIZE_FLOUR: t.credit.types.MAIZE_FLOUR,
+  MEDICAL: t.credit.types.MEDICAL,
+  OTHER: t.credit.types.OTHER,
 };
 
 function Feedback({ state }: { state: ActionState }) {
@@ -47,10 +48,10 @@ function SubmitRow({
   return (
     <div className="flex justify-end gap-2">
       <Button variant="secondary" size="sm" onClick={onClose} type="button">
-        Close
+        {t.common.close}
       </Button>
       <Button type="submit" size="sm" disabled={pending}>
-        {pending ? "Saving…" : label}
+        {pending ? t.common.saving : label}
       </Button>
     </div>
   );
@@ -69,25 +70,25 @@ export function RecordCreditModal({ guards }: { guards: GuardOption[] }) {
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <Plus className="h-4 w-4" /> Record debt
+        <Plus className="h-4 w-4" /> {t.credit.record}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Record guard debt (credit)">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.credit.recordTitle}>
         <form action={formAction} className="space-y-4">
           <label className="block">
-            <span className={labelSpanCls}>Guard</span>
+            <span className={labelSpanCls}>{t.records.guard}</span>
             <select name="guardId" required className={inputCls} defaultValue="">
               <option value="" disabled>
-                Select guard…
+                {t.transfer.selectGuard}
               </option>
               {guards.map((g) => (
                 <option key={g.guardId} value={g.guardId}>
-                  {g.guardName} ({g.employeeId}){g.outstandingAmount > 0 ? ` — owes ${g.outstandingAmount.toLocaleString()} TZS` : ""}
+                  {g.guardName} ({g.employeeId}){g.outstandingAmount > 0 ? ` — ${t.credit.owes} ${g.outstandingAmount.toLocaleString()} TZS` : ""}
                 </option>
               ))}
             </select>
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Type</span>
+            <span className={labelSpanCls}>{t.common.type}</span>
             <select
               name="type"
               required
@@ -104,7 +105,7 @@ export function RecordCreditModal({ guards }: { guards: GuardOption[] }) {
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className={labelSpanCls}>Quantity{isGoods ? "" : " (optional)"}</span>
+              <span className={labelSpanCls}>{t.office.qty}{isGoods ? "" : ` (${t.common.optional})`}</span>
               <input
                 name="quantity"
                 type="number"
@@ -115,22 +116,22 @@ export function RecordCreditModal({ guards }: { guards: GuardOption[] }) {
               />
             </label>
             <label className="block">
-              <span className={labelSpanCls}>Amount (TZS)</span>
+              <span className={labelSpanCls}>{t.credit.amountTzs}</span>
               <input name="amount" type="number" min="1" step="1" required className={inputCls} />
             </label>
           </div>
           <label className="block">
-            <span className={labelSpanCls}>Description</span>
+            <span className={labelSpanCls}>{t.common.description}</span>
             <input
               name="description"
               required
               maxLength={500}
-              placeholder={isGoods ? "e.g. 2 kg maize flour" : "e.g. clinic visit + medicine"}
+              placeholder={isGoods ? t.credit.goodsPlaceholder : t.credit.medicalPlaceholder}
               className={inputCls}
             />
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Date</span>
+            <span className={labelSpanCls}>{t.common.date}</span>
             <input
               name="date"
               type="date"
@@ -140,11 +141,11 @@ export function RecordCreditModal({ guards }: { guards: GuardOption[] }) {
             />
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Notes (optional)</span>
+            <span className={labelSpanCls}>{t.credit.notesOptional}</span>
             <textarea name="notes" rows={2} className={inputCls} />
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record debt" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.credit.record} />
         </form>
       </Modal>
     </>
@@ -155,7 +156,7 @@ export function RecordCreditModal({ guards }: { guards: GuardOption[] }) {
 export function SettleEntryForm({
   creditIds,
   defaultMonth,
-  label = "Deduct",
+  label = t.credit.deduct,
   variant = "primary",
 }: {
   creditIds: string[];
@@ -175,7 +176,7 @@ export function SettleEntryForm({
       <input type="hidden" name="deductionMonth" value={defaultMonth} />
       <Button type="submit" size="sm" variant={variant} disabled={pending}>
         <HandCoins className="h-4 w-4" />
-        {pending ? "Deducting…" : label}
+        {pending ? t.credit.deducting : label}
       </Button>
       {state.error && <p className="text-xs text-rose-600">{state.error}</p>}
       {state.ok && state.message && <p className="text-xs text-emerald-700">{state.message}</p>}
@@ -193,24 +194,24 @@ export function WriteOffForm({ creditId }: { creditId: string }) {
   return (
     <>
       <Button variant="secondary" size="sm" onClick={() => setOpen(true)}>
-        <Ban className="h-4 w-4" /> Write off
+        <Ban className="h-4 w-4" /> {t.credit.writeOff}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Write off debt">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.credit.writeOffTitle}>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="creditId" value={creditId} />
           <label className="block">
-            <span className={labelSpanCls}>Reason (required)</span>
+            <span className={labelSpanCls}>{t.credit.reasonRequired}</span>
             <textarea
               name="notes"
               rows={3}
               required
               minLength={3}
-              placeholder="e.g. Office agreed to cover the treatment"
+              placeholder={t.credit.writeOffPlaceholder}
               className={inputCls}
             />
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Write off" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.credit.writeOff} />
         </form>
       </Modal>
     </>

@@ -72,7 +72,7 @@ export async function updateJobApplication(
   const actor = await requirePermission("JOB_APPLICATIONS_MANAGE");
 
   const id = formData.get("id");
-  if (typeof id !== "string" || !id) return { ok: false, error: "Missing application id" };
+  if (typeof id !== "string" || !id) return { ok: false, error: "Namba ya ombi haipo" };
 
   const status = formData.get("status") ?? undefined;
   const internalNotes = formData.get("internalNotes") ?? undefined;
@@ -83,14 +83,14 @@ export async function updateJobApplication(
       typeof internalNotes === "string" && internalNotes.trim() ? internalNotes : undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid update" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Mabadiliko si sahihi" };
   }
   const { status: nextStatus, internalNotes: notes } = parsed.data;
 
   const existing = await db.query.jobApplications.findFirst({
     where: eq(jobApplications.id, id),
   });
-  if (!existing) return { ok: false, error: "Job application not found." };
+  if (!existing) return { ok: false, error: "Ombi la kazi halikupatikana." };
 
   await db
     .update(jobApplications)
@@ -114,7 +114,7 @@ export async function updateJobApplication(
   });
 
   revalidatePath("/job-applications");
-  return { ok: true, message: "Job application updated." };
+  return { ok: true, message: "Ombi la kazi limesasishwa." };
 }
 
 /** HR / Super Admin — permanently delete an application (and its documents). */
@@ -125,12 +125,12 @@ export async function deleteJobApplication(
   const actor = await requirePermission("JOB_APPLICATIONS_MANAGE");
 
   const id = formData.get("id");
-  if (typeof id !== "string" || !id) return { ok: false, error: "Missing application id" };
+  if (typeof id !== "string" || !id) return { ok: false, error: "Namba ya ombi haipo" };
 
   const existing = await db.query.jobApplications.findFirst({
     where: eq(jobApplications.id, id),
   });
-  if (!existing) return { ok: false, error: "Job application not found." };
+  if (!existing) return { ok: false, error: "Ombi la kazi halikupatikana." };
 
   await db.delete(jobApplications).where(eq(jobApplications.id, id));
 
@@ -161,7 +161,7 @@ export async function deleteJobApplication(
   });
 
   revalidatePath("/job-applications");
-  return { ok: true, message: "Job application deleted." };
+  return { ok: true, message: "Ombi la kazi limefutwa." };
 }
 
 /**

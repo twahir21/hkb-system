@@ -1,5 +1,6 @@
 "use client";
 
+import { enumLabel, t } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import {
   FileDown,
@@ -73,9 +74,9 @@ export function GuardPayrollExportBuilder({
     includeDetails,
   ]);
 
-  const selectedClient = clients.find((c) => c.id === clientId)?.name ?? "All Clients (Chunked)";
+  const selectedClient = clients.find((c) => c.id === clientId)?.name ?? t.pex.allClientsChunked;
   const selectedSupervisor =
-    supervisors.find((s) => s.id === supervisorId)?.name ?? "All Supervisors";
+    supervisors.find((s) => s.id === supervisorId)?.name ?? t.msv.allSupervisors;
 
   return (
     <div className="space-y-6">
@@ -85,14 +86,13 @@ export function GuardPayrollExportBuilder({
         <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-300">
-              <FileSpreadsheet className="h-3.5 w-3.5" /> Client-Chunked Payroll Dossier
+              <FileSpreadsheet className="h-3.5 w-3.5" /> {t.pex.badge}
             </div>
             <h3 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Guard Directory &amp; Payroll Export
+              {t.pex.title}
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Export guard payroll working sheets structured by client accounts. Each client sheet includes
-              independent attendance rosters, debt/credit deductions, subtotals, and verification signature blocks.
+              {t.pex.subtitle}
             </p>
           </div>
 
@@ -103,14 +103,14 @@ export function GuardPayrollExportBuilder({
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
             >
-              <ExternalLink className="h-4 w-4" /> Preview in New Tab
+              <ExternalLink className="h-4 w-4" /> {t.pex.previewTab}
             </a>
             <a
               href={url}
               download
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm border border-white/20 transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/40"
             >
-              <FileDown className="h-4 w-4 text-amber-300" /> Export PDF
+              <FileDown className="h-4 w-4 text-amber-300" /> {t.pex.exportPdf}
             </a>
           </div>
         </div>
@@ -124,7 +124,7 @@ export function GuardPayrollExportBuilder({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-brand-600" />
-                <h4 className="font-semibold text-slate-900 text-base">Reporting Period</h4>
+                <h4 className="font-semibold text-slate-900 text-base">{t.pex.period}</h4>
               </div>
               <div className="flex rounded-lg bg-slate-100 p-0.5">
                 <button
@@ -136,7 +136,7 @@ export function GuardPayrollExportBuilder({
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  By Month
+                  {t.pex.byMonth}
                 </button>
                 <button
                   type="button"
@@ -147,14 +147,14 @@ export function GuardPayrollExportBuilder({
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  Custom Range
+                  {t.pex.customRange}
                 </button>
               </div>
             </div>
 
             {mode === "month" ? (
               <div>
-                <label className={labelCls}>Target Month</label>
+                <label className={labelCls}>{t.pex.targetMonth}</label>
                 <input
                   type="month"
                   value={month}
@@ -162,13 +162,13 @@ export function GuardPayrollExportBuilder({
                   className={inputCls}
                 />
                 <p className="mt-1.5 text-xs text-slate-400">
-                  Selects the full calendar month from 1st to the final day.
+                  {t.pex.monthHint}
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>Start Date</label>
+                  <label className={labelCls}>{t.rb.startDate}</label>
                   <input
                     type="date"
                     value={startDate}
@@ -177,7 +177,7 @@ export function GuardPayrollExportBuilder({
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>End Date</label>
+                  <label className={labelCls}>{t.rb.endDate}</label>
                   <input
                     type="date"
                     value={endDate}
@@ -193,20 +193,20 @@ export function GuardPayrollExportBuilder({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Filter className="h-4 w-4 text-brand-600" />
-              <h4 className="font-semibold text-slate-900 text-base">Scope &amp; Client Assignments</h4>
+              <h4 className="font-semibold text-slate-900 text-base">{t.pex.scope}</h4>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>
-                  <Building2 className="h-3 w-3" /> Client Account
+                  <Building2 className="h-3 w-3" /> {t.pex.clientAccount}
                 </label>
                 <select
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
                   className={inputCls}
                 >
-                  <option value="">All Clients (Grouped by Client Sheet)</option>
+                  <option value="">{t.pex.allClientsGrouped}</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -214,21 +214,20 @@ export function GuardPayrollExportBuilder({
                   ))}
                 </select>
                 <p className="mt-1 text-xs text-slate-400">
-                  When &ldquo;All Clients&rdquo; is selected, each client is rendered on its own
-                  dedicated page chunk.
+                  {t.pex.allClientsHint}
                 </p>
               </div>
 
               <div>
                 <label className={labelCls}>
-                  <Users className="h-3 w-3" /> Supervisor
+                  <Users className="h-3 w-3" /> {t.reportsPage.supervisor}
                 </label>
                 <select
                   value={supervisorId}
                   onChange={(e) => setSupervisorId(e.target.value)}
                   className={inputCls}
                 >
-                  <option value="">All Supervisors</option>
+                  <option value="">{t.msv.allSupervisors}</option>
                   {supervisors.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -240,18 +239,18 @@ export function GuardPayrollExportBuilder({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div>
-                <label className={labelCls}>Guard Status Filter</label>
+                <label className={labelCls}>{t.pex.statusFilter}</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as "ALL" | "ACTIVE" | "DISABLED")}
                   className={inputCls}
                 >
-                  <option value="ALL">All guards (active + disabled in period)</option>
-                  <option value="ACTIVE">Active guards only</option>
-                  <option value="DISABLED">Disabled guards only</option>
+                  <option value="ALL">{t.pex.statusAll}</option>
+                  <option value="ACTIVE">{t.pex.statusActive}</option>
+                  <option value="DISABLED">{t.pex.statusDisabled}</option>
                 </select>
                 <p className="mt-1 text-xs text-slate-400">
-                  Disabled guards are excluded from active operations, but included here for historical payroll.
+                  {t.pex.disabledHint}
                 </p>
               </div>
             </div>
@@ -261,7 +260,7 @@ export function GuardPayrollExportBuilder({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Layers className="h-4 w-4 text-brand-600" />
-              <h4 className="font-semibold text-slate-900 text-base">Export Output Options</h4>
+              <h4 className="font-semibold text-slate-900 text-base">{t.pex.options}</h4>
             </div>
 
             <div className="space-y-3">
@@ -274,10 +273,10 @@ export function GuardPayrollExportBuilder({
                 />
                 <div>
                   <span className="text-sm font-semibold text-slate-800">
-                    Include Zero-Activity Guards
+                    {t.pex.zeroActivity}
                   </span>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    By default, only guards who logged shifts or owe credit in the period are listed. Enable to include all registered guards.
+                    {t.pex.zeroActivityHint}
                   </p>
                 </div>
               </label>
@@ -291,10 +290,10 @@ export function GuardPayrollExportBuilder({
                 />
                 <div>
                   <span className="text-sm font-semibold text-slate-800">
-                    Include Guard Profile &amp; Next-of-Kin Dossiers
+                    {t.pex.dossiers}
                   </span>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Appends client-grouped guard dossier cards with next of kin, emergency contacts, home location, and shift details.
+                    {t.pex.dossiersHint}
                   </p>
                 </div>
               </label>
@@ -306,40 +305,40 @@ export function GuardPayrollExportBuilder({
         <div className="space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
             <h4 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Summary Preview
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {t.pex.summary}
             </h4>
 
             <div className="space-y-3 divide-y divide-slate-100 text-xs">
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Period:</span>
+                <span className="text-slate-500 font-medium">{t.pex.periodLabel}:</span>
                 <span className="font-semibold text-slate-900 font-mono">
                   {mode === "month" ? month : `${startDate} → ${endDate}`}
                 </span>
               </div>
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Client Scope:</span>
+                <span className="text-slate-500 font-medium">{t.pex.clientScope}:</span>
                 <span className="font-semibold text-slate-900">{selectedClient}</span>
               </div>
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Supervisor:</span>
+                <span className="text-slate-500 font-medium">{t.reportsPage.supervisor}:</span>
                 <span className="font-semibold text-slate-900">{selectedSupervisor}</span>
               </div>
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Guard Status:</span>
+                <span className="text-slate-500 font-medium">{t.pex.guardStatus}:</span>
                 <span className="font-semibold text-slate-900">
-                  {status === "ALL" ? "Active + Disabled in Period" : status}
+                  {status === "ALL" ? t.pex.activeDisabled : enumLabel(status)}
                 </span>
               </div>
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Zero-Activity:</span>
+                <span className="text-slate-500 font-medium">{t.pex.zeroActivityLabel}:</span>
                 <span className="font-semibold text-slate-900">
-                  {includeZeroActivity ? "Included" : "Excluded (Active only)"}
+                  {includeZeroActivity ? t.pex.included : t.pex.excluded}
                 </span>
               </div>
               <div className="pt-2 flex justify-between">
-                <span className="text-slate-500 font-medium">Full Dossiers:</span>
+                <span className="text-slate-500 font-medium">{t.pex.fullDossiers}:</span>
                 <span className="font-semibold text-slate-900">
-                  {includeDetails ? "Yes (Included)" : "No (Table only)"}
+                  {includeDetails ? t.pex.yesIncluded : t.pex.noTable}
                 </span>
               </div>
             </div>
@@ -351,24 +350,24 @@ export function GuardPayrollExportBuilder({
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white shadow hover:bg-brand-500 transition"
               >
-                <ExternalLink className="h-4 w-4" /> Open PDF Preview
+                <ExternalLink className="h-4 w-4" /> {t.pex.openPreview}
               </a>
               <a
                 href={url}
                 download
                 className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
               >
-                <FileDown className="h-4 w-4 text-brand-600" /> Download PDF File
+                <FileDown className="h-4 w-4 text-brand-600" /> {t.pex.downloadFile}
               </a>
             </div>
           </div>
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-xs text-amber-800 space-y-2">
             <p className="font-bold text-amber-900 flex items-center gap-1.5">
-              <span>📌</span> Client-Specific Payroll Processing
+              <span>📌</span> {t.pex.noteTitle}
             </p>
             <p className="leading-relaxed">
-              PDF exports are automatically partitioned into client chunks with independent subtotals, attendance breakdowns, and sign-off blocks so client managers and bursars can process payroll per account.
+              {t.pex.noteBody}
             </p>
           </div>
         </div>

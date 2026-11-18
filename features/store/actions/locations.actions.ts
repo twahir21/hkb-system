@@ -28,7 +28,7 @@ export async function createRegion(
     branchId: formData.get("branchId") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid region" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Mkoa si sahihi" };
   }
 
   try {
@@ -41,12 +41,12 @@ export async function createRegion(
       metadata: { name: parsed.data.name, branchId: parsed.data.branchId ?? null },
     });
   } catch {
-    return { ok: false, error: "A region with this name already exists." };
+    return { ok: false, error: "Mkoa wenye jina hili tayari upo." };
   }
 
   revalidatePath("/store/locations");
   revalidatePath("/store");
-  return { ok: true, message: "Region created." };
+  return { ok: true, message: "Mkoa umeongezwa." };
 }
 
 /** Set (or clear) the branch a region belongs to. */
@@ -61,7 +61,7 @@ export async function setRegionBranch(
     branchId: formData.get("branchId") || null,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid region branch" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Tawi la mkoa si sahihi" };
   }
 
   try {
@@ -70,7 +70,7 @@ export async function setRegionBranch(
       .set({ branchId: parsed.data.branchId, updatedAt: new Date() })
       .where(eq(regions.id, parsed.data.id))
       .returning();
-    if (!region) return { ok: false, error: "Region not found." };
+    if (!region) return { ok: false, error: "Mkoa haukupatikana." };
 
     await writeAuditLog({
       actorId: actor.userId,
@@ -80,12 +80,12 @@ export async function setRegionBranch(
       metadata: { name: region.name, branchId: parsed.data.branchId },
     });
   } catch {
-    return { ok: false, error: "Failed to update region branch." };
+    return { ok: false, error: "Imeshindikana kusasisha tawi la mkoa." };
   }
 
   revalidatePath("/store/locations");
   revalidatePath("/incidents");
-  return { ok: true, message: "Saved." };
+  return { ok: true, message: "Imehifadhiwa." };
 }
 
 export async function createStation(
@@ -100,7 +100,7 @@ export async function createStation(
     supervisorId: formData.get("supervisorId") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid station" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Kituo si sahihi" };
   }
 
   try {
@@ -113,12 +113,12 @@ export async function createStation(
       metadata: { name: parsed.data.name, regionId: parsed.data.regionId },
     });
   } catch {
-    return { ok: false, error: "A station with this name already exists in the region." };
+    return { ok: false, error: "Kituo chenye jina hili tayari kipo kwenye mkoa huu." };
   }
 
   revalidatePath("/store/locations");
   revalidatePath("/store");
-  return { ok: true, message: "Station created." };
+  return { ok: true, message: "Kituo kimeongezwa." };
 }
 
 export async function updateStation(
@@ -137,7 +137,7 @@ export async function updateStation(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid station details",
+      error: parsed.error.issues[0]?.message ?? "Taarifa za kituo si sahihi",
     };
   }
 
@@ -148,7 +148,7 @@ export async function updateStation(
       columns: { role: true },
     });
     if (person?.role !== "IN_CHARGE") {
-      return { ok: false, error: "The chosen person is not an In-Charge." };
+      return { ok: false, error: "Mtu uliyemchagua si Mkuu wa Kituo." };
     }
   }
 
@@ -167,7 +167,7 @@ export async function updateStation(
       .returning();
 
     if (!station) {
-      return { ok: false, error: "Station not found." };
+      return { ok: false, error: "Kituo hakikupatikana." };
     }
 
     // An In-Charge leads one site: release them from any other site.
@@ -193,13 +193,13 @@ export async function updateStation(
   } catch {
     return {
       ok: false,
-      error: "A station with this name already exists in the region.",
+      error: "Kituo chenye jina hili tayari kipo kwenye mkoa huu.",
     };
   }
 
   revalidatePath("/store/locations");
   revalidatePath("/store");
-  return { ok: true, message: "Station updated successfully." };
+  return { ok: true, message: "Kituo kimesasishwa." };
 }
 
 export async function deleteStation(
@@ -214,7 +214,7 @@ export async function deleteStation(
       .returning();
 
     if (!station) {
-      return { ok: false, error: "Station not found." };
+      return { ok: false, error: "Kituo hakikupatikana." };
     }
 
     await writeAuditLog({
@@ -229,6 +229,6 @@ export async function deleteStation(
     revalidatePath("/store");
     return { ok: true };
   } catch {
-    return { ok: false, error: "Failed to delete station." };
+    return { ok: false, error: "Imeshindikana kufuta kituo." };
   }
 }

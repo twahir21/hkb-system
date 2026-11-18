@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState } from "react";
 import { Button, Card } from "@/components/ui";
 import {
@@ -30,19 +31,19 @@ export function ClientForm() {
   });
 
   return (
-    <Card title="Add client" subtitle="A company guards are posted under (e.g. MOFAT, ZURI)">
+    <Card title={t.clients.add} subtitle={t.clients.addSub}>
       <form action={formAction} className="space-y-3">
         <label className="block">
-          <span className={labelSpanCls}>Name</span>
-          <input name="name" required className={inputCls} placeholder="e.g. MOFAT" />
+          <span className={labelSpanCls}>{t.common.name}</span>
+          <input name="name" required className={inputCls} placeholder={t.clients.namePlaceholder} />
         </label>
         <label className="block">
-          <span className={labelSpanCls}>Description (optional)</span>
-          <input name="description" className={inputCls} placeholder="e.g. Salt factory — Mbagala" />
+          <span className={labelSpanCls}>{t.clients.descOptional}</span>
+          <input name="description" className={inputCls} placeholder={t.clients.descPlaceholder} />
         </label>
         <Feedback state={state} />
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : "Add client"}
+          {pending ? t.common.saving : t.clients.add}
         </Button>
       </form>
     </Card>
@@ -59,7 +60,7 @@ export function ClientActiveToggle({ id, isActive }: { id: string; isActive: boo
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="isActive" value={isActive ? "false" : "true"} />
       <Button type="submit" size="sm" variant="ghost" disabled={pending} title={state.error ?? ""}>
-        {isActive ? "Deactivate" : "Activate"}
+        {isActive ? t.clients.deactivate : t.clients.activate}
       </Button>
     </form>
   );

@@ -23,7 +23,7 @@ export async function createClient(
     description: formData.get("description") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid client" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Mteja si sahihi" };
   }
 
   try {
@@ -36,12 +36,12 @@ export async function createClient(
       metadata: { name: parsed.data.name },
     });
   } catch {
-    return { ok: false, error: "A client with this name already exists." };
+    return { ok: false, error: "Mteja mwenye jina hili tayari yupo." };
   }
 
   revalidatePath("/clients");
   revalidatePath("/guards");
-  return { ok: true, message: "Client created." };
+  return { ok: true, message: "Mteja ameongezwa." };
 }
 
 /** Update a client's name / description / active state (SUPER_ADMIN / HR). */
@@ -58,7 +58,7 @@ export async function updateClient(
     isActive: formData.get("isActive") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid client update" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Mabadiliko ya mteja si sahihi" };
   }
   const { id, ...values } = parsed.data;
 
@@ -69,7 +69,7 @@ export async function updateClient(
       .where(eq(clients.id, id))
       .returning();
     if (!client) {
-      return { ok: false, error: "Client no longer exists." };
+      return { ok: false, error: "Mteja huyu hayupo tena." };
     }
     await writeAuditLog({
       actorId: actor.userId,
@@ -79,10 +79,10 @@ export async function updateClient(
       metadata: { fields: Object.keys(values) as string[] },
     });
   } catch {
-    return { ok: false, error: "A client with this name already exists." };
+    return { ok: false, error: "Mteja mwenye jina hili tayari yupo." };
   }
 
   revalidatePath("/clients");
   revalidatePath("/guards");
-  return { ok: true, message: "Client updated." };
+  return { ok: true, message: "Mteja amesasishwa." };
 }

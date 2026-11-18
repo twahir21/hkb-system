@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { PackagePlus, ShoppingCart, Receipt } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
@@ -43,10 +44,10 @@ function SubmitRow({
   return (
     <div className="flex justify-end gap-2">
       <Button variant="secondary" size="sm" onClick={onClose} type="button">
-        Close
+        {t.common.close}
       </Button>
       <Button type="submit" size="sm" disabled={pending}>
-        {pending ? "Saving…" : label}
+        {pending ? t.common.saving : label}
       </Button>
     </div>
   );
@@ -56,11 +57,11 @@ function BusinessSelect({ businesses }: { businesses: BusinessOpt[] }) {
   return (
     <select name="businessId" required className={inputCls} defaultValue="">
       <option value="" disabled>
-        Select business…
+        {t.office.selectBusiness}
       </option>
       {businesses.map((b) => (
         <option key={b.id} value={b.id}>
-          {b.name} — {b.stock} {b.unit} on hand
+          {b.name} — {b.stock} {b.unit} {t.office.onHand}
         </option>
       ))}
     </select>
@@ -70,7 +71,7 @@ function BusinessSelect({ businesses }: { businesses: BusinessOpt[] }) {
 function DateField() {
   return (
     <label className="block">
-      <span className={labelSpanCls}>Date</span>
+      <span className={labelSpanCls}>{t.common.date}</span>
       <input
         name="date"
         type="date"
@@ -93,31 +94,31 @@ export function RestockModal({ businesses }: { businesses: BusinessOpt[] }) {
   return (
     <>
       <Button variant="secondary" onClick={() => setOpen(true)}>
-        <PackagePlus className="h-4 w-4" /> Restock
+        <PackagePlus className="h-4 w-4" /> {t.office.restock}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Restock a business">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.office.restockTitle}>
         <form action={formAction} className="space-y-4">
           <label className="block">
-            <span className={labelSpanCls}>Business</span>
+            <span className={labelSpanCls}>{t.office.business}</span>
             <BusinessSelect businesses={businesses} />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className={labelSpanCls}>Quantity</span>
+              <span className={labelSpanCls}>{t.office.qty}</span>
               <input name="quantity" type="number" min="0.01" step="0.01" required className={inputCls} />
             </label>
             <label className="block">
-              <span className={labelSpanCls}>Unit cost (TZS)</span>
+              <span className={labelSpanCls}>{t.office.unitCostTzs}</span>
               <input name="unitCost" type="number" min="1" step="1" required className={inputCls} />
             </label>
           </div>
           <label className="block">
-            <span className={labelSpanCls}>Description (supplier / note)</span>
+            <span className={labelSpanCls}>{t.office.supplierNote}</span>
             <input name="description" required maxLength={500} className={inputCls} />
           </label>
           <DateField />
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record restock" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.office.recordRestock} />
         </form>
       </Modal>
     </>
@@ -143,26 +144,26 @@ export function SaleModal({
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <ShoppingCart className="h-4 w-4" /> Record sale
+        <ShoppingCart className="h-4 w-4" /> {t.office.recordSale}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Record a sale">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.office.saleTitle}>
         <form action={formAction} className="space-y-4">
           <label className="block">
-            <span className={labelSpanCls}>Business</span>
+            <span className={labelSpanCls}>{t.office.business}</span>
             <BusinessSelect businesses={businesses} />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className={labelSpanCls}>Quantity</span>
+              <span className={labelSpanCls}>{t.office.qty}</span>
               <input name="quantity" type="number" min="0.01" step="0.01" required className={inputCls} />
             </label>
             <label className="block">
-              <span className={labelSpanCls}>Unit price (TZS)</span>
+              <span className={labelSpanCls}>{t.office.unitPriceTzs}</span>
               <input name="unitPrice" type="number" min="1" step="1" required className={inputCls} />
             </label>
           </div>
           <label className="block">
-            <span className={labelSpanCls}>Sale type</span>
+            <span className={labelSpanCls}>{t.office.saleType}</span>
             <select
               name="saleType"
               required
@@ -170,16 +171,16 @@ export function SaleModal({
               value={saleType}
               onChange={(e) => setSaleType(e.target.value)}
             >
-              <option value="CASH">Cash sale</option>
-              <option value="CREDIT_GUARD">On credit to a guard (deducted from salary)</option>
+              <option value="CASH">{t.office.cashSale}</option>
+              <option value="CREDIT_GUARD">{t.office.creditSale}</option>
             </select>
           </label>
           {isCredit && (
             <label className="block">
-              <span className={labelSpanCls}>Guard (buying on credit)</span>
+              <span className={labelSpanCls}>{t.office.guardCredit}</span>
               <select name="guardId" required className={inputCls} defaultValue="">
                 <option value="" disabled>
-                  Select guard…
+                  {t.transfer.selectGuard}
                 </option>
                 {guards.map((g) => (
                   <option key={g.guardId} value={g.guardId}>
@@ -191,7 +192,7 @@ export function SaleModal({
           )}
           <DateField />
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record sale" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.office.recordSale} />
         </form>
       </Modal>
     </>
@@ -209,34 +210,34 @@ export function ExpenseModal({ businesses }: { businesses: BusinessOpt[] }) {
   return (
     <>
       <Button variant="secondary" onClick={() => setOpen(true)}>
-        <Receipt className="h-4 w-4" /> Expense
+        <Receipt className="h-4 w-4" /> {t.office.expense}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Record an expense">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.office.expenseTitle}>
         <form action={formAction} className="space-y-4">
           <label className="block">
-            <span className={labelSpanCls}>Business</span>
+            <span className={labelSpanCls}>{t.office.business}</span>
             <BusinessSelect businesses={businesses} />
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Category</span>
+            <span className={labelSpanCls}>{t.store.category}</span>
             <select name="category" required className={inputCls} defaultValue="TRANSPORT">
-              <option value="TRANSPORT">Transport</option>
-              <option value="OTHER">Other</option>
+              <option value="TRANSPORT">{t.office.transport}</option>
+              <option value="OTHER">{t.credit.types.OTHER}</option>
             </select>
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Description</span>
+            <span className={labelSpanCls}>{t.common.description}</span>
             <input name="description" required maxLength={500} className={inputCls} />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className={labelSpanCls}>Amount (TZS)</span>
+              <span className={labelSpanCls}>{t.credit.amountTzs}</span>
               <input name="amount" type="number" min="1" step="1" required className={inputCls} />
             </label>
             <DateField />
           </div>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record expense" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.office.recordExpense} />
         </form>
       </Modal>
     </>

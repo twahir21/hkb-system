@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type Column<T> = {
@@ -11,7 +12,7 @@ export type Column<T> = {
 export function DataTable<T extends { id: string }>({
   columns,
   rows,
-  empty = "No records to display",
+  empty = t.ui.noRecords,
 }: {
   columns: Column<T>[];
   rows: T[];

@@ -56,7 +56,7 @@ async function storeCover(
   if (!url) {
     return {
       ok: false,
-      error: "Image storage is not configured — add a cover image URL instead.",
+      error: "Hifadhi ya picha haijawekwa — weka kiungo cha picha badala yake.",
     };
   }
   return { ok: true, url, path: storagePathFromUrl(url) };
@@ -78,7 +78,7 @@ export async function createNews(_prev: ActionState, formData: FormData): Promis
     status: formData.get("status") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid article" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Makala si sahihi" };
   }
   const v = parsed.data;
 
@@ -99,7 +99,7 @@ export async function createNews(_prev: ActionState, formData: FormData): Promis
         new URL(trimmed);
         coverImageUrl = trimmed;
       } catch {
-        return { ok: false, error: "Cover image URL is invalid." };
+        return { ok: false, error: "Kiungo cha picha si sahihi." };
       }
     }
   }
@@ -133,11 +133,11 @@ export async function createNews(_prev: ActionState, formData: FormData): Promis
     revalidateNews();
     return {
       ok: true,
-      message: v.status === "PUBLISHED" ? "Article published." : "Draft saved.",
+      message: v.status === "PUBLISHED" ? "Makala imechapishwa." : "Rasimu imehifadhiwa.",
     };
   } catch (error) {
     console.error("[news] create failed:", error);
-    return { ok: false, error: "Could not save the article. Please try again." };
+    return { ok: false, error: "Imeshindikana kuhifadhi makala. Tafadhali jaribu tena." };
   }
 }
 
@@ -154,12 +154,12 @@ export async function updateNews(_prev: ActionState, formData: FormData): Promis
     status: formData.get("status") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid article" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Makala si sahihi" };
   }
   const { id, ...v } = parsed.data;
 
   const existing = await db.query.news.findFirst({ where: eq(news.id, id) });
-  if (!existing) return { ok: false, error: "Article not found." };
+  if (!existing) return { ok: false, error: "Makala haikupatikana." };
 
   let coverImageUrl = existing.coverImageUrl;
   let coverImagePath = existing.coverImagePath;
@@ -184,7 +184,7 @@ export async function updateNews(_prev: ActionState, formData: FormData): Promis
         new URL(trimmed);
         coverImageUrl = trimmed;
       } catch {
-        return { ok: false, error: "Cover image URL is invalid." };
+        return { ok: false, error: "Kiungo cha picha si sahihi." };
       }
     }
   }
@@ -220,17 +220,17 @@ export async function updateNews(_prev: ActionState, formData: FormData): Promis
   });
 
   revalidateNews();
-  return { ok: true, message: "Article updated." };
+  return { ok: true, message: "Makala imesasishwa." };
 }
 
 export async function deleteNews(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requirePermission("NEWS_MANAGE");
 
   const id = formData.get("id");
-  if (typeof id !== "string" || !id) return { ok: false, error: "Missing article id" };
+  if (typeof id !== "string" || !id) return { ok: false, error: "Namba ya makala haipo" };
 
   const existing = await db.query.news.findFirst({ where: eq(news.id, id) });
-  if (!existing) return { ok: false, error: "Article not found." };
+  if (!existing) return { ok: false, error: "Makala haikupatikana." };
 
   await db.delete(news).where(eq(news.id, id));
 
@@ -247,7 +247,7 @@ export async function deleteNews(_prev: ActionState, formData: FormData): Promis
   });
 
   revalidateNews();
-  return { ok: true, message: "Article deleted." };
+  return { ok: true, message: "Makala imefutwa." };
 }
 
 /** Publish / unpublish / archive an article. */
@@ -256,13 +256,13 @@ export async function setNewsStatus(_prev: ActionState, formData: FormData): Pro
 
   const id = formData.get("id");
   const status = formData.get("status");
-  if (typeof id !== "string" || !id) return { ok: false, error: "Missing article id" };
+  if (typeof id !== "string" || !id) return { ok: false, error: "Namba ya makala haipo" };
   if (status !== "DRAFT" && status !== "PUBLISHED" && status !== "ARCHIVED") {
-    return { ok: false, error: "Invalid status" };
+    return { ok: false, error: "Hali si sahihi" };
   }
 
   const existing = await db.query.news.findFirst({ where: eq(news.id, id) });
-  if (!existing) return { ok: false, error: "Article not found." };
+  if (!existing) return { ok: false, error: "Makala haikupatikana." };
 
   await db
     .update(news)
@@ -284,6 +284,6 @@ export async function setNewsStatus(_prev: ActionState, formData: FormData): Pro
   revalidateNews();
   return {
     ok: true,
-    message: status === "PUBLISHED" ? "Article published." : "Article unpublished.",
+    message: status === "PUBLISHED" ? "Makala imechapishwa." : "Makala imeondolewa kwenye tovuti.",
   };
 }

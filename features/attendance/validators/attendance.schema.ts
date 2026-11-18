@@ -9,7 +9,7 @@ export const attendanceStatusSchema = z.enum(["PRESENT", "ABSENT", "LATE"]);
 export const markAttendanceSchema = z
   .object({
     guardId: z.string().uuid(),
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD"),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "tarehe iwe YYYY-MM-DD"),
     shift: shiftTypeSchema,
     status: attendanceStatusSchema,
     absenceCategory: absenceCategorySchema.optional(),
@@ -23,21 +23,21 @@ export const markAttendanceSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["absenceCategory"],
-        message: "Absence category is required when marking ABSENT",
+        message: "Aina ya kutokuwepo inahitajika unaporekodi HAYUPO",
       });
     }
     if (val.absenceCategory === "SICK" && !val.documentUrl) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["documentUrl"],
-        message: "A doctor's note must be uploaded for SICK absences",
+        message: "Cheti cha daktari lazima kipakiwe kwa kutokuwepo kwa UGONJWA",
       });
     }
     if (val.absenceCategory === "PERMITTED_REASON" && !val.allowedDays) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["allowedDays"],
-        message: "Allowed days is required for permitted reasons",
+        message: "Siku zilizoruhusiwa zinahitajika kwa sababu za ruhusa",
       });
     }
   });

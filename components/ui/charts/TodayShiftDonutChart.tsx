@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { ChartTooltipProps } from "./chart-tooltip.types";
 
@@ -45,11 +46,11 @@ export function TodayShiftDonutChart({
       : 0;
 
   const data: ShiftStatusSlice[] = [
-    { name: "Present", value: present, color: "#10b981" },
-    { name: "Late Arrivals", value: late, color: "#f59e0b" },
-    { name: "Absences", value: absent, color: "#f43f5e" },
+    { name: t.gmd.present, value: present, color: "#10b981" },
+    { name: t.gmd.lateArrivals, value: late, color: "#f59e0b" },
+    { name: t.gmd.absences, value: absent, color: "#f43f5e" },
     ...(unrecorded > 0
-      ? [{ name: "Pending", value: unrecorded, color: "#e2e8f0" }]
+      ? [{ name: t.status.PENDING, value: unrecorded, color: "#e2e8f0" }]
       : []),
   ].filter((d) => d.value > 0);
 
@@ -58,12 +59,12 @@ export function TodayShiftDonutChart({
       <div className="flex items-center justify-between mb-2">
         <div>
           <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-            Today&apos;s Shift Breakdown
+            {t.charts.todayTitle}
           </h3>
-          <p className="text-xs text-slate-500">Live operational status distribution</p>
+          <p className="text-xs text-slate-500">{t.charts.todaySub}</p>
         </div>
         <div className="text-right">
-          <span className="text-xs font-semibold text-slate-500">Attendance</span>
+          <span className="text-xs font-semibold text-slate-500">{t.gmd.attendance}</span>
           <p className="text-lg font-black text-slate-900">{attendanceRate}%</p>
         </div>
       </div>
@@ -71,7 +72,7 @@ export function TodayShiftDonutChart({
       <div className="relative flex items-center justify-center" style={{ height: 200 }}>
         {data.length === 0 ? (
           <div className="text-center text-xs text-slate-400">
-            No shift records logged yet today.
+            {t.charts.todayEmpty}
           </div>
         ) : (
           <>
@@ -100,7 +101,7 @@ export function TodayShiftDonutChart({
                 {present + late + absent}
               </span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Logged
+                {t.charts.logged}
               </span>
             </div>
           </>
@@ -110,15 +111,15 @@ export function TodayShiftDonutChart({
       <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-center text-xs">
         <div className="rounded-lg bg-emerald-50/60 p-1.5">
           <p className="font-bold text-emerald-700">{present}</p>
-          <p className="text-[10px] font-medium text-emerald-600">Present</p>
+          <p className="text-[10px] font-medium text-emerald-600">{t.charts.present}</p>
         </div>
         <div className="rounded-lg bg-amber-50/60 p-1.5">
           <p className="font-bold text-amber-700">{late}</p>
-          <p className="text-[10px] font-medium text-amber-600">Late</p>
+          <p className="text-[10px] font-medium text-amber-600">{t.charts.late}</p>
         </div>
         <div className="rounded-lg bg-rose-50/60 p-1.5">
           <p className="font-bold text-rose-700">{absent}</p>
-          <p className="text-[10px] font-medium text-rose-600">Absent</p>
+          <p className="text-[10px] font-medium text-rose-600">{t.charts.absent}</p>
         </div>
       </div>
     </div>

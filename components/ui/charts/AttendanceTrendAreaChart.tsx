@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import {
   AreaChart,
   Area,
@@ -47,7 +48,7 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
             </div>
           ))}
           <div className="border-t border-slate-100 pt-1 mt-1 flex justify-between text-slate-500 font-semibold">
-            <span>Total Logged:</span>
+            <span>{t.charts.totalLogged}:</span>
             <span className="text-slate-900">{total}</span>
           </div>
         </div>
@@ -59,8 +60,8 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
 
 export function AttendanceTrendAreaChart({
   data,
-  title = "Attendance Trend",
-  subtitle = "Daily distribution of Present, Late, and Absent records",
+  title = t.charts.trendTitle,
+  subtitle = t.charts.trendSub,
   height = 280,
 }: {
   data: TrendDataPoint[];
@@ -117,7 +118,7 @@ export function AttendanceTrendAreaChart({
             <Area
               type="monotone"
               dataKey="present"
-              name="Present"
+              name={t.charts.present}
               stroke="#10b981"
               strokeWidth={2.5}
               fillOpacity={1}
@@ -126,7 +127,7 @@ export function AttendanceTrendAreaChart({
             <Area
               type="monotone"
               dataKey="late"
-              name="Late"
+              name={t.charts.late}
               stroke="#f59e0b"
               strokeWidth={2}
               fillOpacity={1}
@@ -135,7 +136,7 @@ export function AttendanceTrendAreaChart({
             <Area
               type="monotone"
               dataKey="absent"
-              name="Absent"
+              name={t.charts.absent}
               stroke="#f43f5e"
               strokeWidth={2}
               fillOpacity={1}

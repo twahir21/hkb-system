@@ -5,7 +5,7 @@ import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
 import type { TransferRow } from "@/features/hr/queries/transfers";
 import { RequestTransferModal } from "./RequestModal";
 import { ReviewCell } from "./ReviewCell";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 type GuardOpt = { id: string; name: string; employeeId: string };
@@ -28,7 +28,7 @@ export function TransfersView({
   const columns: Column<TransferRow>[] = [
     {
       key: "guard",
-      header: "Guard",
+      header: t.records.guard,
       cell: (r) => (
         <div>
           <p className="font-medium text-slate-800">{r.guardName}</p>
@@ -38,7 +38,7 @@ export function TransfersView({
     },
     {
       key: "route",
-      header: "From → To",
+      header: t.store.fromTo,
       cell: (r) => (
         <p className="flex items-center gap-1.5 text-xs text-slate-600">
           <span>{r.fromSupervisor}</span>
@@ -49,23 +49,23 @@ export function TransfersView({
     },
     {
       key: "reason",
-      header: "Reason",
+      header: t.common.reason,
       cell: (r) => <span className="text-slate-600">{r.reason}</span>,
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
       key: "meta",
-      header: "Requested",
+      header: t.transfer.requested,
       cell: (r) => (
         <div className="text-xs text-slate-500">
-          <p>by {r.requestedBy}</p>
+          <p>{t.store.by} {r.requestedBy}</p>
           <p>{new Date(r.createdAt).toLocaleDateString("en-GB")}</p>
           {r.reviewerNotes && (
-            <p className="text-slate-400">Note: {r.reviewerNotes}</p>
+            <p className="text-slate-400">{t.transfer.note}: {r.reviewerNotes}</p>
           )}
         </div>
       ),
@@ -75,7 +75,7 @@ export function TransfersView({
   if (canApprove) {
     columns.push({
       key: "action",
-      header: "Review",
+      header: t.dash.review,
       cell: (r) =>
         r.status === "PENDING" ? (
           <ReviewCell requestId={r.id} />
@@ -89,7 +89,7 @@ export function TransfersView({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-slate-600">
-          {transfers.length} transfer requests
+          {transfers.length} {t.transfer.requests}
         </p>
         {canRequest && (
           <RequestTransferModal
@@ -102,7 +102,7 @@ export function TransfersView({
       <DataTable
         columns={columns}
         rows={transfers}
-        empty="No transfer requests yet."
+        empty={t.transfer.empty}
       />
     </div>
   );

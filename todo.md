@@ -48,9 +48,9 @@ Single source of truth: `lib/auth/roles.ts` + `lib/auth/rbac.ts`. Scoping: `lib/
 
 | # | Task | Status | Effort |
 |---|------|--------|--------|
-| D7.3 | Translate every page and form (~25 pages). New screens built in Swahili from day one | pending | hard |
+| D7.3 | Translate every page and form (~25 pages). New screens built in Swahili from day one | done | hard |
 | D7.4 | Translate PDFs and status badges | done | medium |
-| D7.5 | Rewrite USER_GUIDE.md in Swahili (after C13) | pending | medium |
+| D7.5 | Rewrite USER_GUIDE.md in Swahili (after C13) | done | medium |
 
 ---
 

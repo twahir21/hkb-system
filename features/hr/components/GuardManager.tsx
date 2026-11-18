@@ -25,7 +25,7 @@ import {
   deleteGuard,
 } from "@/features/hr/actions/guards.actions";
 import { formatDate } from "@/lib/utils";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 type Supervisor = { id: string; name: string; role: string };
 
@@ -115,7 +115,7 @@ export function GuardManager({
       .map((r) => ({ id: r.id, name: r.name, stations: byRegion.get(r.id) ?? [] }))
       .filter((g) => g.stations.length > 0);
     return stray.length > 0
-      ? [...groups, { id: "other", name: "Other sites", stations: stray }]
+      ? [...groups, { id: "other", name: t.gm.otherSites, stations: stray }]
       : groups;
   }, [regions, stations]);
 
@@ -134,13 +134,13 @@ export function GuardManager({
       try {
         const res = await disableGuard(target.id, reason);
         if (!res.ok) {
-          setActionError(res.error ?? "Failed to disable guard.");
+          setActionError(res.error ?? t.gm.disableFailed);
         } else {
           setDisableTarget(null);
           setDisableReason("");
         }
       } catch {
-        setActionError("Failed to disable guard.");
+        setActionError(t.gm.disableFailed);
       } finally {
         setBusyId(null);
       }
@@ -153,9 +153,9 @@ export function GuardManager({
     startTransition(async () => {
       try {
         const res = await enableGuard(guard.id);
-        if (!res.ok) setActionError(res.error ?? "Failed to re-activate guard.");
+        if (!res.ok) setActionError(res.error ?? t.gm.enableFailed);
       } catch {
-        setActionError("Failed to re-activate guard.");
+        setActionError(t.gm.enableFailed);
       } finally {
         setBusyId(null);
       }
@@ -182,12 +182,12 @@ export function GuardManager({
       try {
         const res = await deleteGuard(target.id, reason);
         if (!res.ok) {
-          setActionError(res.error ?? "Failed to delete guard.");
+          setActionError(res.error ?? t.gm.deleteFailed);
         } else {
           closeDeleteModal();
         }
       } catch {
-        setActionError("Failed to delete guard.");
+        setActionError(t.gm.deleteFailed);
       } finally {
         setBusyId(null);
       }
@@ -227,7 +227,7 @@ export function GuardManager({
   const columns: Column<GuardRow>[] = [
     {
       key: "guard",
-      header: "Guard",
+      header: t.records.guard,
       cell: (r) => {
         const isPartial =
           r.employeeId.startsWith("HKB-P-") ||
@@ -240,7 +240,7 @@ export function GuardManager({
               <p className="font-medium text-slate-800">{r.fullName}</p>
               {isPartial && (
                 <span className="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
-                  Phase 1 (Partial)
+                  {t.gm.partial}
                 </span>
               )}
             </div>
@@ -251,7 +251,7 @@ export function GuardManager({
     },
     {
       key: "gender",
-      header: "Gender",
+      header: t.user.gender,
       cell: (r) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
@@ -260,18 +260,18 @@ export function GuardManager({
               : "bg-sky-50 text-sky-700 border border-sky-200"
           }`}
         >
-          {r.gender === "FEMALE" ? "Female" : "Male"}
+          {r.gender === "FEMALE" ? t.user.female : t.user.male}
         </span>
       ),
     },
     {
       key: "age",
-      header: "Age",
+      header: t.guard.age,
       cell: (r) => <span className="text-slate-600">{r.age}</span>,
     },
     {
       key: "contact",
-      header: "Contact",
+      header: t.gm.contact,
       cell: (r) => (
         <div className="text-xs text-slate-600">
           <p>{r.phone}</p>
@@ -281,26 +281,26 @@ export function GuardManager({
     },
     {
       key: "locations",
-      header: "Locations",
+      header: t.gm.locations,
       cell: (r) => (
         <div className="text-xs text-slate-600">
           <p>
-            <span className="text-slate-400">Work:</span> {r.workLocation}
+            <span className="text-slate-400">{t.gm.work}:</span> {r.workLocation}
             {!r.stationId && (
               <span className="ml-1.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-700">
-                Unassigned site
+                {t.gm.unassignedSite}
               </span>
             )}
           </p>
           <p className="text-slate-400">
-            Region: {r.regionName ?? "—"} · Home: {r.homeLocation}
+            {t.common.region}: {r.regionName ?? "—"} · {t.shift.home}: {r.homeLocation}
           </p>
         </div>
       ),
     },
     {
       key: "kin",
-      header: "Next of kin",
+      header: t.employees.kinName,
       cell: (r) => (
         <div className="text-xs text-slate-600">
           <p className="font-medium">{r.kinName}</p>
@@ -312,27 +312,27 @@ export function GuardManager({
     },
     {
       key: "client",
-      header: "Client",
+      header: t.clients.client,
       cell: (r) =>
         r.clientName ? (
           <Badge tone="brand">{r.clientName}</Badge>
         ) : (
-          <span className="text-xs text-slate-400">Unassigned</span>
+          <span className="text-xs text-slate-400">{t.guard.unassigned}</span>
         ),
     },
     {
       key: "supervisor",
-      header: "Supervisor",
+      header: t.reportsPage.supervisor,
       cell: (r) =>
         r.supervisorName ? (
           <Badge tone="brand">{r.supervisorName}</Badge>
         ) : (
-          <span className="text-xs text-slate-400">Unassigned</span>
+          <span className="text-xs text-slate-400">{t.guard.unassigned}</span>
         ),
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) =>
         r.isActive ? (
           <Badge tone="emerald">{enumLabel("ACTIVE")}</Badge>
@@ -360,7 +360,7 @@ export function GuardManager({
             }}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
           >
-            <Pencil className="h-3.5 w-3.5" /> Edit
+            <Pencil className="h-3.5 w-3.5" /> {t.common.edit}
           </button>
 
           {r.isActive ? (
@@ -372,28 +372,28 @@ export function GuardManager({
               }}
               disabled={isPending && busyId === r.id}
               className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
-              title="Stop counting this guard as a guard (history is kept)"
+              title={t.gm.disableTitle}
             >
               {isPending && busyId === r.id ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <Ban className="h-3.5 w-3.5" />
               )}
-              Disable
+              {t.gm.disable}
             </button>
           ) : (
             <button
               onClick={() => handleEnable(r)}
               disabled={isPending && busyId === r.id}
               className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
-              title="Count this guard as a guard again"
+              title={t.gm.enableTitle}
             >
               {isPending && busyId === r.id ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <RotateCcw className="h-3.5 w-3.5" />
               )}
-              Enable
+              {t.gm.enable}
             </button>
           )}
 
@@ -406,14 +406,14 @@ export function GuardManager({
             }}
             disabled={isPending && busyId === r.id}
             className="inline-flex items-center gap-1.5 rounded-lg border border-rose-600 bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500 disabled:opacity-50"
-            title="Permanently delete this guard and all their history"
+            title={t.gm.deleteTitle}
           >
             {isPending && busyId === r.id ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <Trash2 className="h-3.5 w-3.5" />
             )}
-            Delete
+            {t.common.delete}
           </button>
         </div>
       ),
@@ -426,17 +426,17 @@ export function GuardManager({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-slate-500">Active Guards (counted)</p>
+            <p className="text-xs font-medium text-slate-500">{t.gm.activeCounted}</p>
             <p className="text-xl font-bold text-slate-900">{activeGuards.length}</p>
           </div>
           <div className="h-9 w-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-xs">
-            All
+            {t.common.all}
           </div>
         </div>
 
         <div className="rounded-xl border border-sky-100 bg-sky-50/50 p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-sky-700">Male Guards</p>
+            <p className="text-xs font-medium text-sky-700">{t.gm.maleGuards}</p>
             <p className="text-xl font-bold text-sky-950">{maleCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">
@@ -446,7 +446,7 @@ export function GuardManager({
 
         <div className="rounded-xl border border-fuchsia-100 bg-fuchsia-50/50 p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-fuchsia-700">Female Guards</p>
+            <p className="text-xs font-medium text-fuchsia-700">{t.gm.femaleGuards}</p>
             <p className="text-xl font-bold text-fuchsia-950">{femaleCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-fuchsia-100 px-2 py-1 text-xs font-semibold text-fuchsia-800">
@@ -456,7 +456,7 @@ export function GuardManager({
 
         <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-rose-700">Disabled (not counted)</p>
+            <p className="text-xs font-medium text-rose-700">{t.gm.disabledCount}</p>
             <p className="text-xl font-bold text-rose-950">{disabledCount}</p>
           </div>
           <span className="inline-flex items-center rounded-md bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-800">
@@ -472,7 +472,7 @@ export function GuardManager({
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search guards by name or ID…"
+              placeholder={t.gm.search}
               className="w-full rounded-lg border border-slate-300 pl-9 pr-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
@@ -484,9 +484,9 @@ export function GuardManager({
             }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
-            <option value="">All Genders</option>
-            <option value="MALE">Male ({maleCount})</option>
-            <option value="FEMALE">Female ({femaleCount})</option>
+            <option value="">{t.user.allGenders}</option>
+            <option value="MALE">{t.user.male} ({maleCount})</option>
+            <option value="FEMALE">{t.user.female} ({femaleCount})</option>
           </select>
           <select
             value={statusFilter}
@@ -496,9 +496,9 @@ export function GuardManager({
             }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
-            <option value="">All Statuses</option>
-            <option value="ACTIVE">Active only ({activeGuards.length})</option>
-            <option value="DISABLED">Disabled only ({disabledCount})</option>
+            <option value="">{t.incidentsPage.allStatuses}</option>
+            <option value="ACTIVE">{t.gm.activeOnly} ({activeGuards.length})</option>
+            <option value="DISABLED">{t.gm.disabledOnly} ({disabledCount})</option>
           </select>
           <select
             value={siteFilter}
@@ -506,12 +506,12 @@ export function GuardManager({
               setSiteFilter(e.target.value);
               setPage(1);
             }}
-            aria-label="Filter by site"
+            aria-label={t.gm.filterSite}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
-            <option value="">All Sites ({guards.length})</option>
+            <option value="">{t.gm.allSites} ({guards.length})</option>
             <option value={UNASSIGNED}>
-              Unassigned site ({siteCounts.get(UNASSIGNED) ?? 0})
+              {t.gm.unassignedSite} ({siteCounts.get(UNASSIGNED) ?? 0})
             </option>
             {siteGroups.map((group) => (
               <optgroup key={group.id} label={group.name}>
@@ -529,12 +529,12 @@ export function GuardManager({
               setClientFilter(e.target.value);
               setPage(1);
             }}
-            aria-label="Filter by client"
+            aria-label={t.gm.filterClient}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-700"
           >
-            <option value="">All Clients ({guards.length})</option>
+            <option value="">{t.gm.allClients} ({guards.length})</option>
             <option value={UNASSIGNED}>
-              Unassigned client ({clientCounts.get(UNASSIGNED) ?? 0})
+              {t.gm.unassignedClient} ({clientCounts.get(UNASSIGNED) ?? 0})
             </option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
@@ -546,10 +546,10 @@ export function GuardManager({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" onClick={() => setPartialBulkOpen(true)}>
-            <FileSpreadsheet className="h-4 w-4 text-brand-600" /> Partial Import (CSV)
+            <FileSpreadsheet className="h-4 w-4 text-brand-600" /> {t.gm.partialImport}
           </Button>
           <Button variant="secondary" onClick={() => setBulkOpen(true)}>
-            <Upload className="h-4 w-4" /> Full CSV Import
+            <Upload className="h-4 w-4" /> {t.gm.fullImport}
           </Button>
           <Button
             onClick={() => {
@@ -557,7 +557,7 @@ export function GuardManager({
               setOpen(true);
             }}
           >
-            <UserPlus className="h-4 w-4" /> Add guard
+            <UserPlus className="h-4 w-4" /> {t.gm.add}
           </Button>
         </div>
       </div>
@@ -571,7 +571,7 @@ export function GuardManager({
       <DataTable
         columns={columns}
         rows={paginatedGuards}
-        empty="No guards match your search."
+        empty={t.gm.empty}
       />
 
       {filtered.length > 0 && (
@@ -584,14 +584,14 @@ export function GuardManager({
             setPageSize(newSize);
             setPage(1);
           }}
-          itemLabel="guards"
+          itemLabel={t.charts.guards}
         />
       )}
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={editing ? `Edit — ${editing.fullName}` : "Register a new guard"}
+        title={editing ? `${t.common.edit} — ${editing.fullName}` : t.gm.registerTitle}
         wide
       >
         <GuardForm
@@ -622,32 +622,29 @@ export function GuardManager({
         }}
         title={
           disableTarget
-            ? `Disable ${disableTarget.fullName}?`
-            : "Disable guard"
+            ? t.gm.disableQ.replace("{name}", disableTarget.fullName)
+            : t.gm.disableGuard
         }
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
             <span className="font-semibold text-slate-800">{disableTarget?.fullName}</span>
-            {disableTarget?.employeeId ? ` (${disableTarget.employeeId})` : ""} will stop being
-            counted as a guard: they disappear from the shift sheet, dashboard, analytics, region
-            counts, transfer requests and new credit pick-ups.
+            {disableTarget?.employeeId ? ` (${disableTarget.employeeId})` : ""} {t.gm.disableBody}
           </p>
 
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
-            Nothing is deleted. Attendance, absences, late minutes and outstanding debts are all
-            kept for payroll and dispute resolution, and you can re-activate the guard at any time.
+            {t.gm.disableSafe}
           </div>
 
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Reason (optional — saved to the audit trail)
+              {t.gm.reasonAudit}
             </span>
             <textarea
               value={disableReason}
               onChange={(e) => setDisableReason(e.target.value)}
               rows={3}
-              placeholder="e.g. resigned, contract ended, transferred out of HKB…"
+              placeholder={t.gm.disablePlaceholder}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </label>
@@ -663,7 +660,7 @@ export function GuardManager({
                 setDisableReason("");
               }}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="danger"
@@ -671,7 +668,7 @@ export function GuardManager({
               onClick={() => handleDisable(disableReason)}
               disabled={isPending}
             >
-              {isPending ? "Disabling…" : "Disable guard"}
+              {isPending ? t.gm.disabling : t.gm.disableGuard}
             </Button>
           </div>
         </div>
@@ -681,7 +678,7 @@ export function GuardManager({
         open={deleteTarget !== null}
         onClose={closeDeleteModal}
         title={
-          deleteTarget ? `Delete ${deleteTarget.fullName}?` : "Delete guard"
+          deleteTarget ? t.gm.deleteQ.replace("{name}", deleteTarget.fullName) : t.gm.deleteGuard
         }
       >
         <div className="space-y-4">
@@ -690,41 +687,38 @@ export function GuardManager({
               {deleteTarget?.fullName}
             </span>
             {deleteTarget?.employeeId ? ` (${deleteTarget.employeeId})` : ""}{" "}
-            and their login account will be removed from the system.
+            {t.gm.deleteBody}
           </p>
 
           <div className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-xs text-rose-800">
             <p className="font-semibold uppercase tracking-wide">
-              This cannot be undone
+              {t.gm.cannotUndo}
             </p>
             <p className="mt-1">
-              Attendance, absences, late minutes, transfer requests and credit
-              records are permanently deleted with the guard, and payroll will
-              no longer see them. If you only want the guard stopped while
-              keeping all history, cancel and use Disable instead.
+              {t.gm.deleteWarn}
             </p>
           </div>
 
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Reason (optional — saved to the audit trail)
+              {t.gm.reasonAudit}
             </span>
             <textarea
               value={deleteReason}
               onChange={(e) => setDeleteReason(e.target.value)}
               rows={3}
-              placeholder="e.g. duplicate registration, fraud, data cleanup…"
+              placeholder={t.gm.deletePlaceholder}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </label>
 
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Type{" "}
+              {t.gm.type}{" "}
               <span className="font-mono normal-case text-rose-700">
                 {deleteTarget?.employeeId}
               </span>{" "}
-              to confirm
+              {t.gm.toConfirm}
             </span>
             <input
               value={deleteConfirm}
@@ -739,7 +733,7 @@ export function GuardManager({
 
           <div className="flex justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={closeDeleteModal}>
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="danger"
@@ -747,7 +741,7 @@ export function GuardManager({
               onClick={() => handleDelete(deleteReason)}
               disabled={isPending || !deleteConfirmed}
             >
-              {isPending ? "Deleting…" : "Delete permanently"}
+              {isPending ? t.common.deleting : t.gm.deletePermanently}
             </Button>
           </div>
         </div>

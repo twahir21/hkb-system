@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { PenLine, CheckCircle2, AlertCircle } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
@@ -39,13 +40,13 @@ export function StaffEditTimeModal({
         variant="ghost"
         size="sm"
         onClick={() => setOpen(true)}
-        title="Edit check-in / sign-out times (Super Admin)"
+        title={t.staffAtt.editTimesTitle}
         className="text-slate-500 hover:text-indigo-700 hover:bg-indigo-50 px-2"
       >
         <PenLine className="h-3.5 w-3.5" />
       </Button>
 
-      <Modal open={open} onClose={close} title={`Edit Times — ${userName}`}>
+      <Modal open={open} onClose={close} title={`${t.staffAtt.editTimes} — ${userName}`}>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="userId" value={userId} />
           <input type="hidden" name="date" value={date} />
@@ -53,36 +54,35 @@ export function StaffEditTimeModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Check-in Time
+                {t.staffAtt.checkIn}
               </label>
               <input
                 type="text"
                 name="checkInTime"
                 value={checkInTime}
                 onChange={(e) => setCheckInTime(e.target.value)}
-                placeholder="e.g. 08:00 AM"
+                placeholder={t.staffAtt.checkInPlaceholder}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Sign-out Time
+                {t.staffAtt.checkOut}
               </label>
               <input
                 type="text"
                 name="checkOutTime"
                 value={checkOutTime}
                 onChange={(e) => setCheckOutTime(e.target.value)}
-                placeholder="e.g. 05:00 PM"
+                placeholder={t.staffAtt.checkOutPlaceholder}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           <p className="text-[11px] text-slate-400">
-            Leave a field empty to clear the recorded time. Every change is
-            audit-logged.
+            {t.staffAtt.editHint}
           </p>
 
           {state.error && (
@@ -95,16 +95,16 @@ export function StaffEditTimeModal({
           {state.ok && (
             <div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-xs font-medium text-emerald-700 border border-emerald-200">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>{state.message || "Times updated."}</span>
+              <span>{state.message || t.staffAtt.timesUpdated}</span>
             </div>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" type="button" onClick={close}>
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button variant="primary" type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save Times"}
+              {pending ? t.common.saving : t.staffAtt.saveTimes}
             </Button>
           </div>
         </form>

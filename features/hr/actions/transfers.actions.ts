@@ -30,7 +30,7 @@ export async function submitTransfer(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid transfer",
+      error: parsed.error.issues[0]?.message ?? "Uhamisho si sahihi",
     };
   }
   const v = parsed.data;
@@ -42,13 +42,13 @@ export async function submitTransfer(
   });
 
   if (!profile) {
-    return { ok: false, error: "Guard profile not found." };
+    return { ok: false, error: "Wasifu wa mlinzi haukupatikana." };
   }
   if (!profile.isActive) {
     return {
       ok: false,
       error:
-        "This guard is disabled and cannot be transferred. Re-activate them first.",
+        "Mlinzi huyu amezimwa na hawezi kuhamishwa. Mrudishe kwanza.",
     };
   }
 
@@ -82,7 +82,7 @@ export async function submitTransfer(
 
   revalidatePath("/transfers");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Transfer request submitted." };
+  return { ok: true, message: "Ombi la uhamisho limetumwa." };
 }
 
 /** Super Admin / HR approve or reject a transfer. */
@@ -93,7 +93,7 @@ export async function approveOrRejectTransfer(
   const actor = await requirePermission("TRANSFER_APPROVE");
 
   const id = formData.get("id");
-  if (typeof id !== "string") return { ok: false, error: "Missing request id" };
+  if (typeof id !== "string") return { ok: false, error: "Namba ya ombi haipo" };
 
   const parsed = transferActionSchema.safeParse({
     action: formData.get("action") ?? undefined,
@@ -102,7 +102,7 @@ export async function approveOrRejectTransfer(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid action",
+      error: parsed.error.issues[0]?.message ?? "Kitendo si sahihi",
     };
   }
   const { action, reviewerNotes } = parsed.data;
@@ -110,9 +110,9 @@ export async function approveOrRejectTransfer(
   const request = await db.query.transferRequests.findFirst({
     where: eq(transferRequests.id, id),
   });
-  if (!request) return { ok: false, error: "Transfer request not found." };
+  if (!request) return { ok: false, error: "Ombi la uhamisho halikupatikana." };
   if (request.status !== "PENDING") {
-    return { ok: false, error: "Transfer already processed." };
+    return { ok: false, error: "Uhamisho tayari umeshughulikiwa." };
   }
 
   // A guard disabled after the request was raised must not be moved around.
@@ -124,7 +124,7 @@ export async function approveOrRejectTransfer(
     return {
       ok: false,
       error:
-        "This guard is disabled — the transfer cannot be approved. Re-activate them first.",
+        "Mlinzi huyu amezimwa — uhamisho hauwezi kuidhinishwa. Mrudishe kwanza.",
     };
   }
 

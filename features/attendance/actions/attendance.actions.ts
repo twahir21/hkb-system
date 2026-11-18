@@ -44,7 +44,7 @@ export async function markAttendance(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi",
     };
   }
   const v = parsed.data;
@@ -54,7 +54,7 @@ export async function markAttendance(
     await getGuardScope(user.userId, user.role),
   );
   if (allowed && !allowed.includes(v.guardId)) {
-    return { ok: false, error: "This guard is not in your area." };
+    return { ok: false, error: "Mlinzi huyu hayupo kwenye eneo lako." };
   }
 
   // Nobody marks their own attendance (an In-Charge is a guard at their site).
@@ -63,7 +63,7 @@ export async function markAttendance(
     columns: { userId: true },
   });
   if (target?.userId === user.userId) {
-    return { ok: false, error: "You cannot mark your own attendance." };
+    return { ok: false, error: "Huwezi kujirekodi mahudhurio yako mwenyewe." };
   }
 
   // Overwriting an existing log (correction) requires ATTENDANCE_EDIT.
@@ -89,7 +89,7 @@ export async function markAttendance(
   if (!acquired) {
     return {
       ok: false,
-      error: "This shift is already being processed — try again shortly.",
+      error: "Zamu hii inashughulikiwa sasa — jaribu tena baada ya muda mfupi.",
     };
   }
 
@@ -146,7 +146,7 @@ export async function markAttendance(
   revalidatePath("/attendance");
   revalidatePath("/records");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Attendance saved." };
+  return { ok: true, message: "Mahudhurio yamehifadhiwa." };
 }
 
 /** Quick clock-in for PRESENT via a plain <form action>. Redirects back with
@@ -169,13 +169,13 @@ export async function uploadSickNote(
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, error: "No file was provided." };
+    return { ok: false, error: "Hakuna faili lililowekwa." };
   }
   if (!file.type.includes("pdf") && !file.type.includes("image")) {
-    return { ok: false, error: "Only PDF or image documents are accepted." };
+    return { ok: false, error: "Hati za PDF au picha pekee ndizo zinakubaliwa." };
   }
   if (file.size > 8 * 1024 * 1024) {
-    return { ok: false, error: "File exceeds the 8MB limit." };
+    return { ok: false, error: "Faili limezidi kikomo cha MB 8." };
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -183,10 +183,10 @@ export async function uploadSickNote(
   if (!url) {
     return {
       ok: false,
-      error: "Document storage is not configured on the server.",
+      error: "Hifadhi ya hati haijawekwa kwenye seva.",
     };
   }
-  return { ok: true, url, message: "Document uploaded." };
+  return { ok: true, url, message: "Hati imepakiwa." };
 }
 
 /**
@@ -198,16 +198,16 @@ export async function getSickNoteUrl(
   logId: string,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const actor = await requirePermission("SICKNESS_DOC_AUDIT");
-  if (!/^[0-9a-f-]{36}$/i.test(logId)) return { ok: false, error: "Invalid request." };
+  if (!/^[0-9a-f-]{36}$/i.test(logId)) return { ok: false, error: "Ombi si sahihi." };
 
   const log = await db.query.attendanceLogs.findFirst({
     where: eq(attendanceLogs.id, logId),
     columns: { id: true, guardId: true, date: true, shift: true, documentUrl: true },
   });
-  if (!log?.documentUrl) return { ok: false, error: "Document not found." };
+  if (!log?.documentUrl) return { ok: false, error: "Hati haikupatikana." };
 
   const url = await getSignedDownloadUrl(log.documentUrl, 600);
-  if (!url) return { ok: false, error: "Could not create a download link. Try again." };
+  if (!url) return { ok: false, error: "Imeshindikana kutengeneza kiungo cha kupakua. Jaribu tena." };
 
   await writeAuditLog({
     actorId: actor.userId,

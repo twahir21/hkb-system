@@ -22,24 +22,11 @@ import type {
   OverallMonthlySummary,
   GuardMonthlyStat,
 } from "@/lib/queries/monthly-summary";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 
-const MONTHS = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-];
+const MONTHS = t.calendar.months.map((label, i) => ({ value: i + 1, label }));
 
 export function MonthlySummaryView({
   summary,
@@ -116,7 +103,7 @@ export function MonthlySummaryView({
   const columns: Column<TableRow>[] = [
     {
       key: "guard",
-      header: "Guard & Station",
+      header: t.msv.guardStation,
       cell: (r) => (
         <div>
           <a
@@ -131,17 +118,17 @@ export function MonthlySummaryView({
     },
     {
       key: "supervisor",
-      header: "Supervisor",
+      header: t.reportsPage.supervisor,
       cell: (r) => <span className="text-xs text-slate-600">{r.supervisorName ?? "—"}</span>,
     },
     {
       key: "shifts",
-      header: "Shifts",
+      header: t.msv.shifts,
       cell: (r) => <span className="font-semibold text-slate-800">{r.totalShifts}</span>,
     },
     {
       key: "present",
-      header: "Present",
+      header: t.gmd.present,
       cell: (r) => (
         <span className="font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-xs">
           {r.presentCount}
@@ -150,7 +137,7 @@ export function MonthlySummaryView({
     },
     {
       key: "late",
-      header: "Late Arrivals",
+      header: t.gmd.lateArrivals,
       cell: (r) => (
         <div>
           {r.lateCount > 0 ? (
@@ -166,7 +153,7 @@ export function MonthlySummaryView({
     },
     {
       key: "absent",
-      header: "Absences",
+      header: t.gmd.absences,
       cell: (r) => (
         <div className="text-xs">
           {r.absentCount > 0 ? (
@@ -175,7 +162,7 @@ export function MonthlySummaryView({
                 {r.absentCount}
               </span>
               <span className="text-[11px] text-slate-400">
-                ({r.sickCount}s · {r.permittedCount}p · {r.notPermittedCount}u)
+                ({r.sickCount}{t.msv.sickShort} · {r.permittedCount}{t.msv.permShort} · {r.notPermittedCount}{t.msv.unexShort})
               </span>
             </div>
           ) : (
@@ -186,7 +173,7 @@ export function MonthlySummaryView({
     },
     {
       key: "attendancePct",
-      header: "Attendance Rate %",
+      header: t.msv.rate,
       cell: (r) => (
         <div className="w-36">
           <div className="flex items-center justify-between text-xs font-bold mb-1">
@@ -241,10 +228,10 @@ export function MonthlySummaryView({
             onChange={(e) => updateFilters({ supervisorId: e.target.value })}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           >
-            <option value="">All Supervisors</option>
+            <option value="">{t.msv.allSupervisors}</option>
             {supervisors.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name} ({s.role})
+                {s.name} ({t.roles[s.role as keyof typeof t.roles] ?? s.role})
               </option>
             ))}
           </select>
@@ -253,7 +240,7 @@ export function MonthlySummaryView({
         <div className="flex items-center gap-3">
           <a href={pdfUrl} download>
             <Button size="sm">
-              <FileDown className="h-4 w-4" /> Download Month PDF
+              <FileDown className="h-4 w-4" /> {t.msv.downloadPdf}
             </Button>
           </a>
         </div>
@@ -265,7 +252,7 @@ export function MonthlySummaryView({
         <div className="relative overflow-hidden rounded-2xl border border-brand-500/30 bg-linear-to-br from-brand-50 to-white p-5 shadow-sm sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-brand-800">
-              Monthly Attendance
+              {t.msv.monthlyAttendance}
             </span>
             <Award className="h-5 w-5 text-brand-600" />
           </div>
@@ -280,7 +267,7 @@ export function MonthlySummaryView({
               />
             </div>
             <p className="mt-2 text-[11px] text-slate-500">
-              On-time: <span className="font-semibold text-slate-700">{summary.overallOnTimePercentage}%</span>
+              {t.gmd.onTime}: <span className="font-semibold text-slate-700">{summary.overallOnTimePercentage}%</span>
             </p>
           </div>
         </div>
@@ -288,44 +275,44 @@ export function MonthlySummaryView({
         {/* Total Expected / Logged Shifts */}
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
-            <span>Total Shifts</span>
+            <span>{t.gmd.totalShifts}</span>
             <Users className="h-4 w-4 text-slate-400" />
           </div>
           <p className="mt-3 text-2xl font-bold text-slate-900">{summary.totalShifts}</p>
-          <p className="mt-1 text-xs text-slate-400">across {summary.totalGuards} active guards</p>
+          <p className="mt-1 text-xs text-slate-400">{t.msv.acrossGuards.replace("{n}", String(summary.totalGuards))}</p>
         </div>
 
         {/* Present Days */}
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm">
           <div className="flex items-center justify-between text-emerald-800 text-xs font-bold uppercase">
-            <span>Present</span>
+            <span>{t.gmd.present}</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <p className="mt-3 text-2xl font-bold text-emerald-900">{summary.presentCount}</p>
-          <p className="mt-1 text-xs text-emerald-700">on-time clock-ins</p>
+          <p className="mt-1 text-xs text-emerald-700">{t.gmd.onTimeClockIns}</p>
         </div>
 
         {/* Late Arrivals */}
         <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-sm">
           <div className="flex items-center justify-between text-amber-800 text-xs font-bold uppercase">
-            <span>Late Arrivals</span>
+            <span>{t.gmd.lateArrivals}</span>
             <Clock className="h-4 w-4 text-amber-600" />
           </div>
           <p className="mt-3 text-2xl font-bold text-amber-900">{summary.lateCount}</p>
           <p className="mt-1 text-xs text-amber-700 font-medium">
-            {summary.totalMinutesLate} min total delay
+            {summary.totalMinutesLate} {t.gmd.minTotalDelay}
           </p>
         </div>
 
         {/* Absences */}
         <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-5 shadow-sm">
           <div className="flex items-center justify-between text-rose-800 text-xs font-bold uppercase">
-            <span>Absences</span>
+            <span>{t.gmd.absences}</span>
             <XCircle className="h-4 w-4 text-rose-600" />
           </div>
           <p className="mt-3 text-2xl font-bold text-rose-900">{summary.absentCount}</p>
           <p className="mt-1 text-[11px] text-rose-700">
-            {summary.sickCount} sick · {summary.permittedCount} perm · {summary.notPermittedCount} unexcused
+            {summary.sickCount} {t.gmd.sick} · {summary.permittedCount} {t.gmd.perm} · {summary.notPermittedCount} {t.gmd.unexcused}
           </p>
         </div>
       </div>
@@ -335,8 +322,8 @@ export function MonthlySummaryView({
         {/* Full Month Daily Trend Area Chart */}
         <AttendanceTrendAreaChart
           data={summary.dailyTrend}
-          title={`${summary.monthName} ${summary.year} — Daily Attendance Progression`}
-          subtitle={`Day-by-day record of present, late, and absent shifts for ${summary.monthName}`}
+          title={`${summary.monthName} ${summary.year} — ${t.msv.dailyProgression}`}
+          subtitle={t.msv.dayByDay.replace("{month}", summary.monthName)}
           height={260}
         />
 
@@ -364,10 +351,10 @@ export function MonthlySummaryView({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900">
-              Individual Guard Attendance Breakdown — {summary.monthName} {summary.year}
+              {t.msv.individual} — {summary.monthName} {summary.year}
             </h3>
             <p className="text-xs text-slate-500">
-              Detailed shift statistics and attendance percentages per employee.
+              {t.msv.individualSub}
             </p>
           </div>
 
@@ -378,7 +365,7 @@ export function MonthlySummaryView({
                 setQ(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search guard or location…"
+              placeholder={t.msv.search}
               className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs sm:w-60 focus:border-brand-500 focus:outline-none"
             />
             <select
@@ -389,7 +376,7 @@ export function MonthlySummaryView({
               }}
               className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 focus:border-brand-500 focus:outline-none"
             >
-              <option value="">All Tiers</option>
+              <option value="">{t.msv.allTiers}</option>
               <option value="EXCELLENT">{enumLabel("EXCELLENT")} (≥95%)</option>
               <option value="GOOD">{enumLabel("GOOD")} (85-94%)</option>
               <option value="WARNING">{enumLabel("WARNING")} (70-84%)</option>
@@ -402,7 +389,7 @@ export function MonthlySummaryView({
           <DataTable
             columns={columns}
             rows={paginatedGuards.map((g): TableRow => ({ ...g, id: g.guardId }))}
-            empty="No guard records found for this month."
+            empty={t.msv.empty}
           />
         </div>
 
@@ -416,7 +403,7 @@ export function MonthlySummaryView({
               setPageSize(newSize);
               setPage(1);
             }}
-            itemLabel="guard records"
+            itemLabel={t.msv.guardRecords}
           />
         )}
       </div>

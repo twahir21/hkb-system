@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui";
 import {
@@ -82,14 +83,14 @@ export function GuardForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
-          label="Full name"
+          label={t.user.fullName}
           name="fullName"
           defaultValue={editing?.fullName}
           required
           className="sm:col-span-2"
         />
         <Field
-          label="Email"
+          label={t.common.email}
           name="email"
           type="email"
           defaultValue={editing?.email}
@@ -97,14 +98,14 @@ export function GuardForm({
           className="sm:col-span-2"
         />
         <Field
-          label="Employee ID"
+          label={t.employees.employeeNo}
           name="employeeId"
           defaultValue={editing?.employeeId}
           required
         />
         <label className="block">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Gender
+            {t.user.gender}
           </span>
           <select
             name="gender"
@@ -112,33 +113,33 @@ export function GuardForm({
             required
             className={inputCls}
           >
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
+            <option value="MALE">{t.user.male}</option>
+            <option value="FEMALE">{t.user.female}</option>
           </select>
         </label>
         <Field
-          label="Registration date"
+          label={t.guard.regDate}
           name="registrationDate"
           type="date"
           defaultValue={editing?.registrationDate}
           required
         />
         <Field
-          label="Age"
+          label={t.guard.age}
           name="age"
           type="number"
           defaultValue={editing?.age}
           required
         />
         <Field
-          label="Phone"
+          label={t.common.phone}
           name="phone"
           defaultValue={editing?.phone}
           required
         />
         <label className="block sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Work region
+            {t.guard.workRegion}
           </span>
           <select
             name="regionPicker"
@@ -147,7 +148,7 @@ export function GuardForm({
             required
             className={inputCls}
           >
-            <option value="">Select region…</option>
+            <option value="">{t.guard.selectRegion}</option>
             {regions.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -157,7 +158,7 @@ export function GuardForm({
         </label>
         <label className="block sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Work site (station)
+            {t.guard.workSite}
           </span>
           <select
             name="stationId"
@@ -168,7 +169,7 @@ export function GuardForm({
             className={inputCls}
           >
             <option value="">
-              {regionId ? "Select site…" : "Select a region first"}
+              {regionId ? t.guard.selectSite : t.guard.regionFirst}
             </option>
             {regionStations.map((s) => (
               <option key={s.id} value={s.id}>
@@ -178,13 +179,13 @@ export function GuardForm({
           </select>
           {regionId && regionStations.length === 0 && (
             <span className="mt-1 block text-xs text-amber-600">
-              No sites registered under this region yet — add one under Store → Regions &amp; Stations.
+              {t.guard.noSites}
             </span>
           )}
         </label>
         <label className="block sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Client (company)
+            {t.guard.client}
           </span>
           <select
             name="clientId"
@@ -192,41 +193,41 @@ export function GuardForm({
             required
             className={inputCls}
           >
-            <option value="">Select client…</option>
+            <option value="">{t.guard.selectClient}</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
-                {c.isActive === false ? " (inactive)" : ""}
+                {c.isActive === false ? ` (${t.guard.inactive})` : ""}
               </option>
             ))}
           </select>
           {clients.length === 0 && (
             <span className="mt-1 block text-xs text-amber-600">
-              No clients registered yet — add one under Manage → Clients.
+              {t.guard.noClients}
             </span>
           )}
         </label>
         <Field
-          label="Home location"
+          label={t.guard.homeLocation}
           name="homeLocation"
           defaultValue={editing?.homeLocation}
           required
           className="sm:col-span-2"
         />
         <Field
-          label="Next of kin name"
+          label={t.employees.kinName}
           name="kinName"
           defaultValue={editing?.kinName}
           required
         />
         <Field
-          label="Kin relation"
+          label={t.guard.kinRelation}
           name="kinRelation"
           defaultValue={editing?.kinRelation}
           required
         />
         <Field
-          label="Kin phone"
+          label={t.employees.kinPhone}
           name="kinPhone"
           defaultValue={editing?.kinPhone}
           required
@@ -235,17 +236,17 @@ export function GuardForm({
 
       <label className="block">
         <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Assigned supervisor
+          {t.guard.supervisor}
         </span>
         <select
           name="assignedSupervisorId"
           defaultValue={editing?.assignedSupervisorId ?? ""}
           className={inputCls}
         >
-          <option value="">Unassigned</option>
+          <option value="">{t.guard.unassigned}</option>
           {supervisors.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.name} ({s.role})
+              {s.name} ({t.roles[s.role as keyof typeof t.roles] ?? s.role})
             </option>
           ))}
         </select>
@@ -260,10 +261,10 @@ export function GuardForm({
 
       <div className="flex justify-end gap-2">
         <Button variant="secondary" size="sm" onClick={onDone} type="button">
-          Cancel
+          {t.common.cancel}
         </Button>
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : editing ? "Update guard" : "Register guard"}
+          {pending ? t.common.saving : editing ? t.guard.update : t.guard.register}
         </Button>
       </div>
     </form>

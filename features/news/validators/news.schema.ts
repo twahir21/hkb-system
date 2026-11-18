@@ -22,10 +22,10 @@ export const IMAGE_MIME_TYPES = [
 /** Returns an error message, or null when the file is an acceptable image. */
 export function isAllowedImage(file: { type: string; size: number }): string | null {
   if (!IMAGE_MIME_TYPES.includes(file.type as (typeof IMAGE_MIME_TYPES)[number])) {
-    return "Only PNG, JPEG, WEBP or GIF images are allowed.";
+    return "Picha za PNG, JPEG, WEBP au GIF pekee zinaruhusiwa.";
   }
   if (file.size > IMAGE_MAX_BYTES) {
-    return "Image is too large (maximum 4 MB).";
+    return "Picha ni kubwa mno (kiwango cha juu ni MB 4).";
   }
   return null;
 }
@@ -34,27 +34,27 @@ export const newsCreateSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(2, "Title is required")
-    .max(250, "Title is too long"),
+    .min(2, "Kichwa kinahitajika")
+    .max(250, "Kichwa ni kirefu mno"),
   slug: z
     .string()
     .trim()
-    .max(220, "Slug is too long")
-    .regex(SLUG_REGEX, "Slug may only contain lowercase letters, numbers and hyphens")
+    .max(220, "Slug ni ndefu mno")
+    .regex(SLUG_REGEX, "Slug iwe na herufi ndogo, namba na vistari pekee")
     .optional(),
-  summary: z.string().trim().max(500, "Summary is too long").optional(),
+  summary: z.string().trim().max(500, "Muhtasari ni mrefu mno").optional(),
   body: z
     .string()
     .trim()
-    .min(1, "Content is required")
-    .max(100_000, "Content is too long"),
-  category: z.string().trim().max(100, "Category is too long").optional(),
-  coverImageUrl: z.string().trim().url("Cover image URL is invalid").max(1000).optional(),
+    .min(1, "Maudhui yanahitajika")
+    .max(100_000, "Maudhui ni marefu mno"),
+  category: z.string().trim().max(100, "Kundi ni refu mno").optional(),
+  coverImageUrl: z.string().trim().url("Kiungo cha picha si sahihi").max(1000).optional(),
   status: z.enum(NEWS_STATUSES).default("DRAFT"),
 });
 
 export const newsUpdateSchema = newsCreateSchema.extend({
-  id: z.string().uuid("Invalid article id"),
+  id: z.string().uuid("Namba ya makala si sahihi"),
 });
 
 export type NewsCreateInput = z.infer<typeof newsCreateSchema>;

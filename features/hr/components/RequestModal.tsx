@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
@@ -34,18 +35,18 @@ export function RequestTransferModal({
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <Plus className="h-4 w-4" /> Request transfer
+        <Plus className="h-4 w-4" /> {t.transfer.request}
       </Button>
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title="Request a guard transfer"
+        title={t.transfer.requestTitle}
       >
         <form action={formAction} className="space-y-4">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Guard
+              {t.records.guard}
             </span>
             <select
               name="guardId"
@@ -54,7 +55,7 @@ export function RequestTransferModal({
               defaultValue=""
             >
               <option value="" disabled>
-                Select guard…
+                {t.transfer.selectGuard}
               </option>
               {guards.map((g) => (
                 <option key={g.id} value={g.id}>
@@ -66,7 +67,7 @@ export function RequestTransferModal({
 
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Transfer to supervisor
+              {t.transfer.toSupervisor}
             </span>
             <select
               name="toSupervisorId"
@@ -75,13 +76,13 @@ export function RequestTransferModal({
               defaultValue=""
             >
               <option value="" disabled>
-                Select supervisor…
+                {t.transfer.selectSupervisor}
               </option>
               {supervisors
                 .filter((s) => s.id !== currentUserId)
                 .map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.name} ({s.role})
+                    {s.name} ({t.roles[s.role as keyof typeof t.roles] ?? s.role})
                   </option>
                 ))}
             </select>
@@ -89,14 +90,14 @@ export function RequestTransferModal({
 
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Reason
+              {t.common.reason}
             </span>
             <textarea
               name="reason"
               rows={3}
               required
               className={inputCls}
-              placeholder="Why is this transfer being requested?"
+              placeholder={t.transfer.reasonPlaceholder}
             />
           </label>
 
@@ -116,10 +117,10 @@ export function RequestTransferModal({
               onClick={() => setOpen(false)}
               type="button"
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button type="submit" size="sm" disabled={pending}>
-              {pending ? "Submitting…" : "Submit request"}
+              {pending ? t.common.submitting : t.transfer.submit}
             </Button>
           </div>
         </form>

@@ -40,7 +40,7 @@ export async function restockBusiness(
     description: formData.get("description") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
   const v = parsed.data;
   const amount = Math.round(v.quantity * v.unitCost * 100) / 100;
@@ -100,7 +100,7 @@ export async function recordSale(
     guardId: formData.get("guardId") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
   const v = parsed.data;
   const total = Math.round(v.quantity * v.unitPrice * 100) / 100;
@@ -117,7 +117,7 @@ export async function recordSale(
   if (stockRows.length === 0) {
     return {
       ok: false,
-      error: "Not enough stock on hand for this business — restock first.",
+      error: "Hakuna mzigo wa kutosha kwenye biashara hii — ongeza mzigo kwanza.",
     };
   }
 
@@ -145,7 +145,7 @@ export async function recordSale(
       .values({
         guardId: v.guardId!,
         type: creditType,
-        description: `${v.quantity} ${business?.unit ?? "unit"} ${business?.name ?? "goods"} — bought on credit`,
+        description: `${v.quantity} ${business?.unit ?? "kipimo"} ${business?.name ?? "bidhaa"} — imenunuliwa kwa mkopo`,
         quantity: String(v.quantity),
         amount: String(total),
         date: v.date,
@@ -193,8 +193,8 @@ export async function recordSale(
     ok: true,
     message:
       v.saleType === "CREDIT_GUARD"
-        ? `Sale recorded on credit (${total.toLocaleString()} TZS) and added to the guard's debts.`
-        : `Cash sale recorded (${total.toLocaleString()} TZS).`,
+        ? `Mauzo ya mkopo yamerekodiwa (${total.toLocaleString()} TZS) na kuongezwa kwenye madeni ya mlinzi.`
+        : `Mauzo ya taslimu yamerekodiwa (${total.toLocaleString()} TZS).`,
   };
 }
 
@@ -214,7 +214,7 @@ export async function recordExpense(
     amount: formData.get("amount") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
   const v = parsed.data;
 
@@ -239,6 +239,6 @@ export async function recordExpense(
   });
 
   revalidateBusinessPaths();
-  return { ok: true, message: `Expense recorded (${v.amount.toLocaleString()} TZS).` };
+  return { ok: true, message: `Matumizi yamerekodiwa (${v.amount.toLocaleString()} TZS).` };
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui";
@@ -31,7 +32,7 @@ export function ReviewCell({ requestId }: { requestId: string }) {
               : "bg-white text-emerald-700 hover:bg-emerald-50")
           }
         >
-          <Check className="mr-1 inline h-3" /> Approve
+          <Check className="mr-1 inline h-3" /> {t.leave.approve}
         </button>
         <button
           type="button"
@@ -43,17 +44,17 @@ export function ReviewCell({ requestId }: { requestId: string }) {
               : "bg-white text-rose-700 hover:bg-rose-50")
           }
         >
-          <X className="mr-1 inline h-3" /> Reject
+          <X className="mr-1 inline h-3" /> {t.leave.reject}
         </button>
       </div>
 
       <input
         name="reviewerNotes"
-        placeholder="Reviewer notes (optional)"
+        placeholder={t.review.notes}
         className="rounded-lg border border-slate-300 px-2 py-1.5 text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
       />
       <Button type="submit" size="sm" disabled={pending}>
-        {pending ? "Processing…" : "Submit decision"}
+        {pending ? t.review.processing : t.review.submit}
       </Button>
       {state.error && <p className="text-xs text-rose-600">{state.error}</p>}
     </form>

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import { FileDown, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui";
@@ -38,17 +39,17 @@ export function ReportBuilder({ supervisors }: { supervisors: SupervisorOpt[] })
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500">Report parameters</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t.rb.params}</h3>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label>
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Start date
+              {t.rb.startDate}
             </span>
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
           </label>
           <label>
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              End date
+              {t.rb.endDate}
             </span>
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
           </label>
@@ -57,25 +58,25 @@ export function ReportBuilder({ supervisors }: { supervisors: SupervisorOpt[] })
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label>
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Supervisor
+              {t.reportsPage.supervisor}
             </span>
             <select value={supervisorId} onChange={(e) => setSupervisorId(e.target.value)} className={inputCls}>
-              <option value="">All supervisors</option>
+              <option value="">{t.msv.allSupervisors}</option>
               {supervisors.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.role})
+                  {s.name} ({t.roles[s.role as keyof typeof t.roles] ?? s.role})
                 </option>
               ))}
             </select>
           </label>
           <label>
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Shift
+              {t.records.shift}
             </span>
             <select value={shift} onChange={(e) => setShift(e.target.value)} className={inputCls}>
-              <option value="">Both shifts</option>
-              <option value="DAY">Day</option>
-              <option value="NIGHT">Night</option>
+              <option value="">{t.rb.bothShifts}</option>
+              <option value="DAY">{t.status.DAY}</option>
+              <option value="NIGHT">{t.status.NIGHT}</option>
             </select>
           </label>
         </div>
@@ -83,7 +84,7 @@ export function ReportBuilder({ supervisors }: { supervisors: SupervisorOpt[] })
         <div className="mt-6 flex items-center gap-3">
           <a href={url} download>
             <Button>
-              <FileDown className="h-4 w-4" /> Generate PDF
+              <FileDown className="h-4 w-4" /> {t.rb.generate}
             </Button>
           </a>
           <span className="text-xs text-slate-400">
@@ -94,11 +95,15 @@ export function ReportBuilder({ supervisors }: { supervisors: SupervisorOpt[] })
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500">Notes</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500">{t.common.notes}</h3>
         <ul className="mt-4 space-y-2 text-sm text-slate-600">
-          <li>• Reports are generated server-side and streamed as genuine PDF files.</li>
-          <li>• Access is limited to Bursar, HR &amp; Super Admin (full) — supervisors see summaries only.</li>
-          <li>• Absences flagged <span className="font-semibold text-rose-600">NOT PERMITTED</span> are included for payroll deduction review.</li>
+          <li>• {t.rb.note1}</li>
+          <li>• {t.rb.note2}</li>
+          <li>
+            • {t.rb.note3a}{" "}
+            <span className="font-semibold text-rose-600">{t.status.NOT_PERMITTED.toUpperCase()}</span>{" "}
+            {t.rb.note3b}
+          </li>
         </ul>
       </div>
     </div>

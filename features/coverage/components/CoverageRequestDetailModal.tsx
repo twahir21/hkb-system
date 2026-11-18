@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Badge, Button, Modal, statusTone } from "@/components/ui";
+import { enumLabel, t } from "@/lib/i18n";
 import type { CoverageRequestRow } from "@/features/coverage/queries/coverage";
 import {
   deleteCoverageRequest,
@@ -36,41 +37,41 @@ export function CoverageRequestDetailModal({
   const saved = updateState.ok || deleteState.ok;
 
   return (
-    <Modal open onClose={onClose} title={`Coverage request — ${request.fullName}`}>
+    <Modal open onClose={onClose} title={`${t.cov.request} — ${request.fullName}`}>
       <div className="space-y-4 text-sm">
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">Email</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.common.email}</dt>
             <dd className="text-slate-800">{request.email}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">Phone</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.common.phone}</dt>
             <dd className="text-slate-800">{request.phone}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">Service</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.cov.service}</dt>
             <dd className="text-slate-800">{request.service}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">Source</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.cov.source}</dt>
             <dd className="text-slate-800">{request.source}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">Received</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.cov.received}</dt>
             <dd className="text-slate-800">
               {new Date(request.createdAt).toLocaleString("en-GB")}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">Status</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.common.status}</dt>
             <dd>
-              <Badge tone={statusTone(request.status)}>{request.status}</Badge>
+              <Badge tone={statusTone(request.status)}>{enumLabel(request.status)}</Badge>
             </dd>
           </div>
         </dl>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Message</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.cov.message}</p>
           <p className="mt-1 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-slate-700">
             {request.message}
           </p>
@@ -79,7 +80,7 @@ export function CoverageRequestDetailModal({
         {request.internalNotes && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Internal notes
+              {t.cov.internalNotes}
             </p>
             <p className="mt-1 whitespace-pre-wrap rounded-lg bg-amber-50 p-3 text-amber-800">
               {request.internalNotes}
@@ -93,7 +94,7 @@ export function CoverageRequestDetailModal({
               <input type="hidden" name="id" value={request.id} />
               <label className="block">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Status
+                  {t.common.status}
                 </span>
                 <select
                   name="status"
@@ -102,27 +103,27 @@ export function CoverageRequestDetailModal({
                 >
                   {STATUSES.map((s) => (
                     <option key={s} value={s}>
-                      {s.replace("_", " ")}
+                      {enumLabel(s)}
                     </option>
                   ))}
                 </select>
               </label>
               <label className="block">
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Internal notes
+                  {t.cov.internalNotes}
                 </span>
                 <textarea
                   name="internalNotes"
                   rows={3}
                   defaultValue={request.internalNotes ?? ""}
-                  placeholder="Staff-only notes (quotes, follow-ups, assignment plans…)"
+                  placeholder={t.cov.notesPlaceholder}
                   className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
               </label>
               <div className="flex items-center justify-between gap-3">
                 {confirmDelete ? (
                   <span className="text-xs font-medium text-rose-600">
-                    Click “Confirm delete” below to remove this request permanently.
+                    {t.cov.confirmHint}
                   </span>
                 ) : (
                   <Button
@@ -131,11 +132,11 @@ export function CoverageRequestDetailModal({
                     onClick={() => setConfirmDelete(true)}
                     className="text-rose-600 hover:bg-rose-50"
                   >
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                    <Trash2 className="h-3.5 w-3.5" /> {t.common.delete}
                   </Button>
                 )}
                 <Button type="submit" disabled={updatePending}>
-                  {updatePending ? "Saving…" : "Save changes"}
+                  {updatePending ? t.common.saving : t.cov.saveChanges}
                 </Button>
               </div>
               {updateState.error && <p className="text-xs text-rose-600">{updateState.error}</p>}
@@ -145,10 +146,10 @@ export function CoverageRequestDetailModal({
               <form action={deleteAction} className="flex items-center gap-2">
                 <input type="hidden" name="id" value={request.id} />
                 <Button type="submit" variant="danger" size="sm" disabled={deletePending}>
-                  {deletePending ? "Deleting…" : "Confirm delete"}
+                  {deletePending ? t.common.deleting : t.cov.confirmDelete}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 {deleteState.error && (
                   <p className="text-xs text-rose-600">{deleteState.error}</p>
@@ -166,7 +167,7 @@ export function CoverageRequestDetailModal({
 
         {!canManage && (
           <p className="border-t border-slate-100 pt-3 text-xs text-slate-400">
-            Read-only — only the Super Admin can update or delete requests.
+            {t.cov.readOnly}
           </p>
         )}
       </div>

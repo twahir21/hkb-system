@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState } from "react";
 import { Button, Card } from "@/components/ui";
 import { createItem, updateItem, type ActionState } from "@/features/store/actions/items.actions";
@@ -31,25 +32,25 @@ export function ItemForm() {
   });
 
   return (
-    <Card title="Add store item" subtitle="Items that can be stocked at stations">
+    <Card title={t.storeForms.addItem} subtitle={t.storeForms.addItemSub}>
       <form action={formAction} className="space-y-3">
         <label className="block">
-          <span className={labelSpanCls}>Name</span>
-          <input name="name" required className={inputCls} placeholder="e.g. Rubber Boots" />
+          <span className={labelSpanCls}>{t.common.name}</span>
+          <input name="name" required className={inputCls} placeholder={t.storeForms.itemPlaceholder} />
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className={labelSpanCls}>Unit</span>
+            <span className={labelSpanCls}>{t.store.unit}</span>
             <input name="unit" className={inputCls} placeholder="pcs" defaultValue="pcs" />
           </label>
           <label className="block">
-            <span className={labelSpanCls}>Category</span>
-            <input name="category" className={inputCls} placeholder="e.g. Uniform" />
+            <span className={labelSpanCls}>{t.store.category}</span>
+            <input name="category" className={inputCls} placeholder={t.storeForms.categoryPlaceholder} />
           </label>
         </div>
         <Feedback state={state} />
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : "Add item"}
+          {pending ? t.common.saving : t.storeForms.addItemBtn}
         </Button>
       </form>
     </Card>
@@ -66,7 +67,7 @@ export function ItemActiveToggle({ id, isActive }: { id: string; isActive: boole
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="isActive" value={isActive ? "false" : "true"} />
       <Button type="submit" size="sm" variant="ghost" disabled={pending} title={state.error ?? ""}>
-        {isActive ? "Deactivate" : "Activate"}
+        {isActive ? t.clients.deactivate : t.clients.activate}
       </Button>
     </form>
   );
@@ -77,7 +78,7 @@ type BranchOption = { id: string; name: string; isHq: boolean };
 function BranchOptions({ branches }: { branches: BranchOption[] }) {
   return (
     <>
-      <option value="">— No branch —</option>
+      <option value="">— {t.user.noBranch} —</option>
       {branches.map((b) => (
         <option key={b.id} value={b.id}>
           {b.name}
@@ -94,25 +95,25 @@ export function RegionForm({ branches }: { branches: BranchOption[] }) {
   });
 
   return (
-    <Card title="Add region" subtitle="Top-level grouping for stations">
+    <Card title={t.storeForms.addRegion} subtitle={t.storeForms.addRegionSub}>
       <form action={formAction} className="space-y-3">
         <label className="block">
-          <span className={labelSpanCls}>Name</span>
-          <input name="name" required className={inputCls} placeholder="e.g. Dar es Salaam" />
+          <span className={labelSpanCls}>{t.common.name}</span>
+          <input name="name" required className={inputCls} placeholder={t.storeForms.regionPlaceholder} />
         </label>
         <label className="block">
-          <span className={labelSpanCls}>Description</span>
+          <span className={labelSpanCls}>{t.common.description}</span>
           <input name="description" className={inputCls} />
         </label>
         <label className="block">
-          <span className={labelSpanCls}>Branch</span>
+          <span className={labelSpanCls}>{t.common.branch}</span>
           <select name="branchId" className={inputCls} defaultValue="">
             <BranchOptions branches={branches} />
           </select>
         </label>
         <Feedback state={state} />
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : "Add region"}
+          {pending ? t.common.saving : t.storeForms.addRegion}
         </Button>
       </form>
     </Card>
@@ -146,7 +147,7 @@ function RegionBranchRow({
           <BranchOptions branches={branches} />
         </select>
         <Button type="submit" size="sm" variant="ghost" disabled={pending}>
-          {pending ? "…" : "Save"}
+          {pending ? "…" : t.common.save}
         </Button>
       </div>
       <Feedback state={state} />
@@ -165,18 +166,18 @@ export function RegionBranchList({
   const unassigned = regions.filter((r) => !r.branchId).length;
   return (
     <Card
-      title="Region branches"
+      title={t.storeForms.regionBranches}
       subtitle={
         unassigned > 0
-          ? `${unassigned} region${unassigned === 1 ? "" : "s"} without a branch — incidents there use the reporter's branch`
-          : "Incidents in a region go to its branch"
+          ? t.storeForms.regionsNoBranch.replace("{n}", String(unassigned))
+          : t.storeForms.regionsBranchHint
       }
     >
       <div className="space-y-3">
         {regions.map((r) => (
           <RegionBranchRow key={r.id} region={r} branches={branches} />
         ))}
-        {regions.length === 0 && <p className="text-sm text-slate-400">No regions yet.</p>}
+        {regions.length === 0 && <p className="text-sm text-slate-400">{t.storeForms.noRegions}</p>}
       </div>
     </Card>
   );
@@ -194,23 +195,23 @@ export function StationForm({
   });
 
   return (
-    <Card title="Add station" subtitle="A physical outpost inside a region">
+    <Card title={t.storeForms.addStation} subtitle={t.storeForms.addStationSub}>
       <form action={formAction} className="space-y-3">
         <label className="block">
-          <span className={labelSpanCls}>Name</span>
-          <input name="name" required className={inputCls} placeholder="e.g. Post 12" />
+          <span className={labelSpanCls}>{t.common.name}</span>
+          <input name="name" required className={inputCls} placeholder={t.storeForms.stationPlaceholder} />
         </label>
         <label className="block">
-          <span className={labelSpanCls}>Region</span>
+          <span className={labelSpanCls}>{t.common.region}</span>
           <select name="regionId" required className={inputCls} defaultValue="">
-            <option value="" disabled>Select region…</option>
+            <option value="" disabled>{t.guard.selectRegion}</option>
             {regions.map((r) => (
               <option key={r.id} value={r.id}>{r.name}</option>
             ))}
           </select>
         </label>
         <label className="block">
-          <span className={labelSpanCls}>Supervisor (optional)</span>
+          <span className={labelSpanCls}>{t.storeForms.supervisorOptional}</span>
           <select name="supervisorId" className={inputCls} defaultValue="">
             <option value="">—</option>
             {supervisors.map((s) => (
@@ -220,7 +221,7 @@ export function StationForm({
         </label>
         <Feedback state={state} />
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : "Add station"}
+          {pending ? t.common.saving : t.storeForms.addStation}
         </Button>
       </form>
     </Card>

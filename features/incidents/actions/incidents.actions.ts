@@ -34,7 +34,7 @@ export async function reportIncident(_prev: ActionState, formData: FormData): Pr
     clientId: formData.get("clientId") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid incident" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Tukio si sahihi" };
   }
   const v = parsed.data;
 
@@ -48,7 +48,7 @@ export async function reportIncident(_prev: ActionState, formData: FormData): Pr
     .innerJoin(regions, eq(stations.regionId, regions.id))
     .where(eq(stations.id, v.stationId))
     .limit(1);
-  if (!site) return { ok: false, error: "Selected site no longer exists." };
+  if (!site) return { ok: false, error: "Kituo ulichochagua hakipo tena." };
 
   const reporterBranch = await getUserBranch(user.userId);
   const branchId = site.branchId ?? reporterBranch?.id ?? null;
@@ -56,7 +56,7 @@ export async function reportIncident(_prev: ActionState, formData: FormData): Pr
   // Branch-scoped users (Office Assistants) may only report for their own branch.
   const scope = await getIncidentScope(user);
   if (scope.kind === "branch" && branchId !== scope.branchId) {
-    return { ok: false, error: "You can only report incidents for sites in your own branch." };
+    return { ok: false, error: "Unaweza kuripoti matukio ya vituo vya tawi lako pekee." };
   }
 
   const [created] = await db
@@ -82,25 +82,25 @@ export async function reportIncident(_prev: ActionState, formData: FormData): Pr
   });
 
   revalidate();
-  return { ok: true, message: "Incident reported." };
+  return { ok: true, message: "Tukio limeripotiwa." };
 }
 
 /** Log an action taken on an incident (managers only, inside their scope). */
 export async function addIncidentAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Hujaingia kwenye mfumo." };
 
   const parsed = incidentActionSchema.safeParse({
     incidentId: formData.get("incidentId") ?? undefined,
     note: formData.get("note") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid action" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Kitendo si sahihi" };
   }
 
   const scope = await getIncidentScope(user);
   if (!(await canActOnIncident(scope, parsed.data.incidentId))) {
-    return { ok: false, error: "You are not allowed to act on this incident." };
+    return { ok: false, error: "Huna ruhusa ya kushughulikia tukio hili." };
   }
 
   await db.insert(incidentActions).values({
@@ -121,18 +121,18 @@ export async function addIncidentAction(_prev: ActionState, formData: FormData):
   });
 
   revalidate();
-  return { ok: true, message: "Action recorded." };
+  return { ok: true, message: "Hatua imerekodiwa." };
 }
 
 /** Mark an incident solved (RESOLVED) or reopen it (OPEN). */
 export async function setIncidentStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Hujaingia kwenye mfumo." };
   if (
     !hasPermission(user.role, "INCIDENT_MANAGE_ALL") &&
     !hasPermission(user.role, "INCIDENT_MANAGE_BRANCH")
   ) {
-    return { ok: false, error: "You are not allowed to change incident status." };
+    return { ok: false, error: "Huna ruhusa ya kubadilisha hali ya tukio." };
   }
 
   const parsed = incidentStatusSchema.safeParse({
@@ -141,13 +141,13 @@ export async function setIncidentStatus(_prev: ActionState, formData: FormData):
     note: formData.get("note") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid status" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Hali si sahihi" };
   }
   const v = parsed.data;
 
   const scope = await getIncidentScope(user);
   if (!(await canActOnIncident(scope, v.incidentId))) {
-    return { ok: false, error: "You are not allowed to act on this incident." };
+    return { ok: false, error: "Huna ruhusa ya kushughulikia tukio hili." };
   }
 
   const resolved = v.status === "RESOLVED";
@@ -163,7 +163,7 @@ export async function setIncidentStatus(_prev: ActionState, formData: FormData):
 
   await db.insert(incidentActions).values({
     incidentId: v.incidentId,
-    note: v.note || (resolved ? "Marked as solved." : "Reopened."),
+    note: v.note || (resolved ? "Limewekwa kuwa limetatuliwa." : "Reopened."),
     actorId: user.userId,
   });
 
@@ -175,5 +175,5 @@ export async function setIncidentStatus(_prev: ActionState, formData: FormData):
   });
 
   revalidate();
-  return { ok: true, message: resolved ? "Incident marked as solved." : "Incident reopened." };
+  return { ok: true, message: resolved ? "Tukio limewekwa kuwa limetatuliwa." : "Tukio limefunguliwa tena." };
 }

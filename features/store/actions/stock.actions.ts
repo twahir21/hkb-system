@@ -85,7 +85,7 @@ export async function recordPurchase(
     receivedById: formData.get("receivedById") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid purchase" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Ununuzi si sahihi" };
   }
   const v = parsed.data;
 
@@ -113,7 +113,7 @@ export async function recordPurchase(
   });
 
   revalidateStorePaths();
-  return { ok: true, message: "Stock purchased and recorded." };
+  return { ok: true, message: "Mali imenunuliwa na kurekodiwa." };
 }
 
 /** Issue (give) stock from one station/storekeeper to another. */
@@ -133,13 +133,13 @@ export async function issueStock(
     receivedById: formData.get("receivedById") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid issue" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Utoaji si sahihi" };
   }
   const v = parsed.data;
 
   const ok = await decrementBalance(v.itemId, v.fromStationId!, v.quantity);
   if (!ok) {
-    return { ok: false, error: "Not enough stock at the source station." };
+    return { ok: false, error: "Hakuna mali ya kutosha kwenye kituo kinachotoa." };
   }
   await incrementBalance(v.itemId, v.toStationId!, v.quantity);
 
@@ -172,7 +172,7 @@ export async function issueStock(
   });
 
   revalidateStorePaths();
-  return { ok: true, message: "Stock issued." };
+  return { ok: true, message: "Mali imetolewa." };
 }
 
 /** Return stock from a station/storekeeper back to a source station. */
@@ -192,13 +192,13 @@ export async function returnStock(
     reason: formData.get("reason") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid return" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Urudishaji si sahihi" };
   }
   const v = parsed.data;
 
   const ok = await decrementBalance(v.itemId, v.fromStationId!, v.quantity);
   if (!ok) {
-    return { ok: false, error: "Not enough stock at the returning station." };
+    return { ok: false, error: "Hakuna mali ya kutosha kwenye kituo kinachorudisha." };
   }
   if (v.toStationId) {
     await incrementBalance(v.itemId, v.toStationId, v.quantity);
@@ -232,7 +232,7 @@ export async function returnStock(
   });
 
   revalidateStorePaths();
-  return { ok: true, message: "Stock return recorded." };
+  return { ok: true, message: "Urudishaji wa mali umerekodiwa." };
 }
 
 /** Record lost stock (or a hand-out to end users) with a mandatory reason. */
@@ -250,16 +250,16 @@ export async function recordLossOrOut(
     reason: formData.get("reason") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid record" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Rekodi si sahihi" };
   }
   const v = parsed.data;
   if (v.type !== "LOST" && v.type !== "OUT" && v.type !== "ADJUSTMENT") {
-    return { ok: false, error: "Only LOST, OUT or ADJUSTMENT movements are allowed here." };
+    return { ok: false, error: "Ni mwenendo wa Imepotea, Imetumika au Marekebisho pekee unaoruhusiwa hapa." };
   }
 
   const ok = await decrementBalance(v.itemId, v.fromStationId!, v.quantity);
   if (!ok) {
-    return { ok: false, error: "Not enough stock at the station." };
+    return { ok: false, error: "Hakuna mali ya kutosha kituoni." };
   }
 
   const [movement] = await db
@@ -301,7 +301,7 @@ export async function requestStockTransfer(
     reason: formData.get("reason") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid transfer" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Uhamisho si sahihi" };
   }
   const v = parsed.data;
 
@@ -319,7 +319,7 @@ export async function requestStockTransfer(
   });
 
   revalidateStorePaths();
-  return { ok: true, message: "Transfer request submitted." };
+  return { ok: true, message: "Ombi la uhamisho limetumwa." };
 }
 
 /** Approve or reject a pending stock transfer. Approval moves the stock. */
@@ -330,23 +330,23 @@ export async function approveOrRejectStockTransfer(
   const actor = await requirePermission("STOCK_TRANSFER_APPROVE");
 
   const id = formData.get("id");
-  if (typeof id !== "string") return { ok: false, error: "Missing request id" };
+  if (typeof id !== "string") return { ok: false, error: "Namba ya ombi haipo" };
 
   const parsed = stockTransferActionSchema.safeParse({
     action: formData.get("action") ?? undefined,
     reviewerNotes: formData.get("reviewerNotes") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid action" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Kitendo si sahihi" };
   }
   const { action, reviewerNotes } = parsed.data;
 
   const request = await db.query.stockTransfers.findFirst({
     where: eq(stockTransfers.id, id),
   });
-  if (!request) return { ok: false, error: "Transfer request not found." };
+  if (!request) return { ok: false, error: "Ombi la uhamisho halikupatikana." };
   if (request.status !== "PENDING") {
-    return { ok: false, error: "Transfer already processed." };
+    return { ok: false, error: "Uhamisho tayari umeshughulikiwa." };
   }
 
   if (action === "APPROVE") {
@@ -354,7 +354,7 @@ export async function approveOrRejectStockTransfer(
     if (!ok) {
       return {
         ok: false,
-        error: "Source station no longer holds enough stock for this transfer.",
+        error: "Kituo kinachotoa hakina tena mali ya kutosha kwa uhamisho huu.",
       };
     }
     await incrementBalance(request.itemId, request.toStationId, request.quantity);

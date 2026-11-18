@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState } from "react";
 import { Button } from "@/components/ui";
 import {
@@ -36,14 +37,14 @@ export function UserForm({
       <div className="space-y-4">
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-            Full Name
+            {t.user.fullName}
           </label>
           <input
             name="fullName"
             type="text"
             defaultValue={editing?.fullName ?? ""}
             required
-            placeholder="e.g. John Doe"
+            placeholder={t.user.fullNamePlaceholder}
             className={inputCls}
           />
         </div>
@@ -52,29 +53,29 @@ export function UserForm({
           <>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Email Address
+                {t.user.email}
               </label>
               <input
                 name="email"
                 type="email"
                 required
-                placeholder="user@hkb.co"
+                placeholder="mtumiaji@hkb.co"
                 className={inputCls}
               />
               <p className="mt-1 text-[11px] text-slate-400">
-                Used for system notifications and Google OAuth sign-in matching.
+                {t.user.emailHint}
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Username
+                {t.user.username}
               </label>
               <input
                 name="username"
                 type="text"
                 required
-                placeholder="e.g. jdoe"
+                placeholder={t.user.usernamePlaceholder}
                 className={inputCls}
               />
             </div>
@@ -83,7 +84,7 @@ export function UserForm({
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-            Gender
+            {t.user.gender}
           </label>
           <select
             name="gender"
@@ -91,14 +92,14 @@ export function UserForm({
             required
             className={inputCls}
           >
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
+            <option value="MALE">{t.user.male}</option>
+            <option value="FEMALE">{t.user.female}</option>
           </select>
         </div>
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-            Assigned Role
+            {t.user.role}
           </label>
           <select
             name="role"
@@ -116,7 +117,7 @@ export function UserForm({
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-            Branch
+            {t.common.branch}
           </label>
           <select
             name="branchId"
@@ -130,21 +131,19 @@ export function UserForm({
             ))}
           </select>
           <p className="mt-1 text-[11px] text-slate-400">
-            Office Assistants own a remote branch. Secretaries work at HQ.
+            {t.user.branchHint}
           </p>
         </div>
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-            {editing
-              ? "New Password (leave blank to keep current)"
-              : "Password"}
+            {editing ? t.user.newPassword : t.login.password}
           </label>
           <input
             name="password"
             type="password"
             required={!editing}
-            placeholder={editing ? "••••••••••••" : "Min. 6 characters"}
+            placeholder={editing ? "••••••••••••" : t.user.minChars}
             className={inputCls}
           />
         </div>
@@ -164,10 +163,10 @@ export function UserForm({
 
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="secondary" size="sm" onClick={onDone} type="button">
-          Cancel
+          {t.common.cancel}
         </Button>
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : editing ? "Update Account" : "Register User"}
+          {pending ? t.common.saving : editing ? t.user.update : t.user.register}
         </Button>
       </div>
     </form>

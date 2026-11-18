@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { Modal, Button } from "@/components/ui";
@@ -51,13 +52,13 @@ export function StaffLateModal({
         className="border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 hover:text-amber-900"
       >
         <Clock className="h-3.5 w-3.5 text-amber-600 mr-1" />
-        Late
+        {t.charts.late}
       </Button>
 
       <Modal
         open={open}
         onClose={close}
-        title={`Mark Late Arrival — ${userName}`}
+        title={`${t.att.markLate} — ${userName}`}
       >
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="userId" value={userId} />
@@ -66,7 +67,7 @@ export function StaffLateModal({
 
           <div>
             <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Quick Delay Selection
+              {t.att.quickDelay}
             </span>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {PRESET_MINUTES.map((m) => (
@@ -81,7 +82,7 @@ export function StaffLateModal({
                       : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50")
                   }
                 >
-                  +{m}m
+                  +{m}{t.myShift.minutes}
                 </button>
               ))}
             </div>
@@ -90,7 +91,7 @@ export function StaffLateModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                Minutes Late
+                {t.att.minutesLate}
               </label>
               <div className="relative">
                 <input
@@ -106,7 +107,7 @@ export function StaffLateModal({
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-xs font-medium text-slate-400">
-                  minutes
+                  {t.att.minutes}
                 </span>
               </div>
             </div>
@@ -114,14 +115,14 @@ export function StaffLateModal({
             {canEditTime ? (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-                  Check-in Time
+                  {t.staffAtt.checkIn}
                 </label>
                 <input
                   type="text"
                   name="checkInTime"
                   value={checkInTime}
                   onChange={(e) => setCheckInTime(e.target.value)}
-                  placeholder="e.g. 08:45 AM"
+                  placeholder={t.staffAtt.lateCheckInPlaceholder}
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
@@ -134,14 +135,14 @@ export function StaffLateModal({
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
-              Reason / Notes (optional)
+              {t.staffAtt.reasonOptional}
             </label>
             <textarea
               name="reason"
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g. Traffic delays, urgent family stop..."
+              placeholder={t.staffAtt.latePlaceholder}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
@@ -156,13 +157,13 @@ export function StaffLateModal({
           {state.ok && (
             <div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-xs font-medium text-emerald-700 border border-emerald-200">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>{state.message || "Late arrival recorded."}</span>
+              <span>{state.message || t.staffAtt.lateRecorded}</span>
             </div>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" type="button" onClick={close}>
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="secondary"
@@ -170,7 +171,7 @@ export function StaffLateModal({
               disabled={pending}
               className="bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500"
             >
-              {pending ? "Saving..." : "Confirm Late Arrival"}
+              {pending ? t.common.saving : t.staffAtt.confirmLate}
             </Button>
           </div>
 

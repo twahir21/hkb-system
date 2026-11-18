@@ -5,7 +5,7 @@ import { Button, Badge, DataTable, statusTone, type Column } from "@/components/
 import { Phone, GraduationCap } from "lucide-react";
 import type { JobApplicationRow } from "@/features/jobs/queries/jobs";
 import { JobApplicationDetailModal } from "./JobApplicationDetailModal";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 const STATUS_FILTERS = [
   "ALL",
@@ -38,7 +38,7 @@ export function JobApplicationsView({
   const columns: Column<JobApplicationRow>[] = [
     {
       key: "name",
-      header: "Applicant",
+      header: t.jobs.applicant,
       cell: (r) => (
         <div>
           <p className="font-medium text-slate-800">{r.fullName}</p>
@@ -50,7 +50,7 @@ export function JobApplicationsView({
     },
     {
       key: "phone",
-      header: "Phone",
+      header: t.common.phone,
       cell: (r) => (
         <p className="flex items-center gap-1.5 text-xs text-slate-600">
           <Phone className="h-3 w-3 text-slate-400" />
@@ -60,11 +60,11 @@ export function JobApplicationsView({
     },
     {
       key: "profile",
-      header: "Age / Training",
+      header: t.jobs.ageTraining,
       cell: (r) => (
         <div className="text-xs text-slate-600">
           <p>
-            {r.age} yrs · {r.gender === "MALE" ? "Male" : "Female"}
+            {r.age} {t.jobs.yrs} · {r.gender === "MALE" ? t.user.male : t.user.female}
           </p>
           <p className="flex items-center gap-1 text-slate-400">
             <GraduationCap className="h-3 w-3" /> {r.training ?? "—"} ·{" "}
@@ -75,7 +75,7 @@ export function JobApplicationsView({
     },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
@@ -83,7 +83,7 @@ export function JobApplicationsView({
       header: "",
       cell: (r) => (
         <Button variant="secondary" size="sm" onClick={() => setSelected(r)}>
-          View
+          {t.common.view}
         </Button>
       ),
     },
@@ -104,7 +104,7 @@ export function JobApplicationsView({
                 : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50")
             }
           >
-            {s === "ALL" ? "All" : s.replace("_", " ")}
+            {s === "ALL" ? t.common.all : enumLabel(s)}
           </button>
         ))}
         <p className="ml-auto text-sm font-medium text-slate-500">
@@ -115,7 +115,7 @@ export function JobApplicationsView({
       <DataTable
         columns={columns}
         rows={filtered}
-        empty="No job applications yet."
+        empty={t.jobs.empty}
       />
 
       <JobApplicationDetailModal

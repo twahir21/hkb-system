@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 /* eslint-disable @next/next/no-img-element */
 
 import { useActionState, useEffect, useRef, useState } from "react";
@@ -131,75 +132,75 @@ export function NewsForm({
       <input type="hidden" name="removeCover" value={removeCover ? "true" : "false"} />
 
       <label className="block">
-        <span className={labelSpanCls}>Title</span>
+        <span className={labelSpanCls}>{t.news.title}</span>
         <input
           name="title"
           required
           defaultValue={article?.title ?? ""}
           className={inputCls}
-          placeholder="e.g. HKB expands operations to Dodoma"
+          placeholder={t.news.titlePlaceholder}
         />
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className={labelSpanCls}>Slug (optional)</span>
+          <span className={labelSpanCls}>{t.news.slug}</span>
           <input
             name="slug"
             defaultValue={article?.slug ?? ""}
             className={inputCls}
-            placeholder="auto-generated from title"
+            placeholder={t.news.slugPlaceholder}
           />
         </label>
         <label className="block">
-          <span className={labelSpanCls}>Category (optional)</span>
+          <span className={labelSpanCls}>{t.news.categoryOptional}</span>
           <input
             name="category"
             defaultValue={article?.category ?? ""}
             className={inputCls}
-            placeholder="e.g. Company News"
+            placeholder={t.news.categoryPlaceholder}
           />
         </label>
       </div>
 
       <label className="block">
-        <span className={labelSpanCls}>Summary (optional)</span>
+        <span className={labelSpanCls}>{t.news.summary}</span>
         <textarea
           name="summary"
           defaultValue={article?.summary ?? ""}
           rows={2}
           className={inputCls}
-          placeholder="Short excerpt shown on news cards"
+          placeholder={t.news.summaryPlaceholder}
         />
       </label>
 
       <label className="block">
-        <span className={labelSpanCls}>Content</span>
+        <span className={labelSpanCls}>{t.news.content}</span>
         <textarea
           name="body"
           required
           defaultValue={article?.body ?? ""}
           rows={8}
           className={inputCls}
-          placeholder="Write the article here. A blank line starts a new paragraph."
+          placeholder={t.news.contentPlaceholder}
         />
       </label>
 
       <div className="space-y-2">
-        <span className={labelSpanCls}>Cover image</span>
+        <span className={labelSpanCls}>{t.news.cover}</span>
         {preview ? (
           <div className="flex items-start gap-3">
             <img
               src={preview}
-              alt="Cover preview"
+              alt={t.news.coverPreview}
               className="h-24 w-40 rounded-lg border border-slate-200 object-cover"
             />
             <Button type="button" variant="ghost" size="sm" onClick={clearCover}>
-              Remove image
+              {t.news.removeImage}
             </Button>
           </div>
         ) : (
-          <p className="text-xs text-slate-400">No image selected.</p>
+          <p className="text-xs text-slate-400">{t.news.noImage}</p>
         )}
         <input
           ref={fileRef}
@@ -210,23 +211,23 @@ export function NewsForm({
           className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-brand-700"
         />
         <p className="text-xs text-slate-400">
-          PNG, JPEG, WEBP or GIF · max 4 MB. Large photos are compressed automatically.
+          {t.news.fileHint}
         </p>
         {fileError && <p className="text-sm text-rose-600">{fileError}</p>}
         <input
           name="coverImageUrl"
           defaultValue={article?.coverImageUrl ?? ""}
           className={inputCls}
-          placeholder="…or paste an image URL (used only when no file is chosen)"
+          placeholder={t.news.urlPlaceholder}
         />
       </div>
 
       <label className="block">
-        <span className={labelSpanCls}>Status</span>
+        <span className={labelSpanCls}>{t.common.status}</span>
         <select name="status" defaultValue={article?.status ?? "DRAFT"} className={inputCls}>
-          <option value="DRAFT">Draft — not visible on the website</option>
-          <option value="PUBLISHED">Published — live on the website</option>
-          <option value="ARCHIVED">Archived — hidden, kept for records</option>
+          <option value="DRAFT">{t.news.draft}</option>
+          <option value="PUBLISHED">{t.news.published}</option>
+          <option value="ARCHIVED">{t.news.archived}</option>
         </select>
       </label>
 
@@ -235,11 +236,11 @@ export function NewsForm({
       <div className="flex justify-end gap-2 pt-2">
         {onDone && (
           <Button type="button" variant="secondary" size="sm" onClick={onDone}>
-            Cancel
+            {t.common.cancel}
           </Button>
         )}
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving…" : editing ? "Save changes" : "Create article"}
+          {pending ? t.common.saving : editing ? t.cov.saveChanges : t.news.create}
         </Button>
       </div>
     </form>

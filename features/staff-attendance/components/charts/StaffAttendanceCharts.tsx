@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useMemo } from "react";
 import {
   PieChart,
@@ -68,10 +69,10 @@ export function StaffAttendanceCharts({
     const unmarked = rows.filter((r) => !r.log).length;
 
     return [
-      { name: "Present", value: present, color: "#10b981" },
-      { name: "Late", value: late, color: "#f59e0b" },
-      { name: "Absent", value: absent, color: "#f43f5e" },
-      { name: "Unmarked", value: unmarked, color: "#94a3b8" },
+      { name: t.charts.present, value: present, color: "#10b981" },
+      { name: t.charts.late, value: late, color: "#f59e0b" },
+      { name: t.charts.absent, value: absent, color: "#f43f5e" },
+      { name: t.sa.unmarked, value: unmarked, color: "#94a3b8" },
     ].filter((d) => d.value > 0);
   }, [rows]);
 
@@ -98,7 +99,7 @@ export function StaffAttendanceCharts({
       const absent = logsOnDate.filter((l) => l.status === "ABSENT").length;
 
       const dateObj = new Date(d);
-      const dayLabel = dateObj.toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" });
+      const dayLabel = dateObj.toLocaleDateString("sw", { weekday: "short", month: "numeric", day: "numeric" });
 
       return {
         date: d,
@@ -146,9 +147,9 @@ export function StaffAttendanceCharts({
     const unauthorized = historyLogs.filter((l) => l.absenceCategory === "NOT_PERMITTED").length;
 
     return [
-      { name: "Sick Leave", value: sick, color: "#38bdf8" },
-      { name: "Permitted Leave", value: permitted, color: "#a855f7" },
-      { name: "Unauthorized", value: unauthorized, color: "#f43f5e" },
+      { name: t.charts.sick, value: sick, color: "#38bdf8" },
+      { name: t.charts.permitted, value: permitted, color: "#a855f7" },
+      { name: t.charts.unexcused, value: unauthorized, color: "#f43f5e" },
     ].filter((d) => d.value > 0);
   }, [historyLogs]);
 
@@ -161,19 +162,19 @@ export function StaffAttendanceCharts({
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-                Today&apos;s Attendance Split
+                {t.sac.todaySplit}
               </h3>
-              <p className="text-xs text-slate-400">Roll call distribution for {selectedDate}</p>
+              <p className="text-xs text-slate-400">{t.sac.rollCallFor} {selectedDate}</p>
             </div>
             <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
-              {attendanceRate}% Present
+              {attendanceRate}% {t.charts.present}
             </span>
           </div>
 
           <div className="relative h-56 w-full">
             {donutData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                No attendance recorded for this date.
+                {t.sac.noneForDate}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -201,7 +202,7 @@ export function StaffAttendanceCharts({
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span className="text-2xl font-black text-slate-900">{attendanceRate}%</span>
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Attended
+                  {t.sac.attended}
                 </span>
               </div>
             )}
@@ -211,22 +212,22 @@ export function StaffAttendanceCharts({
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs border-t border-slate-100 pt-3">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              <span className="text-slate-600">Present:</span>
+              <span className="text-slate-600">{t.charts.present}:</span>
               <span className="font-bold text-slate-900">{presentCount}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-              <span className="text-slate-600">Late:</span>
+              <span className="text-slate-600">{t.charts.late}:</span>
               <span className="font-bold text-slate-900">{lateCount}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
-              <span className="text-slate-600">Absent:</span>
+              <span className="text-slate-600">{t.charts.absent}:</span>
               <span className="font-bold text-slate-900">{absentCount}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-slate-400" />
-              <span className="text-slate-600">Unmarked:</span>
+              <span className="text-slate-600">{t.sa.unmarked}:</span>
               <span className="font-bold text-slate-900">
                 {rows.length - (presentCount + lateCount + absentCount)}
               </span>
@@ -240,19 +241,19 @@ export function StaffAttendanceCharts({
             <div>
               <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-indigo-600" />
-                14-Day Staff Attendance Trend
+                {t.sac.trend}
               </h3>
-              <p className="text-xs text-slate-400">Tracking daily presence, tardiness, and absences</p>
+              <p className="text-xs text-slate-400">{t.sac.trendSub}</p>
             </div>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 font-medium text-emerald-700">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" /> Present
+                <span className="h-2 w-2 rounded-full bg-emerald-500" /> {t.charts.present}
               </span>
               <span className="flex items-center gap-1.5 font-medium text-amber-700">
-                <span className="h-2 w-2 rounded-full bg-amber-500" /> Late
+                <span className="h-2 w-2 rounded-full bg-amber-500" /> {t.charts.late}
               </span>
               <span className="flex items-center gap-1.5 font-medium text-rose-700">
-                <span className="h-2 w-2 rounded-full bg-rose-500" /> Absent
+                <span className="h-2 w-2 rounded-full bg-rose-500" /> {t.charts.absent}
               </span>
             </div>
           </div>
@@ -278,9 +279,9 @@ export function StaffAttendanceCharts({
                 <XAxis dataKey="dayLabel" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} allowDecimals={false} />
                 <RechartsTooltip content={<TooltipWrapper />} />
-                <Area type="monotone" dataKey="Present" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#presentGrad)" />
-                <Area type="monotone" dataKey="Late" stroke="#f59e0b" strokeWidth={2} fillOpacity={1} fill="url(#lateGrad)" />
-                <Area type="monotone" dataKey="Absent" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#absentGrad)" />
+                <Area type="monotone" dataKey="Present" name={t.charts.present} stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#presentGrad)" />
+                <Area type="monotone" dataKey="Late" name={t.charts.late} stroke="#f59e0b" strokeWidth={2} fillOpacity={1} fill="url(#lateGrad)" />
+                <Area type="monotone" dataKey="Absent" name={t.charts.absent} stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#absentGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -295,16 +296,16 @@ export function StaffAttendanceCharts({
             <div>
               <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                 <Users className="h-4 w-4 text-indigo-600" />
-                Department / Role Attendance Breakdown
+                {t.sac.byRole}
               </h3>
-              <p className="text-xs text-slate-400">Comparing participation across roles for {selectedDate}</p>
+              <p className="text-xs text-slate-400">{t.sac.byRoleSub} {selectedDate}</p>
             </div>
           </div>
 
           <div className="h-60 w-full">
             {roleData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                No role data available.
+                {t.sac.noRole}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -321,9 +322,9 @@ export function StaffAttendanceCharts({
                   />
                   <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} allowDecimals={false} />
                   <RechartsTooltip content={<TooltipWrapper />} />
-                  <Bar dataKey="present" name="Present" fill="#10b981" radius={[4, 4, 0, 0]} stackId="a" />
-                  <Bar dataKey="late" name="Late" fill="#f59e0b" radius={[4, 4, 0, 0]} stackId="a" />
-                  <Bar dataKey="absent" name="Absent" fill="#f43f5e" radius={[4, 4, 0, 0]} stackId="a" />
+                  <Bar dataKey="present" name={t.charts.present} fill="#10b981" radius={[4, 4, 0, 0]} stackId="a" />
+                  <Bar dataKey="late" name={t.charts.late} fill="#f59e0b" radius={[4, 4, 0, 0]} stackId="a" />
+                  <Bar dataKey="absent" name={t.charts.absent} fill="#f43f5e" radius={[4, 4, 0, 0]} stackId="a" />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -336,16 +337,16 @@ export function StaffAttendanceCharts({
             <div>
               <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-rose-500" />
-                Absence Reasons Breakdown
+                {t.charts.absenceTitle}
               </h3>
-              <p className="text-xs text-slate-400">Distribution of sick notes, permitted leaves, and unauthorized absences</p>
+              <p className="text-xs text-slate-400">{t.sac.absenceSub}</p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-around h-60">
             {absenceData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                No absence records logged in the system.
+                {t.sac.noAbsence}
               </div>
             ) : (
               <>

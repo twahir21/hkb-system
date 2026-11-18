@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import {
   ChevronLeft,
   ChevronRight,
@@ -75,14 +76,14 @@ export function Pagination({
       {/* Left side: Results range + rows-per-page selector */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
         <span>
-          Showing <span className="font-semibold text-slate-900">{startItem}</span> to{" "}
-          <span className="font-semibold text-slate-900">{endItem}</span> of{" "}
+          {t.ui.showing} <span className="font-semibold text-slate-900">{startItem}</span> {t.ui.to}{" "}
+          <span className="font-semibold text-slate-900">{endItem}</span> {t.ui.of}{" "}
           <span className="font-semibold text-slate-900">{totalItems}</span> {itemLabel}
         </span>
 
         {onPageSizeChange && (
           <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200">
-            <span className="text-slate-500">Per page:</span>
+            <span className="text-slate-500">{t.ui.perPage}:</span>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -105,7 +106,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(1)}
           disabled={safePage <= 1}
-          title="First page"
+          title={t.ui.firstPage}
           className={buttonBaseCls}
         >
           <ChevronsLeft className="h-3.5 w-3.5" />
@@ -114,7 +115,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(safePage - 1)}
           disabled={safePage <= 1}
-          title="Previous page"
+          title={t.ui.prevPage}
           className={buttonBaseCls}
         >
           <ChevronLeft className="h-3.5 w-3.5" />
@@ -150,7 +151,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(safePage + 1)}
           disabled={safePage >= totalPages}
-          title="Next page"
+          title={t.ui.nextPage}
           className={buttonBaseCls}
         >
           <ChevronRight className="h-3.5 w-3.5" />
@@ -159,7 +160,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={safePage >= totalPages}
-          title="Last page"
+          title={t.ui.lastPage}
           className={buttonBaseCls}
         >
           <ChevronsRight className="h-3.5 w-3.5" />

@@ -12,7 +12,7 @@ import {
 } from "@/features/news/actions/news.actions";
 import { NewsForm } from "./NewsForm";
 import type { NewsRow } from "@/features/news/news.types";
-import { enumLabel } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 
 function formatDate(value: Date | null): string {
   return value
@@ -39,10 +39,10 @@ function StatusToggle({ article }: { article: NewsRow }) {
         size="sm"
         variant="ghost"
         disabled={pending}
-        title={state.error ?? (published ? "Unpublish" : "Publish")}
+        title={state.error ?? (published ? t.news.unpublish : t.news.publish)}
       >
         {published ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-        {published ? "Unpublish" : "Publish"}
+        {published ? t.news.unpublish : t.news.publish}
       </Button>
     </form>
   );
@@ -60,23 +60,22 @@ function DeleteButton({ article }: { article: NewsRow }) {
         size="sm"
         variant="ghost"
         onClick={() => setOpen(true)}
-        title="Delete article"
+        title={t.news.deleteArticle}
       >
         <Trash2 className="h-3.5 w-3.5 text-rose-600" />
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Delete article">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.news.deleteArticle}>
         <p className="text-sm text-slate-600">
-          Delete &ldquo;{article.title}&rdquo;? This also removes its cover image and cannot be
-          undone.
+          {t.news.deleteConfirm.replace("{title}", article.title)}
         </p>
         {state.error && <p className="mt-2 text-sm text-rose-600">{state.error}</p>}
         <form action={formAction} className="mt-4 flex justify-end gap-2">
           <input type="hidden" name="id" value={article.id} />
           <Button variant="secondary" size="sm" type="button" onClick={() => setOpen(false)}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button variant="danger" size="sm" type="submit" disabled={pending}>
-            {pending ? "Deleting…" : "Delete"}
+            {pending ? t.common.deleting : t.common.delete}
           </Button>
         </form>
       </Modal>
@@ -104,7 +103,7 @@ export function NewsManager({ items, canManage }: { items: NewsRow[]; canManage:
   const columns: Column<NewsRow>[] = [
     {
       key: "title",
-      header: "Title",
+      header: t.news.title,
       cell: (r) => (
         <div className="flex items-center gap-3">
           {r.coverImageUrl ? (
@@ -123,10 +122,10 @@ export function NewsManager({ items, canManage }: { items: NewsRow[]; canManage:
         </div>
       ),
     },
-    { key: "category", header: "Category", cell: (r) => r.category ?? "—" },
+    { key: "category", header: t.store.category, cell: (r) => r.category ?? "—" },
     {
       key: "status",
-      header: "Status",
+      header: t.common.status,
       cell: (r) => (
         <Badge
           tone={r.status === "PUBLISHED" ? "emerald" : r.status === "DRAFT" ? "amber" : "slate"}
@@ -135,8 +134,8 @@ export function NewsManager({ items, canManage }: { items: NewsRow[]; canManage:
         </Badge>
       ),
     },
-    { key: "publishedAt", header: "Published", cell: (r) => formatDate(r.publishedAt) },
-    { key: "author", header: "Author", cell: (r) => r.authorName ?? "—" },
+    { key: "publishedAt", header: t.news.publishedCol, cell: (r) => formatDate(r.publishedAt) },
+    { key: "author", header: t.news.author, cell: (r) => r.authorName ?? "—" },
   ];
 
   if (canManage) {
@@ -147,7 +146,7 @@ export function NewsManager({ items, canManage }: { items: NewsRow[]; canManage:
       className: "text-right",
       cell: (r) => (
         <div className="flex items-center justify-end gap-1">
-          <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit article">
+          <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title={t.news.editArticle}>
             <Pencil className="h-3.5 w-3.5" />
           </Button>
           <StatusToggle article={r} />
@@ -163,14 +162,14 @@ export function NewsManager({ items, canManage }: { items: NewsRow[]; canManage:
         <div className="flex justify-end">
           <Button size="sm" onClick={openCreate}>
             <Plus className="h-4 w-4" />
-            New article
+            {t.news.newArticle}
           </Button>
         </div>
       )}
 
-      <DataTable columns={columns} rows={items} empty="No news articles yet." />
+      <DataTable columns={columns} rows={items} empty={t.news.empty} />
 
-      <Modal open={open} onClose={close} title={editing ? "Edit article" : "New article"} wide>
+      <Modal open={open} onClose={close} title={editing ? t.news.editArticle : t.news.newArticle} wide>
         <NewsForm article={editing} onDone={close} />
       </Modal>
     </div>

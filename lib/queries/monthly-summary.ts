@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import "server-only";
 
 import { guardInScope, type GuardScope } from "@/lib/auth/guard-scope";
@@ -85,20 +86,7 @@ export type OverallMonthlySummary = {
   guards: GuardMonthlyStat[];
 };
 
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const MONTH_NAMES = t.calendar.months;
 
 export async function getMonthlyAttendanceSummary(
   year: number,
@@ -209,7 +197,7 @@ export async function getMonthlyAttendanceSummary(
     totalNotPermitted += notPermitted;
     totalLateMins += lateMinutes;
 
-    const supName = g.supervisorName || "Unassigned";
+    const supName = g.supervisorName || t.guard.unassigned;
     const sStat = supervisorMap.get(supName) || {
       shifts: 0,
       present: 0,
@@ -336,7 +324,7 @@ export async function getMonthlyAttendanceSummary(
   return {
     year,
     month,
-    monthName: MONTH_NAMES[month - 1] ?? `Month ${month}`,
+    monthName: MONTH_NAMES[month - 1] ?? `${t.common.month} ${month}`,
     startDate,
     endDate,
     totalGuards: guards.length,
@@ -457,7 +445,7 @@ export async function getGuardMonthlyDetail(
     },
     year,
     month,
-    monthName: MONTH_NAMES[month - 1] ?? `Month ${month}`,
+    monthName: MONTH_NAMES[month - 1] ?? `${t.common.month} ${month}`,
     startDate,
     endDate,
     totalShifts: total,

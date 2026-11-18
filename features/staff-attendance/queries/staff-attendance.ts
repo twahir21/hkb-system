@@ -108,7 +108,7 @@ export async function getStaffAttendanceSheet(
   for (const l of logs) {
     logMap.set(l.userId, {
       ...l,
-      recordedByName: l.recordedByName ?? "System",
+      recordedByName: l.recordedByName ?? "Mfumo",
     });
   }
 
@@ -178,6 +178,6 @@ export async function listStaffAttendanceLogs(filters: {
 
   return rows.map((r) => ({
     ...r,
-    recordedByName: r.recordedByName ?? "System",
+    recordedByName: r.recordedByName ?? "Mfumo",
   }));
 }

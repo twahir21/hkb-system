@@ -80,7 +80,7 @@ export function WorkPlanForm({
   return (
     <Card
       title="Fomu ya Mpangokazi"
-      subtitle="Hali imejazwa kutoka Shift Sheet. Rekebisha inapobidi, weka sahihi, kisha hifadhi."
+      subtitle="Hali imejazwa kutoka Daftari la Zamu. Rekebisha inapobidi, weka sahihi, kisha hifadhi."
       action={savedId ? <ShareButtons id={savedId} fileLabel={`${branchName}-${date}`} /> : undefined}
     >
       <form action={formAction} className="space-y-5">

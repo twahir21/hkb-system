@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState, useTransition, useRef } from "react";
 import {
   Download,
@@ -17,18 +18,18 @@ import {
 } from "@/features/hr/actions/guards.actions";
 
 const CSV_COLUMNS: { name: string; example: string; required?: boolean }[] = [
-  { name: "fullName", example: "John Doe", required: true },
+  { name: "fullName", example: "Juma Hassani", required: true },
   { name: "email", example: "jdoe@hkb.co", required: true },
   { name: "employeeId", example: "HKB-001", required: true },
-  { name: "gender", example: "MALE / FEMALE (defaults to MALE)" },
+  { name: "gender", example: t.bulk.genderExample },
   { name: "age", example: "28 (16–100)", required: true },
   { name: "phone", example: "0712345678", required: true },
   { name: "homeLocation", example: "Dar es Salaam", required: true },
   { name: "region", example: "Dar es Salaam", required: true },
-  { name: "station", example: "Kariakoo Site", required: true },
+  { name: "station", example: "Kariakoo", required: true },
   { name: "client", example: "MOFAT", required: true },
-  { name: "kinName", example: "Jane Doe", required: true },
-  { name: "kinRelation", example: "Sister", required: true },
+  { name: "kinName", example: "Amina Hassani", required: true },
+  { name: "kinRelation", example: t.bulk.sister, required: true },
   { name: "kinPhone", example: "0723456789", required: true },
   { name: "registrationDate", example: "2026-01-15", required: true },
   { name: "supervisorEmail", example: "sup@hkb.co" },
@@ -76,33 +77,32 @@ export function BulkGuardModal({
           imported: 0,
           failed: 0,
           errors: [],
-          error: "An unexpected error occurred during CSV import.",
+          error: t.bulk.unexpected,
         });
       }
     });
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Bulk Register Guards via CSV" wide>
+    <Modal open={open} onClose={handleClose} title={t.bulk.guardsTitle} wide>
       <div className="space-y-5">
         {/* Instructions Box */}
         <div className="rounded-xl border border-brand-500/20 bg-brand-50/50 p-4 text-xs text-slate-700 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="font-bold uppercase tracking-wider text-brand-800">
-              CSV Format Instructions for HR / Super Admin
+              {t.bulk.instructionsHr}
             </span>
             <a
               href="/sample-guards.csv"
               download="sample-guards.csv"
               className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 font-bold text-white shadow-sm transition hover:bg-brand-500"
             >
-              <Download className="h-3.5 w-3.5" /> Download Sample CSV
+              <Download className="h-3.5 w-3.5" /> {t.bulk.sample}
             </a>
           </div>
 
           <p className="leading-relaxed text-slate-600">
-            Ensure your CSV file contains the following columns in the first row
-            (header):
+            {t.bulk.ensureColumns}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] bg-white p-3 rounded-lg border border-brand-200">
@@ -113,16 +113,14 @@ export function BulkGuardModal({
                 {c.required ? (
                   <span className="text-rose-500"> *</span>
                 ) : (
-                  <span className="text-slate-400"> (optional)</span>
+                  <span className="text-slate-400"> ({t.common.optional})</span>
                 )}
               </div>
             ))}
           </div>
 
           <p className="leading-relaxed text-slate-600">
-            Employee IDs must be unique across the system. Existing emails are
-            linked to their accounts; new emails get a GUARD account. Invalid
-            rows are skipped and reported.
+            {t.bulk.guardRules}
           </p>
         </div>
 
@@ -130,7 +128,7 @@ export function BulkGuardModal({
           {/* File Input */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1.5">
-              Select CSV File
+              {t.bulk.selectFile}
             </label>
             <div className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-brand-500 hover:bg-brand-50/20">
               <input
@@ -148,12 +146,12 @@ export function BulkGuardModal({
               />
               <FileSpreadsheet className="h-10 w-10 text-brand-600 mb-2" />
               <p className="text-sm font-semibold text-slate-800">
-                {file ? file.name : "Click or drag & drop CSV file here"}
+                {file ? file.name : t.bulk.drop}
               </p>
               <p className="mt-1 text-xs text-slate-400">
                 {file
-                  ? `${(file.size / 1024).toFixed(1)} KB — ready to upload`
-                  : "Supported file format: .csv (UTF-8)"}
+                  ? `${(file.size / 1024).toFixed(1)} KB — ${t.bulk.ready}`
+                  : t.bulk.format}
               </p>
             </div>
           </div>
@@ -171,8 +169,9 @@ export function BulkGuardModal({
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                     <span className="text-sm font-bold text-slate-900">
-                      Import Results: {result.imported} of {result.total} guards
-                      registered
+                      {t.bulk.resultGuards
+                        .replace("{n}", String(result.imported))
+                        .replace("{total}", String(result.total))}
                     </span>
                   </div>
 
@@ -180,7 +179,7 @@ export function BulkGuardModal({
                     <div className="mt-2 space-y-2 rounded-lg bg-amber-50 p-3 border border-amber-200">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
                         <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        {result.errors.length} notice(s) during import:
+                        {result.errors.length} {t.bulk.notices}:
                       </div>
                       <ul className="max-h-40 overflow-y-auto space-y-1 text-xs text-amber-900 divide-y divide-amber-200/60">
                         {result.errors.map((err, i) => (
@@ -188,7 +187,7 @@ export function BulkGuardModal({
                             {err.row > 0 ? (
                               <>
                                 <span className="font-mono font-bold">
-                                  Row {err.row}
+                                  {t.bulk.row} {err.row}
                                 </span>{" "}
                                 ({err.identifier}):{" "}
                               </>
@@ -210,18 +209,18 @@ export function BulkGuardModal({
 
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="secondary" size="sm" onClick={handleClose} type="button">
-              {result ? "Close" : "Cancel"}
+              {result ? t.common.close : t.common.cancel}
             </Button>
             <Button type="submit" size="sm" disabled={isPending || !file}>
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Importing Guards…
+                  {t.bulk.importingGuards}
                 </>
               ) : (
                 <>
                   <Upload className="h-4 w-4" />
-                  Upload &amp; Register Guards
+                  {t.bulk.uploadGuards}
                 </>
               )}
             </Button>

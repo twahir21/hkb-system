@@ -21,22 +21,22 @@ export type UserActionState = {
 };
 
 const userCreateSchema = z.object({
-  fullName: z.string().trim().min(2, "Full name must be at least 2 characters").max(255),
-  email: z.string().email("Invalid email address"),
+  fullName: z.string().trim().min(2, "Jina kamili liwe na angalau herufi 2").max(255),
+  email: z.string().email("Barua pepe si sahihi"),
   username: z
     .string()
     .trim()
-    .min(3, "Username must be at least 3 characters")
+    .min(3, "Jina la mtumiaji liwe na angalau herufi 3")
     .max(100)
-    .regex(/^[a-zA-Z0-9_.-]+$/, "Username can only contain letters, numbers, dots, hyphens and underscores"),
+    .regex(/^[a-zA-Z0-9_.-]+$/, "Jina la mtumiaji liwe na herufi, namba, nukta, vistari na mistari ya chini pekee"),
   role: z.enum(roleEnum.enumValues),
   gender: z.enum(genderEnum.enumValues).default("MALE"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(6, "Nenosiri liwe na angalau herufi 6"),
   branchId: z.string().uuid("Choose a branch").optional(),
 });
 
 const userUpdateSchema = z.object({
-  id: z.string().uuid("Invalid user ID"),
+  id: z.string().uuid("Namba ya mtumiaji si sahihi"),
   fullName: z.string().trim().min(2).max(255),
   role: z.enum(roleEnum.enumValues),
   gender: z.enum(genderEnum.enumValues).optional(),
@@ -55,13 +55,13 @@ async function resolveBranch(
   const branch = branchId
     ? await db.query.branches.findFirst({ where: eq(branches.id, branchId) })
     : await db.query.branches.findFirst({ where: eq(branches.isHq, true) });
-  if (branchId && !branch) return { ok: false, error: "Selected branch no longer exists." };
+  if (branchId && !branch) return { ok: false, error: "Tawi ulilochagua halipo tena." };
   if (role === "OFFICE_ASSISTANT" && (!branch || branch.isHq)) {
-    return { ok: false, error: "An Office Assistant must be assigned to a remote branch (not HQ)." };
+    return { ok: false, error: "Msaidizi wa Ofisi lazima apangiwe tawi la mbali (si HQ)." };
   }
   // Secretary access spans all branches, so it (and Secretary + Supervisor) stays at HQ.
   if ((role === "SECRETARY" || role === "SECRETARY_SUPERVISOR") && branch && !branch.isHq) {
-    return { ok: false, error: "A Secretary works at HQ. Use Office Assistant for remote branches." };
+    return { ok: false, error: "Katibu hufanya kazi HQ. Tumia Msaidizi wa Ofisi kwa matawi ya mbali." };
   }
   return { ok: true, branchId: branch?.id ?? null };
 }
@@ -81,7 +81,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid user data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa za mtumiaji si sahihi" };
   }
 
   const v = parsed.data;
@@ -98,9 +98,9 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
 
   if (existing) {
     if (existing.email.toLowerCase() === v.email) {
-      return { ok: false, error: "A user with this email address already exists." };
+      return { ok: false, error: "Mtumiaji mwenye barua pepe hii tayari yupo." };
     }
-    return { ok: false, error: "This username is already taken. Please choose another." };
+    return { ok: false, error: "Jina hili la mtumiaji tayari limechukuliwa. Tafadhali chagua jingine." };
   }
 
   const passwordHash = await bcrypt.hash(v.password, 10);
@@ -129,7 +129,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
   revalidatePath("/users");
   revalidatePath("/guards");
   revalidatePath("/dashboard");
-  return { ok: true, userId: created.id, message: `User ${v.fullName} registered successfully.` };
+  return { ok: true, userId: created.id, message: `Mtumiaji ${v.fullName} amesajiliwa.` };
 }
 
 /** Update an existing user's details / role / password */
@@ -146,7 +146,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi" };
   }
 
   const v = parsed.data;
@@ -158,7 +158,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
   });
 
   if (!existing) {
-    return { ok: false, error: "User not found." };
+    return { ok: false, error: "Mtumiaji hakupatikana." };
   }
 
   const updateData: {
@@ -223,7 +223,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
   revalidatePath("/guards");
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
-  return { ok: true, userId: v.id, message: "User updated successfully." };
+  return { ok: true, userId: v.id, message: "Mtumiaji amesasishwa." };
 }
 
 /** Delete a user from the system */
@@ -231,7 +231,7 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
   const actor = await requirePermission("USER_MANAGE");
 
   if (actor.userId === userId) {
-    return { ok: false, error: "You cannot delete your own account." };
+    return { ok: false, error: "Huwezi kufuta akaunti yako mwenyewe." };
   }
 
   const existing = await db.query.users.findFirst({
@@ -239,7 +239,7 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
   });
 
   if (!existing) {
-    return { ok: false, error: "User not found." };
+    return { ok: false, error: "Mtumiaji hakupatikana." };
   }
 
   // Guard accounts are never hard-deleted from here: deleting the user cascades
@@ -254,7 +254,7 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
     return {
       ok: false,
       error:
-        "This account belongs to a guard. Manage it in the Guard Registry instead — delete the guard there permanently, or disable them to keep their attendance and payroll history.",
+        "Akaunti hii ni ya mlinzi. Isimamie kwenye Daftari la Walinzi — mfute mlinzi huko kabisa, au mzime ili kubaki na historia ya mahudhurio na mishahara.",
     };
   }
 
@@ -270,7 +270,7 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
 
   revalidatePath("/users");
   revalidatePath("/guards");
-  return { ok: true, message: "User deleted successfully." };
+  return { ok: true, message: "Mtumiaji amefutwa." };
 }
 
 /** Bulk register users from a CSV file */
@@ -279,7 +279,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
 
   const file = formData.get("file") as File | null;
   if (!file) {
-    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "No CSV file provided." };
+    return { ok: false, total: 0, imported: 0, failed: 0, errors: [], error: "Hakuna faili la CSV lililowekwa." };
   }
 
   const csvContent = await file.text();
@@ -292,7 +292,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       imported: 0,
       failed: 0,
       errors: [],
-      error: "The uploaded CSV file is empty or does not contain valid data rows.",
+      error: "Faili la CSV ni tupu au halina mistari sahihi ya taarifa.",
     };
   }
 
@@ -341,17 +341,17 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
     const identifier = email || username || fullName || `Row #${rowNum}`;
 
     if (!fullName || fullName.length < 2) {
-      errors.push({ row: rowNum, identifier, reason: "Full name is missing or less than 2 characters" });
+      errors.push({ row: rowNum, identifier, reason: "Jina kamili halipo au lina herufi chini ya 2" });
       continue;
     }
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.push({ row: rowNum, identifier, reason: `Invalid email address: '${email}'` });
+      errors.push({ row: rowNum, identifier, reason: `Barua pepe si sahihi: '${email}'` });
       continue;
     }
 
     if (!username || username.length < 3) {
-      errors.push({ row: rowNum, identifier, reason: "Username must be at least 3 characters" });
+      errors.push({ row: rowNum, identifier, reason: "Jina la mtumiaji liwe na angalau herufi 3" });
       continue;
     }
 
@@ -359,7 +359,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       errors.push({
         row: rowNum,
         identifier,
-        reason: "Username contains invalid characters (letters, numbers, dots, dashes, underscores only)",
+        reason: "Jina la mtumiaji lina herufi zisizoruhusiwa (herufi, namba, nukta, vistari, mistari ya chini pekee)",
       });
       continue;
     }
@@ -369,13 +369,13 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Invalid role '${roleRaw}'. Must be one of: ${validRoles.join(", ")}`,
+        reason: `Cheo '${roleRaw}' si sahihi. Lazima kiwe kimoja kati ya: ${validRoles.join(", ")}`,
       });
       continue;
     }
 
     if (!password || password.length < 6) {
-      errors.push({ row: rowNum, identifier, reason: "Password must be at least 6 characters" });
+      errors.push({ row: rowNum, identifier, reason: "Nenosiri liwe na angalau herufi 6" });
       continue;
     }
 
@@ -385,22 +385,22 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Unknown branch '${branchRaw}'. Must be one of: ${allBranches.map((b) => b.name).join(", ")}`,
+        reason: `Tawi '${branchRaw}' halijulikani. Lazima liwe moja kati ya: ${allBranches.map((b) => b.name).join(", ")}`,
       });
       continue;
     }
     if (roleRaw === "OFFICE_ASSISTANT" && (!branch || branch.isHq)) {
-      errors.push({ row: rowNum, identifier, reason: "Office Assistant needs a remote branch (not HQ)" });
+      errors.push({ row: rowNum, identifier, reason: "Msaidizi wa Ofisi anahitaji tawi la mbali (si HQ)" });
       continue;
     }
     if ((roleRaw === "SECRETARY" || roleRaw === "SECRETARY_SUPERVISOR") && branch && !branch.isHq) {
-      errors.push({ row: rowNum, identifier, reason: "Secretary must be at HQ" });
+      errors.push({ row: rowNum, identifier, reason: "Katibu lazima awe HQ" });
       continue;
     }
 
     // Check collisions with DB
     if (existingEmails.has(email)) {
-      errors.push({ row: rowNum, identifier, reason: `Email '${email}' is already registered in the system` });
+      errors.push({ row: rowNum, identifier, reason: `Barua pepe '${email}' tayari imesajiliwa kwenye mfumo` });
       continue;
     }
 
@@ -408,14 +408,14 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       errors.push({
         row: rowNum,
         identifier,
-        reason: `Username '${username}' is already taken by another account`,
+        reason: `Jina la mtumiaji '${username}' tayari linatumiwa na akaunti nyingine`,
       });
       continue;
     }
 
     // Check collisions inside the CSV batch itself
     if (seenInBatchEmails.has(email)) {
-      errors.push({ row: rowNum, identifier, reason: `Duplicate email '${email}' found in the same CSV` });
+      errors.push({ row: rowNum, identifier, reason: `Barua pepe '${email}' imejirudia kwenye CSV hiyo hiyo` });
       continue;
     }
 
@@ -466,8 +466,8 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
     imported: validEntries.length,
     failed: errors.length,
     errors,
-    message: `Successfully registered ${validEntries.length} user(s). ${
-      errors.length > 0 ? `${errors.length} row(s) skipped due to errors.` : ""
+    message: `Watumiaji ${validEntries.length} wamesajiliwa. ${
+      errors.length > 0 ? `Mistari ${errors.length} imerukwa kwa sababu ya makosa.` : ""
     }`,
   };
 }

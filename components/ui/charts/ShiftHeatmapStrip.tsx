@@ -1,5 +1,6 @@
 "use client";
 
+import { enumLabel, t } from "@/lib/i18n";
 import { useMemo } from "react";
 import type { LogRow } from "@/features/attendance/queries/attendance";
 import { formatDate } from "@/lib/utils";
@@ -32,17 +33,17 @@ export function ShiftHeatmapStrip({
     const dayLogs = logsByDate.get(iso) || [];
 
     let status: "PRESENT" | "LATE" | "ABSENT" | "REST" = "REST";
-    let desc = "No scheduled shift";
+    let desc = t.charts.noShift;
 
     if (dayLogs.length > 0) {
       const primary = dayLogs[0];
       status = primary.status;
       if (primary.status === "PRESENT") {
-        desc = `Present (${primary.shift} shift)`;
+        desc = `${t.charts.present} (${t.charts.shiftOf} ${enumLabel(primary.shift)})`;
       } else if (primary.status === "LATE") {
-        desc = `Late by ${primary.minutesLate || 0}m (${primary.shift} shift)`;
+        desc = `${t.charts.lateBy} ${primary.minutesLate || 0}dk (${t.charts.shiftOf} ${enumLabel(primary.shift)})`;
       } else if (primary.status === "ABSENT") {
-        desc = `Absent: ${primary.absenceCategory || "Not Permitted"} (${primary.shift} shift)`;
+        desc = `${t.charts.absent}: ${enumLabel(primary.absenceCategory || "NOT_PERMITTED")} (${t.charts.shiftOf} ${enumLabel(primary.shift)})`;
       }
     }
 
@@ -67,24 +68,24 @@ export function ShiftHeatmapStrip({
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
           <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-            30-Day Shift Heatmap Matrix
+            {t.charts.heatTitle}
           </h3>
           <p className="text-xs text-slate-500">
-            Day-by-day shift attendance progression for this month
+            {t.charts.heatSub}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> Present
+            <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> {t.charts.present}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-amber-400" /> Late
+            <span className="h-2.5 w-2.5 rounded-sm bg-amber-400" /> {t.charts.late}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-rose-500" /> Absent
+            <span className="h-2.5 w-2.5 rounded-sm bg-rose-500" /> {t.charts.absent}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-slate-100 border border-slate-300" /> Off
+            <span className="h-2.5 w-2.5 rounded-sm bg-slate-100 border border-slate-300" /> {t.status.OFF}
           </span>
         </div>
       </div>
@@ -100,7 +101,7 @@ export function ShiftHeatmapStrip({
           >
             <span className="font-bold">{d.day}</span>
             <span className="text-[9px] uppercase tracking-tighter opacity-80">
-              {d.status === "REST" ? "off" : d.status.slice(0, 3)}
+              {d.status === "REST" ? t.charts.offShort : t.charts.short[d.status]}
             </span>
           </div>
         ))}

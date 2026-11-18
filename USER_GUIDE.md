@@ -1,755 +1,765 @@
-# HKB Portal — User Guide (All Roles)
+# Mfumo wa HKB — Mwongozo wa Mtumiaji (Vyeo Vyote)
 
-This guide shows every user of the **HKB Portal**, from Askari (Guard) to CEO, how to sign in and do their daily work step by step.
+Mwongozo huu unamwonyesha kila mtumiaji wa **Mfumo wa HKB**, kuanzia Askari hadi Mkurugenzi Mtendaji (CEO), jinsi ya kuingia na kufanya kazi zake za kila siku hatua kwa hatua.
 
-> The portal screens are in **Swahili**. This guide gives each sidebar label in Swahili first, then the English meaning in brackets, for example **Daftari la Zamu** (Shift Sheet).
+> Majina ya kurasa na menyu kwenye mwongozo huu yameandikwa **kama yanavyoonekana kwenye mfumo**, mfano **Daftari la Zamu**. Baadhi ya vitufe bado viko kwa Kiingereza (mf. **Present**, **Late**, **Absent**, **Generate PDF**) — mwongozo unavitaja kama vinavyoonekana.
 >
-> Your role decides what you see. The sidebar shows only the pages your role may open. If a step in this guide does not appear for you, your role does not include it.
+> **Cheo chako ndicho kinachoamua unachoona.** Menyu ya pembeni inaonyesha kurasa ambazo cheo chako kinaruhusiwa kufungua tu. Kama hatua fulani kwenye mwongozo huu haionekani kwako, cheo chako hakina ruhusa hiyo.
 
 ---
 
-## Table of Contents
+## Yaliyomo
 
-1. [Getting Started (Sign In & Sign Out)](#1-getting-started-sign-in--sign-out)
-2. [Understanding the Interface](#2-understanding-the-interface)
-3. [Roles in the Company](#3-roles-in-the-company)
-4. [What Each Role Can See (Quick Map)](#4-what-each-role-can-see-quick-map)
-5. [Pages for Everyone](#5-pages-for-everyone)
-6. [IT / System Administrator (Super Admin)](#6-it--system-administrator-super-admin)
-7. [CEO](#7-ceo)
-8. [Operations Manager](#8-operations-manager)
-9. [Senior Supervisor](#9-senior-supervisor)
-10. [Operations Officer](#10-operations-officer)
-11. [Supervisor](#11-supervisor)
-12. [In-Charge](#12-in-charge)
-13. [Askari / Guard](#13-askari--guard)
-14. [HR Office](#14-hr-office)
-15. [Accountant (Bursar)](#15-accountant-bursar)
-16. [Secretary (HQ)](#16-secretary-hq)
-17. [Office Assistant (Branch)](#17-office-assistant-branch)
-18. [Storekeeper](#18-storekeeper)
-19. [Combined Roles](#19-combined-roles)
-20. [Common Workflows (Detailed)](#20-common-workflows-detailed)
-21. [Status Badge Legend](#21-status-badge-legend)
-22. [Troubleshooting & FAQ](#22-troubleshooting--faq)
-23. [Getting Help / Requesting Access](#23-getting-help--requesting-access)
-
----
-
-## 1. Getting Started (Sign In & Sign Out)
-
-### Step 1 — Open the portal
-Open your web browser (Chrome, Edge, Firefox or Safari). Go to the portal address given by the IT Department. The **Login** page opens ("Ingia kwenye akaunti yako").
-
-### Step 2 — Sign in
-You can sign in in **two ways**.
-
-**A. Username (or email) and password**
-1. In **Jina la mtumiaji au Barua pepe** (Username or Email), type your username or your work email.
-2. In **Nenosiri** (Password), type your password. Use the eye icon to show or hide it.
-3. Click **Ingia** (Sign in).
-
-**B. Google account**
-1. Click **Ingia kwa Google** (Sign in with Google).
-2. Choose the **Google account IT registered for you** (your exact work email).
-
-> ⚠️ **Important:** You cannot create your own account. Only users registered by IT can sign in. Unregistered accounts are blocked. IT gives you your username and first password.
-
-### Step 3 — Your Dashboard
-After signing in, the portal opens your **Dashibodi** (Dashboard). What it shows depends on your role (see [Section 4](#4-what-each-role-can-see-quick-map)).
-
-### Step 4 — Sign out when done
-- Click **Toka** (Sign out) in the top bar.
-- Always sign out on shared or public computers.
-
-### If access is denied
-If you see **"Umezuiwa Kuingia"** (Access Denied), your account is not registered, or it has no role yet. The page has a button to email the IT Department. Include:
-- Your full name and employee number
-- Your role (for example Guard, Supervisor, HR, Accountant)
-- Your branch and work station
-
-If you see **"Jina la mtumiaji/barua pepe au nenosiri si sahihi"**, your username or password is wrong. Check them and try again.
+1. [Kuanza (Kuingia na Kutoka)](#1-kuanza-kuingia-na-kutoka)
+2. [Muonekano wa Mfumo](#2-muonekano-wa-mfumo)
+3. [Vyeo vya Kampuni](#3-vyeo-vya-kampuni)
+4. [Kila Cheo Kinaona Nini (Ramani Fupi)](#4-kila-cheo-kinaona-nini-ramani-fupi)
+5. [Kurasa za Kila Mtu](#5-kurasa-za-kila-mtu)
+6. [IT / Msimamizi wa Mfumo](#6-it--msimamizi-wa-mfumo)
+7. [Mkurugenzi Mtendaji (CEO)](#7-mkurugenzi-mtendaji-ceo)
+8. [Meneja wa Operesheni](#8-meneja-wa-operesheni)
+9. [Msimamizi Mkuu](#9-msimamizi-mkuu)
+10. [Afisa Operesheni](#10-afisa-operesheni)
+11. [Msimamizi](#11-msimamizi)
+12. [Mkuu wa Kituo (In-Charge)](#12-mkuu-wa-kituo-in-charge)
+13. [Askari / Mlinzi](#13-askari--mlinzi)
+14. [Ofisi ya Rasilimali Watu (HR)](#14-ofisi-ya-rasilimali-watu-hr)
+15. [Mhasibu](#15-mhasibu)
+16. [Katibu (HQ)](#16-katibu-hq)
+17. [Msaidizi wa Ofisi (Tawi)](#17-msaidizi-wa-ofisi-tawi)
+18. [Mtunza Stoo](#18-mtunza-stoo)
+19. [Vyeo Viwili kwa Mtu Mmoja](#19-vyeo-viwili-kwa-mtu-mmoja)
+20. [Michakato ya Kawaida (Kwa Kina)](#20-michakato-ya-kawaida-kwa-kina)
+21. [Maana ya Alama za Hali](#21-maana-ya-alama-za-hali)
+22. [Matatizo na Maswali ya Mara kwa Mara](#22-matatizo-na-maswali-ya-mara-kwa-mara)
+23. [Msaada na Kuomba Akaunti](#23-msaada-na-kuomba-akaunti)
 
 ---
 
-## 2. Understanding the Interface
+## 1. Kuanza (Kuingia na Kutoka)
 
-Every screen uses the same layout:
+### Hatua 1 — Fungua mfumo
+Fungua kivinjari (Chrome, Edge, Firefox au Safari). Nenda kwenye anwani ya mfumo uliyopewa na Idara ya IT. Ukurasa wa **Ingia kwenye akaunti yako** utafunguka.
+
+### Hatua 2 — Ingia
+Unaweza kuingia kwa **njia mbili**.
+
+**A. Jina la mtumiaji (au barua pepe) na nenosiri**
+1. Kwenye **Jina la mtumiaji au Barua pepe**, andika jina lako la mtumiaji au barua pepe yako ya kazi.
+2. Kwenye **Nenosiri**, andika nenosiri lako. Tumia alama ya jicho kuonyesha au kuficha nenosiri.
+3. Bonyeza **Ingia**.
+
+**B. Akaunti ya Google**
+1. Bonyeza **Ingia kwa Google**.
+2. Chagua **akaunti ya Google ambayo IT waliisajili kwa ajili yako** (barua pepe yako halisi ya kazi).
+
+> ⚠️ **Muhimu:** Huwezi kujifungulia akaunti mwenyewe. Ni watumishi waliosajiliwa na IT pekee wanaoweza kuingia. Akaunti zisizosajiliwa zinazuiwa. IT watakupa jina la mtumiaji na nenosiri la kwanza.
+
+### Hatua 3 — Dashibodi yako
+Ukishaingia, mfumo unafungua **Dashibodi** yako. Inachoonyesha kinategemea cheo chako (tazama [Sehemu 4](#4-kila-cheo-kinaona-nini-ramani-fupi)).
+
+### Hatua 4 — Toka ukimaliza
+- Bonyeza **Toka** kwenye upau wa juu.
+- Toka kila mara ukitumia kompyuta ya pamoja au ya umma.
+
+### Ukizuiwa kuingia
+Ukiona **"Umezuiwa Kuingia"**, akaunti yako haijasajiliwa, au bado haijapewa cheo. Ukurasa huo una kitufe cha kutuma barua pepe kwa Idara ya IT. Taja:
+- Jina lako kamili na namba ya mtumishi
+- Cheo chako (mfano Askari, Msimamizi, HR, Mhasibu)
+- Tawi lako na kituo chako cha kazi
+
+Ukiona **"Jina la mtumiaji/barua pepe au nenosiri si sahihi"**, jina la mtumiaji au nenosiri limekosewa. Yahakiki kisha ujaribu tena.
+
+---
+
+## 2. Muonekano wa Mfumo
+
+Kila ukurasa una mpangilio uleule:
 
 ```
 ┌──────────────────┬──────────────────────────────────────────┐
-│                  │  TOP BAR (menu button, date, Sign out)   │
-│  SIDEBAR         ├──────────────────────────────────────────┤
+│                  │  UPAU WA JUU (kitufe cha menyu, Toka)    │
+│  MENYU           ├──────────────────────────────────────────┤
 │  • Operesheni    │                                          │
-│  • Stoo          │            PAGE CONTENT                  │
-│  • Ofisi         │   (tables, cards, forms, dialogs)        │
+│  • Stoo          │          MAUDHUI YA UKURASA              │
+│  • Ofisi         │   (majedwali, kadi, fomu, madirisha)     │
 │  • Usimamizi     │                                          │
 │                  │                                          │
 │  Auto Print      │                                          │
-│  Your name/role  │                                          │
+│  Jina na cheo    │                                          │
 └──────────────────┴──────────────────────────────────────────┘
 ```
 
-- **Sidebar groups:** **Operesheni** (Operations), **Stoo** (Store), **Ofisi** (Office), **Usimamizi** (Management). Only pages your role may open are listed.
-- **Phones and tablets:** tap the **menu (☰)** button to open the sidebar. Tap outside it to close.
-- **Sidebar footer:** shows your name, role and email. Check it on a shared device.
-- **Auto Print button:** in the sidebar footer. See [Section 5.5](#55-auto-print).
-- **Dialogs:** actions such as "Mark Absent" open a dialog. Fill the fields and press the confirm button. Close with ✕ or Cancel.
-- **Pop-up messages:** a short success or error message appears after you save. Wait for it before you move on.
-- **Active page:** the current sidebar link is highlighted in blue.
+- **Makundi ya menyu:** **Operesheni**, **Stoo**, **Ofisi**, **Usimamizi**. Zinaonyeshwa kurasa ambazo cheo chako kinaruhusiwa kufungua tu.
+- **Simu na tablet:** gusa kitufe cha **menyu (☰)** kufungua menyu. Gusa nje yake kuifunga.
+- **Chini ya menyu:** jina lako, cheo chako na barua pepe yako. Vihakiki ukitumia kifaa cha pamoja.
+- **Kitufe cha Auto Print:** kiko chini ya menyu. Tazama [Sehemu 5.5](#55-auto-print).
+- **Madirisha:** vitendo kama **Absent** hufungua dirisha. Jaza sehemu zinazotakiwa kisha bonyeza kitufe cha kuthibitisha. Funga kwa ✕.
+- **Ujumbe mfupi:** baada ya kuhifadhi, ujumbe wa mafanikio au kosa unaonekana. Usubiri ujumbe huo kabla ya kuendelea.
+- **Ukurasa uliopo:** kiungo cha ukurasa uliopo kinaonekana kwa rangi ya bluu kwenye menyu.
+- **Saa:** saa zote ni za Afrika Mashariki (EAT).
 
 ---
 
-## 3. Roles in the Company
+## 3. Vyeo vya Kampuni
 
-### Field (operations) chain of command
+### Mnyororo wa operesheni (field)
 
-| Role (portal label) | Who | Works with |
+| Cheo (kama kinavyoonekana) | Ni nani | Anafanya kazi na |
 |---|---|---|
-| **Meneja wa Operesheni** (Operations Manager) | Heads field operations | All regions and branches |
-| **Msimamizi Mkuu** (Senior Supervisor) | Main supervisor of a region | All guards; Mpangokazi of own region |
-| **Afisa Operesheni** (Operations Officer) | Receives supervisors' reports | All guards; Mpangokazi of own region |
-| **Msimamizi** (Supervisor) | Runs several sites | Guards assigned to them |
-| **Mkuu wa Kituo (In-Charge)** | A guard who leads one site | Guards at the site they lead |
-| **Askari / Mlinzi** (Guard) | Security guard | Own attendance and debts |
+| **Meneja wa Operesheni** | Kiongozi wa operesheni zote | Mikoa na matawi yote |
+| **Msimamizi Mkuu** | Msimamizi mkuu wa mkoa | Walinzi wote; Mpangokazi ya mkoa wake |
+| **Afisa Operesheni** | Anapokea ripoti za wasimamizi | Walinzi wote; Mpangokazi ya mkoa wake |
+| **Msimamizi** | Anasimamia vituo kadhaa | Walinzi aliopangiwa |
+| **Mkuu wa Kituo (In-Charge)** | Mlinzi anayeongoza kituo kimoja | Walinzi wa kituo anachoongoza |
+| **Askari / Mlinzi** | Mlinzi | Mahudhurio na madeni yake mwenyewe |
 
-### Office and management
+### Ofisi na uongozi
 
-| Role (portal label) | Who | Works with |
+| Cheo (kama kinavyoonekana) | Ni nani | Anafanya kazi na |
 |---|---|---|
-| **Mkurugenzi Mtendaji (CEO)** | Heads the company | Views everything; approves leave, transfers, incidents. No IT controls |
-| **IT / Msimamizi wa Mfumo** (IT / System Administrator, "Super Admin") | Runs the system | Everything, including user accounts and branches |
-| **Ofisi ya Rasilimali Watu (HR)** | HR Office | Guards, employees, contracts, leave, meetings, trainings — all branches |
-| **Mhasibu** (Accountant / Bursar) | Finance | Guard debts, salary deductions, payroll reports, staff attendance |
-| **Katibu (HQ)** (Secretary) | HQ office, Dar es Salaam | Meetings, trainings, leave intake, staff attendance, news — all branches |
-| **Msaidizi wa Ofisi (Tawi)** (Office Assistant) | Office at a remote branch (Tabora, Dodoma) | Same office duties as the Secretary, **own branch only** |
-| **Mtunza Stoo** (Storekeeper) | Store | Stock items, stock levels, stock transfers |
+| **Mkurugenzi Mtendaji (CEO)** | Kiongozi wa kampuni | Anaona kila kitu; anaidhinisha likizo, uhamisho, matukio. Hana kazi za IT |
+| **IT / Msimamizi wa Mfumo** | Anaendesha mfumo | Kila kitu, pamoja na akaunti za watumiaji na matawi |
+| **Ofisi ya Rasilimali Watu (HR)** | Ofisi ya HR | Walinzi, wafanyakazi, mikataba, likizo, vikao, mafunzo — matawi yote |
+| **Mhasibu** | Fedha | Madeni ya walinzi, makato ya mshahara, ripoti za mishahara, mahudhurio ya watumishi |
+| **Katibu (HQ)** | Ofisi ya HQ, Dar es Salaam | Vikao, mafunzo, kupokea maombi ya likizo, mahudhurio ya watumishi, habari — matawi yote |
+| **Msaidizi wa Ofisi (Tawi)** | Ofisi ya tawi la mkoani (Tabora, Dodoma) | Kazi zilezile za Katibu, **kwa tawi lake tu** |
+| **Mtunza Stoo** | Stoo | Vifaa, mali iliyopo, uhamisho wa mali |
 
-### Combined roles
-Some people do two jobs. They get the pages of both roles (see [Section 19](#19-combined-roles)):
-- **IT + Msimamizi** (IT + Supervisor)
-- **Katibu + Msimamizi** (Secretary + Supervisor)
+### Vyeo viwili
+Watu wengine wanafanya kazi mbili. Wanapata kurasa za vyeo vyote viwili (tazama [Sehemu 19](#19-vyeo-viwili-kwa-mtu-mmoja)):
+- **IT + Msimamizi**
+- **Katibu + Msimamizi**
 
-### Branches
-HKB has three branches: **Dar es Salaam (HQ)**, **Tabora** and **Dodoma**. Each region belongs to a branch. A guard belongs to the branch of their site's region.
+### Matawi
+HKB ina matawi matatu: **Dar es Salaam (HQ)**, **Tabora** na **Dodoma**. Kila mkoa uko chini ya tawi moja. Mlinzi ni wa tawi la mkoa wa kituo chake.
 
 ---
 
-## 4. What Each Role Can See (Quick Map)
+## 4. Kila Cheo Kinaona Nini (Ramani Fupi)
 
-**Legend:** ✅ full use · 👁 view only · 📝 limited actions (see note) · — not visible
-**Scope marks:** **(A)** only guards assigned to you · **(S)** only the site you lead · **(B)** only your branch · **(O)** only your own records
+**Alama:** ✅ anatumia kikamilifu · 👁 anaona tu · 📝 vitendo vichache (tazama maelezo) · — haoni
+**Wigo:** **(W)** walinzi uliopangiwa tu · **(K)** kituo unachoongoza tu · **(T)** tawi lako tu · **(Y)** rekodi zako tu
 
-### 4.1 Field roles and top management
+### 4.1 Vyeo vya operesheni na uongozi wa juu
 
-| Page (sidebar label) | IT | CEO | Ops Mgr | Senior Sup. | Ops Officer | Supervisor | In-Charge | Guard |
+| Ukurasa (menyu) | IT | CEO | Meneja Oper. | Msimamizi Mkuu | Afisa Oper. | Msimamizi | Mkuu wa Kituo | Askari |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Dashibodi** (Dashboard) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Daftari la Zamu** (Shift Sheet) | ✅ record + correct | 👁 | ✅ record + correct | ✅ record + correct | 📝 record | 📝 record (A) | 📝 record (S) | — |
-| **Mahudhurio ya Watumishi** (Staff Attendance) | ✅ | 👁 | — | — | — | — | — | — |
-| **Kumbukumbu za Mahudhurio** (Attendance Records) | ✅ | ✅ | 👁 | 👁 | 👁 | 👁 | 👁 (O) | 👁 (O) |
-| **Mpangokazi** | ✅ | 👁 | ✅ | ✅ | ✅ | 📝 own guards | — | — |
-| **Likizo** (Leave) | ✅ approve | ✅ approve | 👁 all + own | own | own | own | own | own |
-| **Vikao** (Meetings) | ✅ | ✅ | 👁 all | invited | invited | invited | invited | invited |
-| **Mafunzo** (Trainings) | ✅ | ✅ | 👁 all | 👁 | 👁 | 👁 | 👁 | 👁 |
-| **Kalenda** (Calendar) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Matukio** (Incidents) | ✅ manage | ✅ manage | ✅ manage | report | report | report | report | — |
-| **Muhtasari Wangu** (My Summary) | — | — | — | — | — | — | ✅ | ✅ |
-| **Stoo** (Store) pages | ✅ | 👁 | 📝 | 📝 | 📝 | 📝 | — | — |
-| **Madeni ya Walinzi** (Guard Debts) | ✅ | 👁 | — | — | — | — | — | — |
-| **Makato ya Mshahara** (Salary Deductions) | ✅ | — | — | — | — | — | — | — |
-| **Biashara za Ofisi** (Office Business) | ✅ | 👁 | — | — | — | — | — | — |
-| **Madeni Yangu** (My Debts) | — | — | — | — | — | — | ✅ | ✅ |
-| **Akaunti za Watumiaji** (User Accounts) | ✅ | — | — | — | — | — | — | — |
-| **Wafanyakazi** (Employees) | ✅ | 👁 (+ contracts, documents) | 👁 | — | — | — | — | — |
-| **Matawi** (Branches) | ✅ | — | — | — | — | — | — | — |
-| **Daftari la Walinzi** (Guard Registry) | ✅ | — | — | — | — | — | — | — |
-| **Wateja** (Clients) | ✅ | — | — | — | — | — | — | — |
-| **Uhamisho wa Walinzi** (Guard Transfers) | ✅ | ✅ approve | ✅ request + approve | request | request | request | — | — |
-| **Maombi ya Ulinzi** (Coverage Requests) | ✅ manage | 👁 | — | — | — | — | — | — |
-| **Maombi ya Kazi** (Job Applications) | ✅ | 👁 | — | — | — | — | — | — |
-| **Habari** (News) | ✅ | 👁 | — | — | — | — | — | — |
-| **Ripoti** (Reports) | ✅ full PDF | ✅ full PDF | ✅ full PDF | summary | summary | — | — | — |
+| **Dashibodi** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Daftari la Zamu** | ✅ rekodi + sahihisha | 👁 | ✅ rekodi + sahihisha | ✅ rekodi + sahihisha | 📝 rekodi | 📝 rekodi (W) | 📝 rekodi (K) | — |
+| **Mahudhurio ya Watumishi** | ✅ | 👁 | — | — | — | — | — | — |
+| **Kumbukumbu za Mahudhurio** | ✅ | ✅ | 👁 | 👁 | 👁 | 👁 | 👁 (Y) | 👁 (Y) |
+| **Mpangokazi** | ✅ | 👁 | ✅ | ✅ | ✅ | 📝 walinzi wake | — | — |
+| **Likizo** | ✅ idhinisha | ✅ idhinisha | 👁 zote + zake | zake | zake | zake | zake | zake |
+| **Vikao** | ✅ | ✅ | 👁 vyote | alivyoalikwa | alivyoalikwa | alivyoalikwa | alivyoalikwa | alivyoalikwa |
+| **Mafunzo** | ✅ | ✅ | 👁 yote | 👁 | 👁 | 👁 | 👁 | 👁 |
+| **Kalenda** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Matukio** | ✅ shughulikia | ✅ shughulikia | ✅ shughulikia | ripoti | ripoti | ripoti | ripoti | — |
+| **Muhtasari Wangu** | — | — | — | — | — | — | ✅ | ✅ |
+| Kurasa za **Stoo** | ✅ | 👁 | 📝 | 📝 | 📝 | 📝 | — | — |
+| **Madeni ya Walinzi** | ✅ | 👁 | — | — | — | — | — | — |
+| **Makato ya Mshahara** | ✅ | — | — | — | — | — | — | — |
+| **Biashara za Ofisi** | ✅ | 👁 | — | — | — | — | — | — |
+| **Madeni Yangu** | — | — | — | — | — | — | ✅ | ✅ |
+| **Akaunti za Watumiaji** | ✅ | — | — | — | — | — | — | — |
+| **Wafanyakazi** | ✅ | 👁 (+ mikataba, hati) | 👁 | — | — | — | — | — |
+| **Matawi** | ✅ | — | — | — | — | — | — | — |
+| **Daftari la Walinzi** | ✅ | — | — | — | — | — | — | — |
+| **Wateja** | ✅ | — | — | — | — | — | — | — |
+| **Uhamisho wa Walinzi** | ✅ | ✅ idhinisha | ✅ omba + idhinisha | omba | omba | omba | — | — |
+| **Maombi ya Ulinzi** | ✅ shughulikia | 👁 | — | — | — | — | — | — |
+| **Maombi ya Kazi** | ✅ | 👁 | — | — | — | — | — | — |
+| **Habari** | ✅ | 👁 | — | — | — | — | — | — |
+| **Ripoti** | ✅ PDF kamili | ✅ PDF kamili | ✅ PDF kamili | muhtasari | muhtasari | — | — | — |
 
-Notes:
-- **Store 📝:** field roles view stock and **request** stock transfers. Only the Storekeeper and IT record stock and approve transfers.
-- **Mpangokazi 📝 (Supervisor):** a Supervisor writes the form for their own guards only. Senior Supervisors and Operations Officers see their own region's forms.
+Maelezo:
+- **Stoo 📝:** vyeo vya operesheni vinaona mali na **kuomba** uhamisho wa mali. Mtunza Stoo na IT pekee ndio wanaorekodi mali na kuidhinisha uhamisho.
+- **Mpangokazi 📝 (Msimamizi):** Msimamizi anajaza fomu kwa walinzi wake tu. Msimamizi Mkuu na Afisa Operesheni wanaona fomu za mkoa wao.
 
-### 4.2 Office roles
+### 4.2 Vyeo vya ofisi
 
-| Page (sidebar label) | HR | Accountant | Secretary | Office Assistant | Storekeeper |
+| Ukurasa (menyu) | HR | Mhasibu | Katibu | Msaidizi wa Ofisi | Mtunza Stoo |
 |---|:-:|:-:|:-:|:-:|:-:|
-| **Dashibodi** (Dashboard) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Daftari la Zamu** (Shift Sheet) | 👁 | 👁 | 👁 | 👁 (B) | — |
-| **Mahudhurio ya Watumishi** (Staff Attendance) | — | ✅ | ✅ | ✅ (B) | ✅ |
-| **Kumbukumbu za Mahudhurio** (Attendance Records) | ✅ (+ sick notes) | 👁 | 👁 | 👁 (B) | — |
-| **Mpangokazi** | 👁 | — | 👁 | 👁 (B) | — |
-| **Likizo** (Leave) | ✅ approve | 👁 all + own | file for others | file for others (B) | own |
-| **Vikao** (Meetings) | ✅ | invited | ✅ | ✅ (B) | invited |
-| **Mafunzo** (Trainings) | ✅ | 👁 | ✅ | ✅ (B) | 👁 |
-| **Kalenda** (Calendar) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Matukio** (Incidents) | report | — | report | ✅ manage (B) | — |
-| **Stoo** (Store) pages | 👁 | 👁 | 👁 | — | ✅ |
-| **Madeni ya Walinzi** (Guard Debts) | 👁 | ✅ | 👁 | — | ✅ record |
-| **Makato ya Mshahara** (Salary Deductions) | — | ✅ | — | — | — |
-| **Biashara za Ofisi** (Office Business) | 👁 | ✅ | 👁 | — | ✅ |
-| **Wafanyakazi** (Employees) | ✅ edit | — | 👁 | 👁 (B) | — |
-| **Daftari la Walinzi** (Guard Registry) | ✅ | — | — | — | — |
-| **Wateja** (Clients) | ✅ | — | — | — | — |
-| **Uhamisho wa Walinzi** (Guard Transfers) | ✅ approve | — | — | — | — |
-| **Maombi ya Ulinzi** (Coverage Requests) | 👁 | 👁 | 👁 | — | — |
-| **Maombi ya Kazi** (Job Applications) | ✅ | — | 👁 | — | — |
-| **Habari** (News) | 👁 | — | ✅ | — | — |
-| **Ripoti** (Reports) | ✅ full PDF | ✅ full PDF | summary | summary (B) | — |
-
-Note: the Accountant also sees employee **contracts** (salary) from an employee's profile.
+| **Dashibodi** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Daftari la Zamu** | 👁 | 👁 | 👁 | 👁 (T) | — |
+| **Mahudhurio ya Watumishi** | — | ✅ | ✅ | ✅ (T) | ✅ |
+| **Kumbukumbu za Mahudhurio** | ✅ (+ vyeti vya ugonjwa) | 👁 | 👁 | 👁 (T) | — |
+| **Mpangokazi** | 👁 | — | 👁 | 👁 (T) | — |
+| **Likizo** | ✅ idhinisha | 👁 zote + zake | ombea wengine | ombea wengine (T) | zake |
+| **Vikao** | ✅ | alivyoalikwa | ✅ | ✅ (T) | alivyoalikwa |
+| **Mafunzo** | ✅ | 👁 | ✅ | ✅ (T) | 👁 |
+| **Kalenda** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Matukio** | ripoti | — | ripoti | ✅ shughulikia (T) | — |
+| Kurasa za **Stoo** | 👁 | 👁 | 👁 | — | ✅ |
+| **Madeni ya Walinzi** | 👁 | ✅ | 👁 | — | ✅ rekodi |
+| **Makato ya Mshahara** | — | ✅ | — | — | — |
+| **Biashara za Ofisi** | 👁 | ✅ | 👁 | — | ✅ |
+| **Wafanyakazi** | ✅ hariri | — | 👁 | 👁 (T) | — |
+| **Daftari la Walinzi** | ✅ | — | — | — | — |
+| **Wateja** | ✅ | — | — | — | — |
+| **Uhamisho wa Walinzi** | ✅ idhinisha | — | — | — | — |
+| **Maombi ya Ulinzi** | 👁 | 👁 | 👁 | — | — |
+| **Maombi ya Kazi** | ✅ | — | 👁 | — | — |
+| **Habari** | 👁 | — | ✅ | — | — |
+| **Ripoti** | ✅ PDF kamili | ✅ PDF kamili | muhtasari | muhtasari (T) | — |
 
 ---
 
-## 5. Pages for Everyone
+## 5. Kurasa za Kila Mtu
 
-These pages work the same for every role.
+Kurasa hizi zinafanya kazi kwa namna ileile kwa kila cheo.
 
-### 5.1 Dashboard (Dashibodi)
-- Shows the numbers and recent activity your role is allowed to see.
-- **Guards and In-Charges** see a **"Zamu yangu leo"** (My shift today) card. It shows today's Day and Night shift, your post, your status (Present / Late / Absent), the last 7 days, your supervisor and your month summary.
+### 5.1 Dashibodi
+- Inaonyesha takwimu na shughuli za karibuni ambazo cheo chako kinaruhusiwa kuona.
+- **Askari na Wakuu wa Kituo** wanaona kadi ya **"Zamu yangu leo"**. Inaonyesha zamu ya leo ya **Mchana** na **Usiku**, kituo chako, hali yako (**Upo** / **Umechelewa** / **Haupo**), siku 7 zilizopita, msimamizi wako na muhtasari wa mwezi.
 
-### 5.2 Leave (Likizo)
-1. Go to **Operesheni → Likizo**.
-2. See **Salio langu la likizo** (My leave balance): entitled, used and remaining days.
-3. Click **Omba likizo** (Request leave). Choose the leave type, the start date (**Kuanzia**) and end date (**Hadi**), and a reason.
-4. Click **Tuma ombi** (Send request). The request shows as **Inasubiri** (Pending).
-5. When HR, the CEO or IT decides, the status changes to **Imeidhinishwa** (Approved) or **Imekataliwa** (Rejected). Read the decision notes.
-6. You can **Ghairi** (Cancel) a request that is still pending.
-7. For an approved request, click **Barua (PDF)** to download the leave letter.
+### 5.2 Likizo
+1. Nenda **Operesheni → Likizo**.
+2. Angalia **Salio langu la likizo**: stahili, zilizotumika na zilizobaki.
+3. Bonyeza **Omba likizo**. Chagua aina ya likizo, tarehe ya **Kuanzia** na ya **Hadi**, na sababu.
+4. Bonyeza **Tuma ombi**. Ombi linaonekana kama **Inasubiri**.
+5. HR, CEO au IT wakiamua, hali inabadilika kuwa **Imeidhinishwa** au **Imekataliwa**. Soma maelezo ya uamuzi.
+6. Unaweza **Ghairi** ombi ambalo bado linasubiri.
+7. Kwa ombi lililoidhinishwa, bonyeza **Barua (PDF)** kupakua barua ya likizo.
 
-Leave types: annual, sick, maternity, paternity, compassionate/emergency, unpaid.
+Mfumo unakataa ombi kama siku zinazidi salio lako, au zinaingiliana na likizo nyingine.
 
-### 5.3 Meetings (Vikao) and Trainings (Mafunzo)
-- **Vikao:** you see every meeting you are invited to — title, date and time, venue or online link, and agenda. After the meeting, the minutes (**kumbukumbu**) may be attached as text or a file.
-- **Mafunzo:** you see company-wide trainings and your branch's trainings — title, trainer, date and venue.
+Aina za likizo: ya mwaka, ugonjwa, uzazi (mama), uzazi (baba), msiba / dharura, bila malipo.
 
-### 5.4 Calendar (Kalenda)
-- A month view of **meetings**, **trainings** and **approved leave**.
-- Use **Mwezi uliopita** / **Mwezi ujao** (previous / next month) and **Mwezi huu** (this month).
+### 5.3 Vikao na Mafunzo
+- **Vikao:** unaona kila kikao ulichoalikwa — kichwa, tarehe na saa, mahali au kiungo cha mtandaoni (**Jiunge mtandaoni**), na ajenda. Baada ya kikao, **Kumbukumbu za kikao** zinaweza kuwekwa kama maandishi au faili; zifungue kwenye ukurasa wa kikao.
+- **Mafunzo:** unaona mafunzo ya kampuni nzima na ya tawi lako — jina, mkufunzi, tarehe na mahali. Ukiwa umeandikishwa, fungua mafunzo kuona **Rekodi yangu**: mahudhurio, kuhitimu na cheti chako.
+
+### 5.4 Kalenda
+- Mwonekano wa mwezi mzima wa **vikao**, **mafunzo** na **likizo zilizoidhinishwa**.
+- Tumia **Mwezi uliopita** / **Mwezi ujao** na **Mwezi huu**.
 
 ### 5.5 Auto Print
-- The **Auto Print** button in the sidebar footer opens the HKB Direct Auto Print page.
-- It works only on the **HQ office Wi-Fi**. The access code is copied for you when you open the print page.
+- Kitufe cha **Auto Print** chini ya menyu kinafungua ukurasa wa HKB Direct Auto Print.
+- Kinafanya kazi kwenye **Wi-Fi ya ofisi ya HQ** pekee. Nambari ya siri inanakiliwa kwa ajili yako ukifungua ukurasa wa kuchapisha.
 
 ---
 
-## 6. IT / System Administrator (Super Admin)
+## 6. IT / Msimamizi wa Mfumo
 
-IT has **every permission** and runs the system: accounts, branches, setup and corrections.
+IT ana **ruhusa zote** na anaendesha mfumo: akaunti, matawi, maandalizi na marekebisho.
 
-### 6.1 Register system users
-1. Go to **Usimamizi → Akaunti za Watumiaji** (User Accounts).
-2. Click **Register New User**.
-3. Fill in full name, work email, **username**, gender, **role**, **branch** and password.
-4. Save. The person can now sign in with username + password, or with Google if the email is a Google account.
-5. To add many users at once, use the **CSV import** on the same page. Follow the on-screen format.
-6. To change someone's role, edit their account here. Only IT can change roles.
+### 6.1 Sajili watumiaji
+1. Nenda **Usimamizi → Akaunti za Watumiaji**.
+2. Bonyeza **Register New User**.
+3. Jaza jina kamili, barua pepe ya kazi, **jina la mtumiaji**, jinsia, **cheo**, **tawi** na nenosiri.
+4. Hifadhi. Mtu huyo sasa anaweza kuingia kwa jina la mtumiaji + nenosiri, au kwa Google kama barua pepe yake ni ya Google.
+5. Kusajili watu wengi kwa mara moja, tumia **CSV** kwenye ukurasa huohuo. Fuata muundo unaoonyeshwa.
+6. Kubadilisha cheo cha mtu, hariri akaunti yake hapa. IT pekee ndiye anayeweza kubadilisha vyeo.
+7. Msaidizi wa Ofisi lazima apewe tawi la mkoani (si HQ).
 
-### 6.2 Branches, regions and stations
-1. **Usimamizi → Matawi** (Branches): add or edit branches.
-2. **Stoo → Mikoa na Vituo** (Regions & Stations): add regions and choose each region's **branch**. Add stations (sites) and set each site's **In-Charge**.
+### 6.2 Matawi, mikoa na vituo
+1. **Usimamizi → Matawi:** ongeza au hariri matawi.
+2. **Stoo → Mikoa na Vituo:** ongeza mikoa na uchague **tawi** la kila mkoa. Ongeza vituo na umweke **Mkuu wa Kituo** wa kila kituo.
 
-> A region without a branch: incidents at its sites use the reporter's branch. Set a branch for every region.
+> Mkoa usio na tawi: matukio ya vituo vyake yanatumia tawi la aliyeripoti. Weka tawi kwa kila mkoa.
 
-### 6.3 Guards and clients
-- **Usimamizi → Daftari la Walinzi** (Guard Registry) and **Wateja** (Clients). See [HR Office](#14-hr-office) for the steps.
+### 6.3 Walinzi na wateja
+- **Usimamizi → Daftari la Walinzi** na **Wateja**. Hatua ziko kwenye [Ofisi ya HR](#14-ofisi-ya-rasilimali-watu-hr).
 
-### 6.4 Attendance
-- **Daftari la Zamu** (Shift Sheet): record and **correct** guard attendance (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
-- **Mahudhurio ya Watumishi** (Staff Attendance): record office staff attendance. Only IT can change recorded **check-in / sign-out times**.
+### 6.4 Mahudhurio
+- **Daftari la Zamu:** rekodi na **sahihisha** mahudhurio ya walinzi (tazama [Mchakato 20.1](#201-rekodi-mahudhurio-ya-walinzi-na-kutokuwepo)).
+- **Mahudhurio ya Watumishi:** rekodi mahudhurio ya watumishi wa ofisi. IT pekee ndiye anayeweza kubadilisha **saa za kuingia / kutoka** zilizokwisha rekodiwa.
 
-### 6.5 Everything else
-IT can use every page in this guide: store, office finance, leave approval, meetings, trainings, incidents, transfers, coverage requests, job applications, news and reports.
-
----
-
-## 7. CEO
-
-The CEO **views all data** in every branch and **approves** key requests. The CEO has no IT controls (no user accounts, no branches).
-
-### 7.1 Daily oversight
-- **Dashibodi:** company-wide numbers.
-- **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mahudhurio ya Watumishi**, **Mpangokazi**: view only.
-- **Kumbukumbu za Mahudhurio:** you can open guards' **sick notes** (see [Workflow 20.2](#202-audit-a-sick-note)).
-
-### 7.2 Approvals
-- **Likizo:** approve or reject leave requests (see [Workflow 20.5](#205-leave-request--approval)).
-- **Uhamisho wa Walinzi:** approve or reject guard transfers.
-- **Matukio:** follow up incidents in all branches: add actions, mark solved or reopen.
-
-### 7.3 Meetings and trainings
-- **Vikao** and **Mafunzo:** create, edit and cancel meetings and trainings for any branch.
-
-### 7.4 People and money (view)
-- **Wafanyakazi:** all employees, contracts and employee documents.
-- **Madeni ya Walinzi**, **Biashara za Ofisi**, **Stoo** pages, **Maombi ya Ulinzi**, **Maombi ya Kazi**, **Habari**: view only.
-- **Ripoti:** full PDF reports and payroll exports.
+### 6.5 Mengine yote
+IT anaweza kutumia kila ukurasa kwenye mwongozo huu: stoo, fedha za ofisi, kuidhinisha likizo, vikao, mafunzo, matukio, uhamisho, maombi ya ulinzi, maombi ya kazi, habari na ripoti.
 
 ---
 
-## 8. Operations Manager
+## 7. Mkurugenzi Mtendaji (CEO)
 
-The Operations Manager oversees **all regions**.
+CEO **anaona taarifa zote** za kila tawi na **anaidhinisha** maombi muhimu. CEO hana kazi za IT (hana akaunti za watumiaji wala matawi).
 
-### 8.1 Attendance
-1. **Daftari la Zamu:** record attendance for any guard, and **correct** earlier marks (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
-2. **Kumbukumbu za Mahudhurio:** view all records.
+### 7.1 Usimamizi wa kila siku
+- **Dashibodi:** takwimu za kampuni nzima.
+- **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mahudhurio ya Watumishi**, **Mpangokazi**: kuona tu.
+- **Kumbukumbu za Mahudhurio:** unaweza kufungua **vyeti vya ugonjwa** vya walinzi (tazama [Mchakato 20.2](#202-hakiki-cheti-cha-ugonjwa)).
+
+### 7.2 Kuidhinisha
+- **Likizo:** idhinisha au kataa maombi ya likizo (tazama [Mchakato 20.5](#205-likizo-ombi--uamuzi)).
+- **Uhamisho wa Walinzi:** idhinisha au kataa uhamisho.
+- **Matukio:** fuatilia matukio ya matawi yote: ongeza hatua, weka **Solved** au fungua tena.
+
+### 7.3 Vikao na mafunzo
+- **Vikao** na **Mafunzo:** panga, simamia na ghairi vikao na mafunzo ya tawi lolote.
+
+### 7.4 Watu na fedha (kuona)
+- **Wafanyakazi:** wafanyakazi wote, mikataba na hati za watumishi.
+- **Madeni ya Walinzi**, **Biashara za Ofisi**, kurasa za **Stoo**, **Maombi ya Ulinzi**, **Maombi ya Kazi**, **Habari**: kuona tu.
+- **Ripoti:** ripoti kamili za PDF na za mishahara.
+
+---
+
+## 8. Meneja wa Operesheni
+
+Meneja wa Operesheni anasimamia **mikoa yote**.
+
+### 8.1 Mahudhurio
+1. **Daftari la Zamu:** rekodi mahudhurio ya mlinzi yeyote, na **sahihisha** rekodi za awali (tazama [Mchakato 20.1](#201-rekodi-mahudhurio-ya-walinzi-na-kutokuwepo)).
+2. **Kumbukumbu za Mahudhurio:** ona rekodi zote.
 
 ### 8.2 Mpangokazi
-- Write the daily region form for any branch's guards, and view **all** regions' forms (see [Workflow 20.3](#203-mpangokazi-daily-region-report)).
+- Jaza fomu ya kila siku ya mkoa kwa walinzi wa tawi lolote, na uone fomu za mikoa **yote** (tazama [Mchakato 20.3](#203-mpangokazi-ripoti-ya-kila-siku-ya-mkoa)).
 
-### 8.3 Transfers
-- **Uhamisho wa Walinzi:** request guard transfers **and approve or reject** them.
+### 8.3 Uhamisho
+- **Uhamisho wa Walinzi:** omba uhamisho wa walinzi **na uidhinishe au ukatae**.
 
-### 8.4 Incidents
-- **Matukio:** report incidents, and manage incidents in **all branches** (add actions, mark solved, reopen).
+### 8.4 Matukio
+- **Matukio:** ripoti matukio, na shughulikia matukio ya **matawi yote** (ongeza hatua, weka **Solved**, fungua tena).
 
-### 8.5 Other pages
-- **Wafanyakazi:** view employees (no contracts).
-- **Likizo:** view all leave requests. **Vikao** / **Mafunzo:** view all.
-- **Stoo:** view stock; request stock transfers.
-- **Ripoti:** full PDF reports and payroll exports.
+### 8.5 Kurasa nyingine
+- **Wafanyakazi:** ona wafanyakazi (bila mikataba).
+- **Likizo:** ona maombi yote ya likizo. **Vikao** / **Mafunzo:** ona yote.
+- **Stoo:** ona mali; omba uhamisho wa mali.
+- **Ripoti:** ripoti kamili za PDF na za mishahara.
 
 ---
 
-## 9. Senior Supervisor
+## 9. Msimamizi Mkuu
 
-The Senior Supervisor is the main supervisor of a **region**.
+Msimamizi Mkuu ni msimamizi mkuu wa **mkoa**.
 
-### 9.1 Record daily attendance
-1. Go to **Operesheni → Daftari la Zamu**.
-2. Pick the **date**, then **Mchana** (Day) or **Usiku** (Night).
-3. Mark each guard **Present**, **Late** or **Absent** (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
+### 9.1 Rekodi mahudhurio ya kila siku
+1. Nenda **Operesheni → Daftari la Zamu**.
+2. Chagua **tarehe**, kisha **Mchana** au **Usiku**.
+3. Weka kila mlinzi **Present**, **Late** au **Absent** (tazama [Mchakato 20.1](#201-rekodi-mahudhurio-ya-walinzi-na-kutokuwepo)).
 
-### 9.2 Correct earlier marks
-- Corrections are made **on the Shift Sheet**, not in Attendance Records.
-- Open the same date and shift and **mark the guard again** with the right status. The new mark replaces the old one and records your name.
-- Only the Senior Supervisor, Operations Manager and IT can correct a mark.
+### 9.2 Sahihisha rekodi za awali
+- Marekebisho yanafanywa **kwenye Daftari la Zamu**, si kwenye Kumbukumbu za Mahudhurio.
+- Fungua tarehe na zamu ileile, kisha **mrekodi mlinzi upya** kwa hali sahihi. Rekodi mpya inachukua nafasi ya ile ya zamani na jina lako linaandikwa.
+- Msimamizi Mkuu, Meneja wa Operesheni na IT pekee ndio wanaoweza kusahihisha rekodi.
 
 ### 9.3 Mpangokazi
-- Write the daily region form for any guards in your branch. View your **own region's** forms.
+- Jaza fomu ya kila siku ya mkoa kwa walinzi wowote wa tawi lako. Ona fomu za **mkoa wako**.
 
-### 9.4 Transfers, incidents, store, reports
-- **Uhamisho wa Walinzi:** request a transfer. HR, the Operations Manager, the CEO or IT decides.
-- **Matukio:** report an incident.
-- **Stoo:** view stock; request stock transfers.
-- **Ripoti:** summary reports.
-
----
-
-## 10. Operations Officer
-
-The Operations Officer receives supervisors' reports and supports the region.
-
-- **Daftari la Zamu:** record attendance (first mark only; ask a Senior Supervisor to correct a mark).
-- **Kumbukumbu za Mahudhurio:** view all records.
-- **Mpangokazi:** write the form for any guards in your branch; view your **own region's** forms.
-- **Uhamisho wa Walinzi:** request transfers.
-- **Matukio:** report incidents.
-- **Stoo:** view stock; request stock transfers.
-- **Ripoti:** summary reports.
+### 9.4 Uhamisho, matukio, stoo, ripoti
+- **Uhamisho wa Walinzi:** omba uhamisho. HR, Meneja wa Operesheni, CEO au IT ndio wanaoamua.
+- **Matukio:** ripoti tukio.
+- **Stoo:** ona mali; omba uhamisho wa mali.
+- **Ripoti:** ripoti za muhtasari.
 
 ---
 
-## 11. Supervisor
+## 10. Afisa Operesheni
 
-The Supervisor marks attendance for **the guards assigned to them** each shift.
+Afisa Operesheni anapokea ripoti za wasimamizi na anasaidia mkoa.
 
-### 11.1 Take shift attendance (main daily task)
-1. Go to **Operesheni → Daftari la Zamu**.
-2. Pick the **date**, then **Mchana** (Day) or **Usiku** (Night).
-3. The list shows **only guards assigned to you**.
-4. For each guard, mark **Present**, **Late** or **Absent** (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
-5. A guard on **approved leave** shows a **"Yuko likizo"** (On leave) badge.
+- **Daftari la Zamu:** rekodi mahudhurio (rekodi ya kwanza tu; mwombe Msimamizi Mkuu asahihishe rekodi).
+- **Kumbukumbu za Mahudhurio:** ona rekodi zote.
+- **Mpangokazi:** jaza fomu kwa walinzi wowote wa tawi lako; ona fomu za **mkoa wako**.
+- **Uhamisho wa Walinzi:** omba uhamisho.
+- **Matukio:** ripoti matukio.
+- **Stoo:** ona mali; omba uhamisho wa mali.
+- **Ripoti:** ripoti za muhtasari.
 
-> ❌ You cannot change a mark after saving it. If you made a mistake, ask a **Senior Supervisor**, the **Operations Manager** or **IT** to re-mark the guard on the Shift Sheet.
+---
 
-### 11.2 Check records
-- **Kumbukumbu za Mahudhurio** shows the attendance history so you can confirm your marks.
+## 11. Msimamizi
+
+Msimamizi anarekodi mahudhurio ya **walinzi aliopangiwa** kila zamu.
+
+### 11.1 Chukua mahudhurio ya zamu (kazi kuu ya kila siku)
+1. Nenda **Operesheni → Daftari la Zamu**.
+2. Chagua **tarehe**, kisha **Mchana** au **Usiku**.
+3. Orodha inaonyesha **walinzi uliopangiwa wewe tu**.
+4. Kwa kila mlinzi, weka **Present**, **Late** au **Absent** (tazama [Mchakato 20.1](#201-rekodi-mahudhurio-ya-walinzi-na-kutokuwepo)).
+5. Mlinzi aliye kwenye **likizo iliyoidhinishwa** anaonyesha alama ya **"Yuko likizo"**.
+
+> ❌ Huwezi kubadilisha rekodi baada ya kuihifadhi. Ukikosea, mwombe **Msimamizi Mkuu**, **Meneja wa Operesheni** au **IT** amrekodi mlinzi upya kwenye Daftari la Zamu.
+
+### 11.2 Hakiki rekodi
+- **Kumbukumbu za Mahudhurio** inaonyesha historia ya mahudhurio ili uthibitishe ulichorekodi.
 
 ### 11.3 Mpangokazi
-- Write the daily form for **your own guards** (see [Workflow 20.3](#203-mpangokazi-daily-region-report)).
+- Jaza fomu ya kila siku kwa **walinzi wako** (tazama [Mchakato 20.3](#203-mpangokazi-ripoti-ya-kila-siku-ya-mkoa)).
 
-### 11.4 Transfers, incidents, store
-- **Uhamisho wa Walinzi → Request Transfer:** pick the guard, the new supervisor or post, and the reason. Track the status on the same page.
-- **Matukio:** report incidents at your sites (see [Workflow 20.4](#204-report-and-follow-up-an-incident)).
-- **Stoo:** you see **all stock** (stock is not limited by area). You can **request** stock transfers; the Storekeeper or IT approves them.
-
----
-
-## 12. In-Charge
-
-The In-Charge (**Mkuu wa Kituo**) is a **guard who leads one site**. They have the guard pages plus attendance for their site.
-
-### 12.1 Mark your site's guards
-1. Go to **Operesheni → Daftari la Zamu**.
-2. Pick the **date** and **Mchana / Usiku**.
-3. The list shows **only guards at the site you lead**.
-4. Mark each guard **Present**, **Late** or **Absent**.
-
-> ℹ️ You **cannot mark your own attendance**. Your Supervisor marks you.
-> You cannot change a mark after saving it. Ask a Senior Supervisor to correct it.
-
-### 12.2 Your own pages
-- **Dashibodi:** your "Zamu yangu leo" card (see [Section 5.1](#51-dashboard-dashibodi)).
-- **Muhtasari Wangu**, **Kumbukumbu za Mahudhurio** (your own records), **Madeni Yangu**: same as a guard (see [Section 13](#13-askari--guard)).
-- **Matukio:** report incidents at your site.
+### 11.4 Uhamisho, matukio, stoo
+- **Uhamisho wa Walinzi:** bonyeza kitufe cha kuomba uhamisho (**Request Transfer**), chagua mlinzi, msimamizi au kituo kipya, na sababu. Fuatilia hali kwenye ukurasa huohuo.
+- **Matukio:** ripoti matukio ya vituo vyako (tazama [Mchakato 20.4](#204-ripoti-na-fuatilia-tukio)).
+- **Stoo:** unaona **mali yote** (mali haigawanywi kwa eneo). Unaweza **kuomba** uhamisho wa mali; Mtunza Stoo au IT ndio wanaoidhinisha.
 
 ---
 
-## 13. Askari / Guard
+## 12. Mkuu wa Kituo (In-Charge)
 
-Guards see **their own attendance, debts and leave**.
+Mkuu wa Kituo ni **mlinzi anayeongoza kituo kimoja**. Ana kurasa za askari pamoja na mahudhurio ya kituo chake.
 
-### 13.1 Check your attendance
-1. Sign in. The **Dashibodi** shows **"Zamu yangu leo"** (My shift today): your post, today's Day/Night status, the last 7 days, your supervisor and your month summary.
-2. **Operesheni → Muhtasari Wangu** (My Summary): days present, sick days, permitted days and absences without permission.
-3. **Kumbukumbu za Mahudhurio** shows your own records only.
+### 12.1 Rekodi walinzi wa kituo chako
+1. Nenda **Operesheni → Daftari la Zamu**.
+2. Chagua **tarehe** na **Mchana / Usiku**.
+3. Orodha inaonyesha **walinzi wa kituo unachoongoza tu**.
+4. Weka kila mlinzi **Present**, **Late** au **Absent**.
 
-> ℹ️ You do **not** mark your own attendance. Your Supervisor or In-Charge does it. If a record is wrong, tell your Supervisor. A Senior Supervisor can correct it.
+> ℹ️ **Huwezi kujirekodi mwenyewe.** Msimamizi wako ndiye anakurekodi.
+> Huwezi kubadilisha rekodi baada ya kuihifadhi. Mwombe Msimamizi Mkuu aisahihishe.
+
+### 12.2 Kurasa zako binafsi
+- **Dashibodi:** kadi yako ya "Zamu yangu leo" (tazama [Sehemu 5.1](#51-dashibodi)).
+- **Muhtasari Wangu**, **Kumbukumbu za Mahudhurio** (rekodi zako), **Madeni Yangu**: kama askari (tazama [Sehemu 13](#13-askari--mlinzi)).
+- **Matukio:** ripoti matukio ya kituo chako.
+
+---
+
+## 13. Askari / Mlinzi
+
+Askari anaona **mahudhurio, madeni na likizo yake mwenyewe**.
+
+### 13.1 Angalia mahudhurio yako
+1. Ingia. **Dashibodi** inaonyesha **"Zamu yangu leo"**: kituo chako, hali ya leo ya Mchana/Usiku, siku 7 zilizopita, msimamizi wako na muhtasari wa mwezi.
+2. **Operesheni → Muhtasari Wangu:** siku ulizokuwepo, siku za ugonjwa, siku za ruhusa na siku za kutokuwepo bila ruhusa.
+3. **Kumbukumbu za Mahudhurio** inaonyesha rekodi zako tu.
+
+> ℹ️ **Hujirekodi mwenyewe.** Msimamizi wako au Mkuu wa Kituo ndiye anakurekodi. Rekodi ikiwa na kosa, mweleze Msimamizi wako. Msimamizi Mkuu anaweza kuisahihisha.
 >
-> If the card says your account is not linked to a guard profile, contact your Supervisor or HR.
+> Kadi ikisema akaunti yako haijaunganishwa na wasifu wa mlinzi, wasiliana na Msimamizi wako au HR.
 
-### 13.2 Check your debts
-1. Go to **Ofisi → Madeni Yangu** (My Debts).
-2. See the credit you took (fish, maize flour, medical), amounts already deducted from salary, and your balance.
+### 13.2 Angalia madeni yako
+1. Nenda **Ofisi → Madeni Yangu**.
+2. Ona mikopo uliyochukua (samaki, unga wa sembe, matibabu), kiasi kilichokwisha katwa kwenye mshahara, na salio lako.
 
-### 13.3 Leave, meetings, trainings
-- **Likizo:** request leave and track it (see [Section 5.2](#52-leave-likizo)).
-- **Vikao**, **Mafunzo**, **Kalenda:** see what you are invited to.
+### 13.3 Likizo, vikao, mafunzo
+- **Likizo:** omba likizo na ufuatilie (tazama [Sehemu 5.2](#52-likizo)).
+- **Vikao**, **Mafunzo**, **Kalenda:** ona ulichoalikwa au kuandikishwa.
 
-### 13.4 If you cannot report for work
-- Tell your **Supervisor** as early as possible.
-- If you are sick, give the **doctor's note** to your Supervisor. They attach it to the absence, so the day counts as **Sick**, not **Not Permitted** (which affects pay).
-
----
-
-## 14. HR Office
-
-HR manages **people** in **all branches**: guards, employees, contracts, leave, meetings and trainings.
-
-### 14.1 Register and manage guards
-1. Go to **Usimamizi → Daftari la Walinzi** (Guard Registry).
-2. Click **Add guard**. Fill employee number, contact details, next of kin and home details.
-3. **Assign a Supervisor**, the site and the client. The Supervisor decides which Shift Sheet the guard appears on.
-4. Edit a guard's record when things change. Use **CSV import** to add many guards.
-
-### 14.2 Clients (Wateja)
-- **Usimamizi → Wateja:** add the companies guards work for. The table shows each client's number of guards.
-
-### 14.3 Employees (Wafanyakazi)
-1. Go to **Usimamizi → Wafanyakazi**.
-2. Tabs: **Watumishi** (Staff), **Walinzi** (Guards), **Mikataba inayoisha** (Contracts ending soon).
-3. Open an employee to edit their profile: department, job title, branch, phone, NIDA number, next of kin.
-4. **Mikataba** (Contracts): add or edit contracts, including salary.
-5. **Hati za mtumishi** (Employee documents): upload IDs and certificates.
-
-### 14.4 Leave
-- **Likizo:** see all requests, file a request for any employee, and **approve or reject** requests (see [Workflow 20.5](#205-leave-request--approval)).
-
-### 14.5 Meetings and trainings
-- **Vikao:** create meetings, invite staff, add the agenda, and attach minutes afterwards.
-- **Mafunzo:** plan trainings, add attendees, mark attendance, and record completion or certificates (see [Workflow 20.6](#206-meetings-and-trainings)).
-
-### 14.6 Transfers
-- **Uhamisho wa Walinzi:** open each **Pending** request. **Approve** (the guard moves to the new supervisor) or **Reject** with notes.
-
-### 14.7 Attendance and sick notes
-- **Daftari la Zamu:** view only.
-- **Kumbukumbu za Mahudhurio:** open guards' sick notes (see [Workflow 20.2](#202-audit-a-sick-note)).
-
-### 14.8 Recruitment and other pages
-- **Maombi ya Kazi** (Job Applications): review applications sent from the public jobs page and update their status.
-- **Matukio:** report incidents. **Mpangokazi**: view all forms.
-- **Madeni ya Walinzi**, **Biashara za Ofisi**, **Stoo**, **Maombi ya Ulinzi**, **Habari**: view only.
-- **Ripoti:** full PDF reports and payroll exports.
+### 13.4 Ukishindwa kuja kazini
+- Mjulishe **Msimamizi** wako mapema iwezekanavyo.
+- Ukiwa mgonjwa, mpe Msimamizi wako **cheti cha daktari**. Atakiambatisha kwenye rekodi ya kutokuwepo, ili siku ihesabiwe **Mgonjwa**, si **Bila ruhusa** (ambayo huathiri mshahara).
 
 ---
 
-## 15. Accountant (Bursar)
+## 14. Ofisi ya Rasilimali Watu (HR)
 
-The Accountant (**Mhasibu**) handles **money**: guard debts, salary deductions, payroll and office staff attendance.
+HR inasimamia **watu** wa **matawi yote**: walinzi, wafanyakazi, mikataba, likizo, vikao na mafunzo.
 
-### 15.1 Record guard debts
-1. Go to **Ofisi → Madeni ya Walinzi** (Guard Debts).
-2. Record a new debt: choose the guard, the type (fish, maize flour, medical, ...), the amount and the date. Save.
-3. The guard's balance updates at once.
+### 14.1 Sajili na simamia walinzi
+1. Nenda **Usimamizi → Daftari la Walinzi**.
+2. Bonyeza **Add guard**. Jaza namba ya mtumishi, mawasiliano, ndugu wa karibu na taarifa za makazi.
+3. **Mpangie Msimamizi**, kituo na mteja. Msimamizi ndiye anayeamua mlinzi aonekane kwenye Daftari la Zamu la nani.
+4. Hariri taarifa za mlinzi zikibadilika. Tumia **CSV** kuongeza walinzi wengi.
 
-### 15.2 Deduct debts from salary
-1. Go to **Ofisi → Makato ya Mshahara** (Salary Deductions).
-2. Choose the guard and the amount to deduct for the pay period. The balance goes down.
+### 14.2 Wateja
+- **Usimamizi → Wateja:** ongeza kampuni ambazo walinzi wanazifanyia kazi. Jedwali linaonyesha idadi ya walinzi wa kila mteja.
 
-### 15.3 Office business
-- **Ofisi → Biashara za Ofisi:** enter daily figures for the fish and maize-flour business. Open the history to review past entries.
+### 14.3 Wafanyakazi
+1. Nenda **Usimamizi → Wafanyakazi**.
+2. Vichupo: **Watumishi**, **Walinzi**, **Mikataba inayoisha** (ndani ya siku 60).
+3. Fungua mtumishi kuhariri **Taarifa za mtumishi**: idara, wadhifa, tawi, simu, namba ya NIDA, ndugu wa karibu → **Hifadhi taarifa**.
+4. **Mikataba:** ongeza au hariri mikataba, pamoja na mshahara; maliza au sitisha mkataba.
+5. **Hati za mtumishi:** pakia vitambulisho, vyeti, CV, barua ya polisi n.k. (PDF au picha, MB 5).
+6. **Mafunzo:** kadi inayoonyesha mafunzo yote aliyoshiriki mtumishi, mahudhurio, kuhitimu na vyeti.
 
-### 15.4 Staff attendance
-- **Mahudhurio ya Watumishi:** record office staff attendance (see [Workflow 20.7](#207-staff-attendance)).
+### 14.4 Likizo
+- **Likizo:** ona maombi yote, ombea mtumishi yeyote, na **idhinisha au kataa** maombi (tazama [Mchakato 20.5](#205-likizo-ombi--uamuzi)).
 
-### 15.5 Payroll and reports
-1. Go to **Usimamizi → Ripoti**.
-2. Set the start and end dates and optional filters.
-3. Click **Generate PDF**. The report includes the attendance ledger, absence breakdown and payroll deduction list.
-4. Check figures first in **Daftari la Zamu** and **Kumbukumbu za Mahudhurio** (view only).
+### 14.5 Vikao na mafunzo
+- **Vikao:** panga vikao, alika watumishi, weka ajenda, na weka kumbukumbu baada ya kikao.
+- **Mafunzo:** panga mafunzo, andikisha washiriki, rekodi mahudhurio, na weka kuhitimu au vyeti (tazama [Mchakato 20.6](#206-vikao-na-mafunzo)).
 
-### 15.6 Other pages
-- **Wafanyakazi:** you see employee **contracts** (salary) from an employee's profile.
-- **Likizo:** view all leave requests. **Stoo**, **Maombi ya Ulinzi:** view only.
+### 14.6 Uhamisho
+- **Uhamisho wa Walinzi:** fungua kila ombi lenye hali ya **Inasubiri**. **Idhinisha** (mlinzi anahamia kwa msimamizi mpya) au **Kataa** na uandike maelezo.
 
----
+### 14.7 Mahudhurio na vyeti vya ugonjwa
+- **Daftari la Zamu:** kuona tu.
+- **Kumbukumbu za Mahudhurio:** fungua vyeti vya ugonjwa vya walinzi (tazama [Mchakato 20.2](#202-hakiki-cheti-cha-ugonjwa)).
 
-## 16. Secretary (HQ)
-
-The Secretary (**Katibu**) works at HQ and handles office duties for **all branches**.
-
-### 16.1 Meetings and trainings
-- **Vikao:** create meetings, invite staff, add the agenda, and attach minutes afterwards.
-- **Mafunzo:** plan trainings, add attendees, and mark attendance (see [Workflow 20.6](#206-meetings-and-trainings)).
-
-### 16.2 Leave intake
-- **Likizo:** file a leave request **for any employee** (choose the employee instead of "Mimi mwenyewe"). HR, the CEO or IT approves it.
-
-### 16.3 Staff attendance
-- **Mahudhurio ya Watumishi:** record office staff attendance (see [Workflow 20.7](#207-staff-attendance)).
-
-### 16.4 News
-- **Usimamizi → Habari:** write, edit and publish news for the company website.
-
-### 16.5 View-only pages
-- **Wafanyakazi** (no contracts), **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mpangokazi** (all), **Stoo**, **Madeni ya Walinzi**, **Biashara za Ofisi**, **Maombi ya Ulinzi**, **Maombi ya Kazi**.
-- **Matukio:** report incidents.
-- **Ripoti:** summary reports.
+### 14.8 Ajira na kurasa nyingine
+- **Maombi ya Kazi:** kagua maombi yaliyotumwa kutoka ukurasa wa kazi wa tovuti na ubadilishe hali yake.
+- **Matukio:** ripoti matukio. **Mpangokazi:** ona fomu zote.
+- **Madeni ya Walinzi**, **Biashara za Ofisi**, **Stoo**, **Maombi ya Ulinzi**, **Habari**: kuona tu.
+- **Ripoti:** ripoti kamili za PDF na za mishahara.
 
 ---
 
-## 17. Office Assistant (Branch)
+## 15. Mhasibu
 
-The Office Assistant (**Msaidizi wa Ofisi**) does the Secretary's office work at a remote branch (Tabora or Dodoma). **Everything is limited to your own branch.**
+Mhasibu anashughulikia **fedha**: madeni ya walinzi, makato ya mshahara, mishahara na mahudhurio ya watumishi wa ofisi.
 
-> If your account has no branch, you see no data. Ask IT to set your branch in **User Accounts**.
+### 15.1 Rekodi madeni ya walinzi
+1. Nenda **Ofisi → Madeni ya Walinzi**.
+2. Rekodi deni jipya: chagua mlinzi, aina (samaki, unga wa sembe, matibabu, ...), kiasi na tarehe. Hifadhi.
+3. Salio la mlinzi linasasishwa papo hapo.
 
-- **Mahudhurio ya Watumishi:** record your branch's staff attendance.
-- **Vikao** and **Mafunzo:** create and manage your branch's meetings and trainings. Company-wide ones are managed by HQ.
-- **Likizo:** file leave requests for your branch's employees, and view your branch's requests.
-- **Wafanyakazi:** view your branch's employees.
-- **Matukio:** report incidents, and manage your branch's incidents (add actions, mark solved, reopen).
-- **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mpangokazi:** view your branch's guards and forms.
-- **Ripoti:** summary reports for your branch's guards.
+### 15.2 Kata madeni kwenye mshahara
+1. Nenda **Ofisi → Makato ya Mshahara**.
+2. Chagua mlinzi na kiasi cha kukata kwa kipindi cha mshahara. Salio linapungua.
 
----
+### 15.3 Biashara za ofisi
+- **Ofisi → Biashara za Ofisi:** weka takwimu za kila siku za biashara ya samaki na unga. Fungua historia kuona za nyuma.
 
-## 18. Storekeeper
+### 15.4 Mahudhurio ya watumishi
+- **Mahudhurio ya Watumishi:** rekodi mahudhurio ya watumishi wa ofisi (tazama [Mchakato 20.7](#207-mahudhurio-ya-watumishi)).
 
-The Storekeeper (**Mtunza Stoo**) controls **inventory**.
+### 15.5 Mishahara na ripoti
+1. Nenda **Usimamizi → Ripoti**.
+2. Weka tarehe ya kuanza na ya mwisho, na vichujio ukipenda.
+3. Bonyeza **Generate PDF**. Ripoti ina leja ya mahudhurio, mchanganuo wa kutokuwepo, na orodha ya makato ya mshahara.
+4. Hakiki takwimu kwanza kwenye **Daftari la Zamu** na **Kumbukumbu za Mahudhurio** (kuona tu).
 
-### 18.1 First-time setup
-1. **Stoo → Vifaa vya Stoo** (Store Items): add every item (name, unit, ...).
-2. **Stoo → Mikoa na Vituo** (Regions & Stations): add regions and stations where stock is kept.
-
-### 18.2 Record stock
-1. **Stoo → Mali Iliyopo** (Stock Holdings): see current quantities per location.
-2. Record items received and issued. Every entry goes to the **Leja ya Stoo** (Stock Ledger).
-
-### 18.3 Ledger and reports
-- **Leja ya Stoo:** full movement history (in/out, who, when).
-- **Ripoti za Stoo:** summaries for a date range.
-
-### 18.4 Stock transfers
-1. **Stoo → Uhamisho wa Mali** (Stock Transfers) lists requests.
-2. Requests from field roles arrive as **Pending**.
-3. **Approve** or **Reject** with a reason. You can also start your own transfers.
-
-### 18.5 Office duties
-- **Madeni ya Walinzi:** record guard credit purchases.
-- **Biashara za Ofisi:** record business figures.
-- **Mahudhurio ya Watumishi:** record office staff attendance.
+### 15.6 Kurasa nyingine
+- **Likizo:** ona maombi yote ya likizo. **Stoo**, **Maombi ya Ulinzi:** kuona tu.
 
 ---
 
-## 19. Combined Roles
+## 16. Katibu (HQ)
 
-A combined role gets **all pages of both roles**.
+Katibu anafanya kazi HQ na anashughulikia kazi za ofisi kwa **matawi yote**.
 
-### IT + Msimamizi (IT + Supervisor)
-- Everything IT can do (Section 6), plus the Supervisor's work (Section 11).
-- Exception: **Mpangokazi** — writes the form for **own assigned guards only**, not a whole branch.
+### 16.1 Vikao na mafunzo
+- **Vikao:** panga vikao, alika watumishi, weka ajenda, na weka kumbukumbu baada ya kikao.
+- **Mafunzo:** panga mafunzo, andikisha washiriki, rekodi mahudhurio, na weka kuhitimu au vyeti (tazama [Mchakato 20.6](#206-vikao-na-mafunzo)).
 
-### Katibu + Msimamizi (Secretary + Supervisor)
-- Everything the Secretary can do (Section 16), plus the Supervisor's work (Section 11).
-- On the **Shift Sheet**, the list shows **only guards assigned to you**.
+### 16.2 Kupokea maombi ya likizo
+- **Likizo:** ombea **mtumishi yeyote** likizo (chagua mtumishi badala ya "Mimi mwenyewe"). HR, CEO au IT ndio wanaoidhinisha.
+
+### 16.3 Mahudhurio ya watumishi
+- **Mahudhurio ya Watumishi:** rekodi mahudhurio ya watumishi wa ofisi (tazama [Mchakato 20.7](#207-mahudhurio-ya-watumishi)).
+
+### 16.4 Habari
+- **Usimamizi → Habari:** andika, hariri na chapisha habari za tovuti ya kampuni.
+
+### 16.5 Kurasa za kuona tu
+- **Wafanyakazi** (bila mikataba), **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mpangokazi** (zote), **Stoo**, **Madeni ya Walinzi**, **Biashara za Ofisi**, **Maombi ya Ulinzi**, **Maombi ya Kazi**.
+- **Matukio:** ripoti matukio.
+- **Ripoti:** ripoti za muhtasari.
 
 ---
 
-## 20. Common Workflows (Detailed)
+## 17. Msaidizi wa Ofisi (Tawi)
 
-### 20.1 Record guard attendance and handle absences
-*(Supervisor, In-Charge, Operations Officer, Senior Supervisor, Operations Manager, IT)*
+Msaidizi wa Ofisi anafanya kazi za ofisi za Katibu kwenye tawi la mkoani (Tabora au Dodoma). **Kila kitu kimewekewa mipaka ya tawi lako.**
 
-1. **Operesheni → Daftari la Zamu** → pick the **date** → **Mchana / Usiku**. Your guards load.
-2. **Present:** saved at once with your name and time.
-3. **Late:** enter the **minutes late**.
-4. **Absent:** a dialog opens with **three options**:
-   - **Mgonjwa** (Sick): enter the sick days and **upload the doctor's note**. A progress bar shows the upload. The day is sick leave, not a pay deduction.
-   - **Ruhusa** (Permitted reason): enter the reason and the allowed days.
-   - **Bila ruhusa** (Not permitted): no valid reason. The day is flagged for **salary deduction** in the payroll report.
-5. Save. The status updates in records, dashboards and reports.
+> Kama akaunti yako haina tawi, hutaona taarifa yoyote na hutaweza kupanga vikao wala mafunzo. Mwombe IT akuwekee tawi kwenye **Akaunti za Watumiaji**.
 
-**Corrections:** open the same date and shift and **mark the guard again**. The new mark replaces the old one. Only the **Senior Supervisor, Operations Manager and IT** can re-mark a guard who is already marked. Others see an error and must ask one of them.
+- **Mahudhurio ya Watumishi:** rekodi mahudhurio ya watumishi wa tawi lako.
+- **Vikao:** panga na simamia vikao vya tawi lako. Unaweza kualika watumishi wa tawi lako tu. Unaona vikao vya tawi lako na vile ulivyoalikwa.
+- **Mafunzo:** panga na simamia mafunzo ya tawi lako, na uandikishe watu wa tawi lako. Mafunzo ya kampuni nzima yanasimamiwa na HQ.
+- **Likizo:** ombea likizo watumishi wa tawi lako, na uone maombi ya tawi lako.
+- **Wafanyakazi:** ona watumishi wa tawi lako.
+- **Matukio:** ripoti matukio, na shughulikia matukio ya tawi lako (ongeza hatua, weka **Solved**, fungua tena).
+- **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mpangokazi:** ona walinzi na fomu za tawi lako.
+- **Ripoti:** ripoti za muhtasari za walinzi wa tawi lako.
 
-**Locks:** if two people save the same guard and shift at once, one gets "This shift is already being processed — try again shortly." Wait a moment and retry.
+---
 
-### 20.2 Audit a sick note
+## 18. Mtunza Stoo
+
+Mtunza Stoo anasimamia **mali ya stoo**.
+
+### 18.1 Maandalizi ya mara ya kwanza
+1. **Stoo → Vifaa vya Stoo:** ongeza kila kifaa (jina, kipimo, ...).
+2. **Stoo → Mikoa na Vituo:** ongeza mikoa na vituo ambako mali inahifadhiwa.
+
+### 18.2 Rekodi mali
+1. **Stoo → Mali Iliyopo:** ona idadi iliyopo kila eneo.
+2. Rekodi vifaa vilivyopokelewa na vilivyotolewa. Kila rekodi inaingia kwenye **Leja ya Stoo**.
+
+### 18.3 Leja na ripoti
+- **Leja ya Stoo:** historia kamili ya mali (kuingia/kutoka, nani, lini).
+- **Ripoti za Stoo:** muhtasari wa kipindi cha tarehe.
+
+### 18.4 Uhamisho wa mali
+1. **Stoo → Uhamisho wa Mali** inaorodhesha maombi.
+2. Maombi ya vyeo vya operesheni yanafika yakiwa **Inasubiri**.
+3. **Idhinisha** au **Kataa** na utoe sababu. Unaweza pia kuanzisha uhamisho wako mwenyewe.
+
+### 18.5 Kazi za ofisi
+- **Madeni ya Walinzi:** rekodi mikopo ya walinzi.
+- **Biashara za Ofisi:** rekodi takwimu za biashara.
+- **Mahudhurio ya Watumishi:** rekodi mahudhurio ya watumishi wa ofisi.
+
+---
+
+## 19. Vyeo Viwili kwa Mtu Mmoja
+
+Cheo cha aina hii kinapata **kurasa zote za vyeo vyote viwili**.
+
+### IT + Msimamizi
+- Kila kitu anachofanya IT (Sehemu 6), pamoja na kazi za Msimamizi (Sehemu 11).
+- Kizuizi: **Mpangokazi** — anajaza fomu kwa **walinzi aliopangiwa tu**, si tawi zima.
+
+### Katibu + Msimamizi
+- Kila kitu anachofanya Katibu (Sehemu 16), pamoja na kazi za Msimamizi (Sehemu 11).
+- Kwenye **Daftari la Zamu**, orodha inaonyesha **walinzi aliopangiwa tu**.
+
+---
+
+## 20. Michakato ya Kawaida (Kwa Kina)
+
+### 20.1 Rekodi mahudhurio ya walinzi na kutokuwepo
+*(Msimamizi, Mkuu wa Kituo, Afisa Operesheni, Msimamizi Mkuu, Meneja wa Operesheni, IT)*
+
+1. **Operesheni → Daftari la Zamu** → chagua **tarehe** → **Mchana / Usiku**. Walinzi wako wanaonekana.
+2. **Present:** inahifadhiwa papo hapo pamoja na jina lako na saa.
+3. **Late:** weka **dakika alizochelewa**.
+4. **Absent:** dirisha linafunguka lenye **machaguo matatu**:
+   - **Sick** (Mgonjwa): weka siku za ugonjwa na **pakia cheti cha daktari**. Mstari wa maendeleo unaonyesha upakiaji. Siku inahesabiwa likizo ya ugonjwa, si makato ya mshahara.
+   - **Permitted** (Ruhusa): andika sababu (ni lazima) na siku zilizoruhusiwa.
+   - **Not Permitted** (Bila ruhusa): hakuna sababu halali. Siku inawekwa alama ya **makato ya mshahara** kwenye ripoti ya mishahara.
+5. Hifadhi. Hali inasasishwa kwenye kumbukumbu, dashibodi na ripoti.
+
+**Kusahihisha:** fungua tarehe na zamu ileile na **umrekodi mlinzi upya**. Rekodi mpya inachukua nafasi ya ile ya zamani. Ni **Msimamizi Mkuu, Meneja wa Operesheni na IT** pekee wanaoweza kumrekodi upya mlinzi aliyekwisha rekodiwa. Wengine wanaona ujumbe wa kosa na lazima wamwombe mmoja wao.
+
+**Kufuli:** watu wawili wakihifadhi mlinzi mmoja kwenye zamu moja kwa wakati mmoja, mmoja wao ataona "This shift is already being processed — try again shortly." Subiri kidogo kisha jaribu tena.
+
+### 20.2 Hakiki cheti cha ugonjwa
 *(HR, CEO, IT)*
 
 1. **Operesheni → Kumbukumbu za Mahudhurio**.
-2. Find a **Sick** record with a document.
-3. Click to **open the note** and check it.
+2. Tafuta rekodi ya **Sick** yenye hati.
+3. Bonyeza **kufungua cheti** na ukihakiki.
 
-Other roles see only the word **"Attached"** and cannot open the file.
+Vyeo vingine vinaona neno **"Attached"** tu na haviwezi kufungua faili.
 
-### 20.3 Mpangokazi (daily region report)
-*(Supervisor, Operations Officer, Senior Supervisor, Operations Manager, IT)*
+### 20.3 Mpangokazi (ripoti ya kila siku ya mkoa)
+*(Msimamizi, Afisa Operesheni, Msimamizi Mkuu, Meneja wa Operesheni, IT)*
 
 1. **Operesheni → Mpangokazi**.
-2. Fill **Tarehe** (Date) and **Mkoa** (Region). **Msimamizi** shows your name.
-3. For each guard choose a status: **Yupo** (Present), **Off**, **Ruhusa** (Permitted), **Mgonjwa** (Sick), **Hayupo (bila sababu)** (Absent without reason). The totals update at the top.
-4. Fill **Imeandaliwa na** (Prepared by), **Cheo** (Title) and optional **Maelezo** (Notes).
-5. Sign in the **Sahihi** (Signature) box with your finger or mouse.
-6. Submit. Then use **PDF** to download the form, or share it to the office WhatsApp group from your phone.
+2. Jaza **Tarehe** na **Mkoa**. **Msimamizi** inaonyesha jina lako.
+3. Kwa kila mlinzi chagua hali: **Yupo**, **Off**, **Ruhusa**, **Mgonjwa**, **Hayupo (bila sababu)**. Jumla zinasasishwa juu.
+4. Jaza **Imeandaliwa na**, **Cheo**, na **Maelezo** (si lazima).
+5. Weka sahihi kwenye kisanduku cha **Sahihi** kwa kidole au kipanya.
+6. Tuma. Kisha tumia **PDF** kupakua fomu, au uishiriki kwenye kikundi cha WhatsApp cha ofisi kutoka simu yako.
 
-### 20.4 Report and follow up an incident
-1. **Report** (field roles, HR, Secretary, Office Assistant, CEO, IT): **Operesheni → Matukio** → choose the site, client, level (**Low / Medium / High / Critical**) and describe what happened → submit.
-2. Reporters see **the incidents they reported**.
-3. **Follow up** (CEO, Operations Manager, IT for all branches; Office Assistant for own branch): add actions, then mark **Solved**, or reopen as **Not solved**.
+### 20.4 Ripoti na fuatilia tukio
+1. **Kuripoti** (vyeo vya operesheni, HR, Katibu, Msaidizi wa Ofisi, CEO, IT): **Operesheni → Matukio** → chagua kituo, mteja, kiwango (**Low / Medium / High / Critical**) na eleza kilichotokea → tuma.
+2. Walioripoti wanaona **matukio waliyoripoti wenyewe**.
+3. **Kufuatilia** (CEO, Meneja wa Operesheni, IT — matawi yote; Msaidizi wa Ofisi — tawi lake): ongeza hatua zilizochukuliwa, kisha weka **Solved**, au fungua tena kama **Not solved**.
 
-### 20.5 Leave request → approval
-1. **Request:** the employee (**Mimi mwenyewe**), or HR / Secretary / Office Assistant for another employee → **Likizo → Omba likizo** → type, dates, reason → **Tuma ombi**.
-2. **Approve:** HR, the CEO or IT opens the pending request → **Idhinisha** (Approve) or **Kataa** (Reject), with optional notes.
-3. Approved leave appears on the **Kalenda** and as a **Yuko likizo** badge on the Shift Sheet. Download the letter with **Barua (PDF)**.
+### 20.5 Likizo: ombi → uamuzi
+1. **Kuomba:** mtumishi mwenyewe (**Mimi mwenyewe**), au HR / Katibu / Msaidizi wa Ofisi kwa mtumishi mwingine → **Likizo → Omba likizo** → aina, tarehe, sababu → **Tuma ombi**.
+2. **Kuamua:** HR, CEO au IT anafungua ombi linalosubiri → **Idhinisha** au **Kataa**, pamoja na maelezo (si lazima).
+3. Likizo iliyoidhinishwa inaonekana kwenye **Kalenda** na kama alama ya **Yuko likizo** kwenye Daftari la Zamu. Pakua barua kwa **Barua (PDF)**.
 
-### 20.6 Meetings and trainings
-*(HR, Secretary, CEO, IT for all branches; Office Assistant for own branch)*
+### 20.6 Vikao na mafunzo
+*(HR, Katibu, CEO, IT — matawi yote; Msaidizi wa Ofisi — tawi lake)*
 
-**Meeting:**
-1. **Vikao → new meeting:** title, date and time, venue or online link, branch, invitees, agenda. Save.
-2. Invitees see it under **Vikao** and on the **Kalenda**.
-3. After the meeting, add the minutes as text or upload a file.
+**Kikao:**
+1. **Vikao → Panga kikao:** **Kichwa cha kikao**, **Kuanza**, **Kumaliza** (si lazima), **Mahali** na/au **Kiungo cha mtandaoni**, **Tawi**, **Ajenda**.
+2. Chagua **Walioalikwa** (tafuta kwa jina, au **Chagua wote walioonyeshwa**) → **Hifadhi kikao**.
+3. Walioalikwa wanakiona kwenye **Vikao** na **Kalenda**.
+4. Kughairi: fungua kikao → **Ghairi kikao**.
+5. Baada ya kikao kuanza: fungua kikao → **Weka kumbukumbu** → andika maandishi na/au pakia faili (PDF, Word au picha, hadi MB 10) → **Hifadhi kumbukumbu**. Walioalikwa wote wanaweza kuzisoma.
 
-**Training:**
-1. **Mafunzo → Panga mafunzo:** title, trainer, date, venue, branch. Save.
-2. Add **attendees** (staff or guards).
-3. After the training, mark who attended and record completion or certificates.
+**Mafunzo:**
+1. **Mafunzo → Panga mafunzo:** **Jina la mafunzo**, **Mkufunzi**, **Kuanzia**, **Hadi**, **Mahali**, **Tawi**, maelezo → **Hifadhi mafunzo**.
+2. Fungua mafunzo (bonyeza jina lake) → **Ongeza washiriki**: tafuta watumishi au walinzi, chagua → **Andikisha**. Mafunzo ya tawi yanachukua watu wa tawi hilo tu.
+3. Kuanzia siku ya kwanza ya mafunzo, weka kila mshiriki **Alihudhuria** au **Hakuhudhuria**.
+4. Kwa aliyehudhuria, bonyeza **Cheti / kuhitimu** → weka alama ya **Amehitimu mafunzo haya**, **Tarehe ya kuhitimu**, **Namba ya cheti**, na pakia cheti (PDF au picha, hadi MB 5) → **Hifadhi rekodi**.
+5. Rekodi hii inaonekana pia kwenye ukurasa wa mtumishi kwenye **Wafanyakazi** (kadi ya **Mafunzo**).
 
-### 20.7 Staff attendance
-*(Accountant, Secretary, Storekeeper, IT; Office Assistant for own branch)*
+### 20.7 Mahudhurio ya watumishi
+*(Mhasibu, Katibu, Mtunza Stoo, IT; Msaidizi wa Ofisi — tawi lake)*
 
-1. **Operesheni → Mahudhurio ya Watumishi** → pick the date.
-2. Mark each staff member **Present** (with check-in time), **Late** (minutes late) or **Absent** (Sick / Permitted / Not permitted).
-3. Use the batch button to mark everyone present at once, then change the exceptions.
-4. Record the sign-out time at the end of the day.
-5. Only **IT** can change a recorded check-in or sign-out time.
+1. **Operesheni → Mahudhurio ya Watumishi** → chagua tarehe.
+2. Weka kila mtumishi **Present** (pamoja na saa ya kuingia), **Late** (dakika alizochelewa) au **Absent** (Sick / Permitted / Not Permitted).
+3. Tumia kitufe cha **Mark All Unmarked as Present** kuwaweka wote waliobaki kuwa wapo kwa mara moja, kisha ubadilishe wachache wenye hali tofauti.
+4. Rekodi saa ya kutoka mwisho wa siku.
+5. **IT** pekee ndiye anayeweza kubadilisha saa ya kuingia au kutoka iliyokwisha rekodiwa.
 
-### 20.8 Guard transfer
-1. **Request** (Supervisor, Operations Officer, Senior Supervisor, Operations Manager, IT): **Usimamizi → Uhamisho wa Walinzi → Request Transfer** → guard + destination + reason → submit.
-2. **Decide** (HR, Operations Manager, CEO, IT): **Approve** (the guard's supervisor updates automatically) or **Reject** with notes. The requester sees the decision.
+### 20.8 Uhamisho wa mlinzi
+1. **Kuomba** (Msimamizi, Afisa Operesheni, Msimamizi Mkuu, Meneja wa Operesheni, IT): **Usimamizi → Uhamisho wa Walinzi → Request Transfer** → mlinzi + anakokwenda + sababu → tuma.
+2. **Kuamua** (HR, Meneja wa Operesheni, CEO, IT): **Idhinisha** (msimamizi wa mlinzi anabadilika moja kwa moja) au **Kataa** na uandike maelezo. Aliyeomba anaona uamuzi.
 
-### 20.9 Official PDF report
-*(Full: IT, CEO, Operations Manager, HR, Accountant. Summary: Senior Supervisor, Operations Officer, Secretary, Office Assistant)*
+### 20.9 Ripoti rasmi ya PDF
+*(Kamili: IT, CEO, Meneja wa Operesheni, HR, Mhasibu. Muhtasari: Msimamizi Mkuu, Afisa Operesheni, Katibu, Msaidizi wa Ofisi)*
 
 1. **Usimamizi → Ripoti**.
-2. Choose the start date, end date and optional filters.
-3. Click **Generate PDF**. The file downloads.
+2. Chagua tarehe ya kuanza, tarehe ya mwisho, na vichujio ukipenda.
+3. Bonyeza **Generate PDF**. Faili linapakuliwa.
 
-### 20.10 Stock transfer
-1. **Request** (field roles, Storekeeper, IT): **Stoo → Uhamisho wa Mali** → item, quantity, from/to location → submit.
-2. **Approve** (Storekeeper, IT): approve or reject.
+### 20.10 Uhamisho wa mali
+1. **Kuomba** (vyeo vya operesheni, Mtunza Stoo, IT): **Stoo → Uhamisho wa Mali** → kifaa, idadi, kutoka/kwenda → tuma.
+2. **Kuidhinisha** (Mtunza Stoo, IT): idhinisha au kataa.
 
-### 20.11 Deduct a guard's debt from salary
-1. Accountant (or IT): **Ofisi → Madeni ya Walinzi** — check the balance.
-2. **Ofisi → Makato ya Mshahara** — record the deduction for the period.
-3. The guard sees the new balance on **Madeni Yangu**.
+### 20.11 Kata deni la mlinzi kwenye mshahara
+1. Mhasibu (au IT): **Ofisi → Madeni ya Walinzi** — hakiki salio.
+2. **Ofisi → Makato ya Mshahara** — rekodi makato ya kipindi.
+3. Mlinzi anaona salio jipya kwenye **Madeni Yangu**.
 
 ---
 
-## 21. Status Badge Legend
+## 21. Maana ya Alama za Hali
 
-| Badge | Meaning | Colour |
+| Alama | Maana | Rangi |
 |---|---|---|
-| **Present / Upo** | Reported for the shift | Green |
-| **Late / Umechelewa** | Reported late (minutes shown) | Amber |
-| **Sick / Mgonjwa** | Absent, sick, with a doctor's note | Amber |
-| **Permitted / Ruhusa** | Absent with an allowed reason | Amber |
-| **Not permitted / Bila ruhusa** | Absent without a valid reason — flagged for salary deduction | Red |
-| **Yuko likizo** | Guard is on approved leave | — |
-| **Pending / Inasubiri** | Request waiting for a decision | Amber |
-| **Approved / Imeidhinishwa** | Request accepted | Green |
-| **Rejected / Imekataliwa** | Request refused (read the notes) | Red |
-| **Cancelled / Imeghairiwa** | Request withdrawn | Grey |
-| **Not solved / Solved** | Incident status | — |
-| **Low / Medium / High / Critical** | Incident level | Grey / Amber / Red / Violet |
+| **Present / Upo** | Amefika zamuni | Kijani |
+| **Late / Umechelewa** | Amefika akiwa amechelewa (dakika zinaonyeshwa) | Njano |
+| **Sick / Mgonjwa** | Hayupo, ni mgonjwa, ana cheti cha daktari | Njano |
+| **Permitted / Ruhusa** | Hayupo kwa sababu iliyoruhusiwa | Njano |
+| **Not Permitted / Bila ruhusa** | Hayupo bila sababu halali — alama ya makato ya mshahara | Nyekundu |
+| **Yuko likizo** | Mlinzi yuko kwenye likizo iliyoidhinishwa | — |
+| **Inasubiri** | Ombi linasubiri uamuzi | Njano |
+| **Imeidhinishwa** | Ombi limekubaliwa | Kijani |
+| **Imekataliwa** | Ombi limekataliwa (soma maelezo) | Nyekundu |
+| **Imeghairiwa** | Ombi limeondolewa | Kijivu |
+| **Kimeghairiwa / Yameghairiwa** | Kikao / mafunzo yameghairiwa | Nyekundu |
+| **Alihudhuria / Hakuhudhuria / Haijawekwa** | Mahudhurio ya mshiriki wa mafunzo | Kijani / Nyekundu / Kijivu |
+| **Amehitimu** | Amemaliza mafunzo | Zambarau |
+| **Not solved / Solved** | Hali ya tukio (halijatatuliwa / limetatuliwa) | — |
+| **Low / Medium / High / Critical** | Kiwango cha tukio (kidogo / cha kati / kikubwa / hatari sana) | Kijivu / Njano / Nyekundu / Zambarau |
 
 ---
 
-## 22. Troubleshooting & FAQ
+## 22. Matatizo na Maswali ya Mara kwa Mara
 
-**Q: My username and password are not accepted.**
-Check spelling and Caps Lock. You can type your username **or** your work email. If it still fails, ask IT to reset your password.
+**S: Jina la mtumiaji na nenosiri vinakataliwa.**
+Hakiki herufi na Caps Lock. Unaweza kuandika jina la mtumiaji **au** barua pepe ya kazi. Bado inashindikana? Mwombe IT akuwekee nenosiri jipya.
 
-**Q: Google sign-in works but I get "Umezuiwa Kuingia" (Access Denied).**
-Your email is not registered, or your role changed. Use the email button on that page, or ask IT to fix your account in **User Accounts**.
+**S: Nimeingia kwa Google lakini naona "Umezuiwa Kuingia".**
+Barua pepe yako haijasajiliwa, au cheo chako kimebadilika. Tumia kitufe cha barua pepe kwenye ukurasa huo, au mwombe IT arekebishe akaunti yako kwenye **Akaunti za Watumiaji**.
 
-**Q: My Shift Sheet list is empty.**
-Check the **date** and **Mchana / Usiku** first. If it is still empty, no guards are assigned to you (Supervisor) or posted at your site (In-Charge). Ask HR to fix it in the **Guard Registry**.
+**S: Orodha ya Daftari la Zamu iko tupu.**
+Hakiki **tarehe** na **Mchana / Usiku** kwanza. Bado tupu? Hujapangiwa walinzi (Msimamizi), au hakuna walinzi waliowekwa kwenye kituo chako (Mkuu wa Kituo). Mwombe HR arekebishe kwenye **Daftari la Walinzi**.
 
-**Q: I marked a guard wrongly.**
-Ask a **Senior Supervisor**, the **Operations Manager** or **IT** to **re-mark** the guard on the **Shift Sheet** for that date and shift. The new mark replaces the old one.
+**S: Nimemrekodi mlinzi vibaya.**
+Mwombe **Msimamizi Mkuu**, **Meneja wa Operesheni** au **IT** amrekodi mlinzi **upya** kwenye **Daftari la Zamu** kwa tarehe na zamu hiyo. Rekodi mpya inachukua nafasi ya ile ya zamani.
 
-**Q: I cannot mark myself.**
-Nobody marks their own attendance. Your Supervisor marks you.
+**S: Siwezi kujirekodi.**
+Hakuna anayejirekodi mwenyewe. Msimamizi wako ndiye anakurekodi.
 
-**Q: The doctor's note upload fails.**
-Check your internet connection, file size and file type, then retry. If it keeps failing, record the absence and give the paper note to HR.
+**S: Cheti cha daktari hakipakiwi.**
+Hakiki mtandao, ukubwa wa faili na aina ya faili, kisha jaribu tena. Kikiendelea kushindikana, rekodi kutokuwepo na peleka cheti cha karatasi kwa HR.
 
-**Q: I see "Attached" but cannot open the sick note.**
-Only HR, the CEO and IT can open sick notes.
+**S: Naona "Attached" lakini siwezi kufungua cheti cha ugonjwa.**
+HR, CEO na IT pekee ndio wanaoweza kufungua vyeti vya ugonjwa.
 
-**Q: I am an Office Assistant and see no data.**
-Your account has no branch. Ask IT to set your branch.
+**S: Mimi ni Msaidizi wa Ofisi na sioni taarifa yoyote.**
+Akaunti yako haina tawi. Mwombe IT akuwekee tawi.
 
-**Q: The PDF report does not download.**
-Check your role (Section 4) and the date range, then retry. If it takes too long, use a shorter date range.
+**S: Ripoti ya PDF haipakuliwi.**
+Hakiki cheo chako (Sehemu 4) na kipindi cha tarehe, kisha jaribu tena. Ikichukua muda mrefu, chagua kipindi kifupi zaidi.
 
-**Q: My debt balance looks wrong.**
-The Accountant enters deductions each pay period. Ask the Accountant to check **Guard Debts** and **Salary Deductions**.
+**S: Salio la deni langu linaonekana si sahihi.**
+Mhasibu anaweka makato kila kipindi cha mshahara. Mwombe Mhasibu ahakiki **Madeni ya Walinzi** na **Makato ya Mshahara**.
 
-**Q: My leave or transfer was rejected.**
-Open the page, read the decision notes, and send a new request if things changed.
+**S: Ombi langu la likizo au uhamisho limekataliwa.**
+Fungua ukurasa husika, soma maelezo ya uamuzi, na tuma ombi jipya kama hali imebadilika.
 
-**Q: Auto Print does not open.**
-It works only on the HQ office Wi-Fi.
+**S: Auto Print haifunguki.**
+Inafanya kazi kwenye Wi-Fi ya ofisi ya HQ pekee.
 
-**Q: The screens look different from this guide.**
-Labels may change over time. Your **role still decides your menu**, and each page keeps the purpose described here.
-
----
-
-## 23. Getting Help / Requesting Access
-
-- **New user or lost access:** email the **IT Department** (or use the button on the Access Denied page) with:
-  1. Full name and employee number
-  2. Role
-  3. Branch and work station
-- **Wrong role or branch:** contact **IT**. Roles and branches are changed only in **User Accounts**.
-- **Attendance corrections:** Supervisor or In-Charge → Senior Supervisor → Operations Manager → IT.
-- **Leave:** HR.
-- **Pay and deductions:** the Accountant.
-- **Stock:** the Storekeeper.
+**S: Kurasa zinaonekana tofauti na mwongozo huu.**
+Maandishi yanaweza kubadilika kadri muda unavyokwenda. **Cheo chako bado ndicho kinachoamua menyu yako**, na kila ukurasa una kazi ileile iliyoelezwa hapa.
 
 ---
 
-*HKB Protection & Management — HKB Portal · User Guide v2.0*
+## 23. Msaada na Kuomba Akaunti
+
+- **Mtumiaji mpya au umepoteza akaunti:** tuma barua pepe kwa **Idara ya IT** (au tumia kitufe kwenye ukurasa wa **Umezuiwa Kuingia**) ukitaja:
+  1. Jina kamili na namba ya mtumishi
+  2. Cheo
+  3. Tawi na kituo cha kazi
+- **Cheo au tawi si sahihi:** wasiliana na **IT**. Vyeo na matawi hubadilishwa kwenye **Akaunti za Watumiaji** pekee.
+- **Marekebisho ya mahudhurio:** Msimamizi au Mkuu wa Kituo → Msimamizi Mkuu → Meneja wa Operesheni → IT.
+- **Likizo:** HR.
+- **Mshahara na makato:** Mhasibu.
+- **Mali ya stoo:** Mtunza Stoo.
+
+---
+
+*HKB Protection & Management Co. — Mfumo wa HKB · Mwongozo wa Mtumiaji v3.0 (Kiswahili)*

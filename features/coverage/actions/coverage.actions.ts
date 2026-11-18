@@ -19,7 +19,7 @@ export async function updateCoverageRequest(
   const actor = await requirePermission("COVERAGE_MANAGE");
 
   const id = formData.get("id");
-  if (typeof id !== "string" || !id) return { ok: false, error: "Missing request id" };
+  if (typeof id !== "string" || !id) return { ok: false, error: "Namba ya ombi haipo" };
 
   const status = formData.get("status") ?? undefined;
   const internalNotes = formData.get("internalNotes") ?? undefined;
@@ -32,14 +32,14 @@ export async function updateCoverageRequest(
         : undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid update" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Mabadiliko si sahihi" };
   }
   const { status: nextStatus, internalNotes: notes } = parsed.data;
 
   const existing = await db.query.coverageRequests.findFirst({
     where: eq(coverageRequests.id, id),
   });
-  if (!existing) return { ok: false, error: "Coverage request not found." };
+  if (!existing) return { ok: false, error: "Ombi la ulinzi halikupatikana." };
 
   await db
     .update(coverageRequests)
@@ -64,7 +64,7 @@ export async function updateCoverageRequest(
 
   revalidatePath("/coverage-requests");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Coverage request updated." };
+  return { ok: true, message: "Ombi la ulinzi limesasishwa." };
 }
 
 /** Super Admin only — permanently delete a coverage request. */
@@ -75,12 +75,12 @@ export async function deleteCoverageRequest(
   const actor = await requirePermission("COVERAGE_MANAGE");
 
   const id = formData.get("id");
-  if (typeof id !== "string" || !id) return { ok: false, error: "Missing request id" };
+  if (typeof id !== "string" || !id) return { ok: false, error: "Namba ya ombi haipo" };
 
   const existing = await db.query.coverageRequests.findFirst({
     where: eq(coverageRequests.id, id),
   });
-  if (!existing) return { ok: false, error: "Coverage request not found." };
+  if (!existing) return { ok: false, error: "Ombi la ulinzi halikupatikana." };
 
   await db.delete(coverageRequests).where(eq(coverageRequests.id, id));
 
@@ -94,7 +94,7 @@ export async function deleteCoverageRequest(
 
   revalidatePath("/coverage-requests");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Coverage request deleted." };
+  return { ok: true, message: "Ombi la ulinzi limefutwa." };
 }
 
 /** Any coverage viewer (Super Admin / HR / Bursar) marks requests as seen. */

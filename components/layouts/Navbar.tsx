@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 /**
  * HKB Protection — Navbar
  * ------------------------------------------------------------------
@@ -42,12 +43,12 @@ import { Menu, X } from "lucide-react";
 import { mainSite } from "@/const/links.const";
 
 const NAV_LINKS = [
-  { label: "Home", href: mainSite() },
-  { label: "News", href: mainSite("/news") },
-  { label: "Gallery", href: mainSite("/gallery") },
-  { label: "About", href: mainSite("/about") },
-  { label: "FAQ", href: mainSite("/faq") },
-  { label: "Jobs", href: "/jobs" },
+  { label: t.site.home, href: mainSite() },
+  { label: t.site.news, href: mainSite("/news") },
+  { label: t.site.gallery, href: mainSite("/gallery") },
+  { label: t.site.about, href: mainSite("/about") },
+  { label: t.site.faq, href: mainSite("/faq") },
+  { label: t.site.jobs, href: "/jobs" },
 ];
 
 export default function Navbar() {
@@ -119,7 +120,7 @@ export default function Navbar() {
           <a
             href={mainSite()}
             className="flex items-center gap-3 group"
-            aria-label="HKB Protection — Home"
+            aria-label={`HKB Protection — ${t.site.home}`}
           >
             <div
               ref={logoRef}
@@ -130,7 +131,7 @@ export default function Navbar() {
             >
               <Image
                 src="/logo.jpg"
-                alt="HKB Protection logo"
+                alt={t.site.logo}
                 fill
                 className="object-cover"
                 sizes="40px"
@@ -172,12 +173,12 @@ export default function Navbar() {
                 "polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)",
             }}
           >
-            Request Coverage
+            {t.site.requestCoverage}
           </a>
 
           {/* Mobile trigger */}
           <button
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t.site.closeMenu : t.site.openMenu}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className="relative z-60 flex h-10 w-10 items-center justify-center text-paper md:hidden"
@@ -247,10 +248,10 @@ export default function Navbar() {
                     "polygon(6% 0, 100% 0, 100% 70%, 94% 100%, 0 100%, 0 30%)",
                 }}
               >
-                Request Coverage
+                {t.site.requestCoverage}
               </a>
               <p className="mt-4 text-center font-body text-[11px] uppercase tracking-[0.2em] text-paper/40">
-                Guarding · Event Security · Traffic Control — Tanzania
+                {t.site.tagline}
               </p>
             </motion.div>
           </motion.div>

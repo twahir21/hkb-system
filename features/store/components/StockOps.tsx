@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useActionState, useState } from "react";
 import { Plus, PackagePlus, PackageMinus, Undo2, AlertTriangle } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
@@ -48,10 +49,10 @@ function SubmitRow({
   return (
     <div className="flex justify-end gap-2">
       <Button variant="secondary" size="sm" onClick={onClose} type="button">
-        Close
+        {t.common.close}
       </Button>
       <Button type="submit" size="sm" disabled={pending}>
-        {pending ? "Saving…" : label}
+        {pending ? t.common.saving : label}
       </Button>
     </div>
   );
@@ -71,7 +72,7 @@ function StationSelect({
   return (
     <select name={name} required={required} className={inputCls} defaultValue={defaultValue}>
       <option value="" disabled>
-        Select station…
+        {t.ops.selectStation}
       </option>
       {stations.map((s) => (
         <option key={s.id} value={s.id}>
@@ -85,7 +86,7 @@ function StationSelect({
 function ItemSelect({ items }: { items: ItemOpt[] }) {
   return (
     <select name="itemId" required className={inputCls} defaultValue="">
-      <option value="" disabled>Select item…</option>
+      <option value="" disabled>{t.ops.selectItem}</option>
       {items.map((i) => (
         <option key={i.id} value={i.id}>{i.name}</option>
       ))}
@@ -103,34 +104,34 @@ export function PurchaseModal({ items, stations, users }: { items: ItemOpt[]; st
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <PackagePlus className="h-4 w-4" /> Buy stock
+        <PackagePlus className="h-4 w-4" /> {t.ops.buy}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Record stock purchase (IN)">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.ops.buyTitle}>
         <form action={formAction} className="space-y-4">
           <label className={labelCls}>
-            <span className={labelSpanCls}>Item</span>
+            <span className={labelSpanCls}>{t.store.item}</span>
             <ItemSelect items={items} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Destination station</span>
+            <span className={labelSpanCls}>{t.ops.destination}</span>
             <StationSelect name="toStationId" stations={stations} />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className={labelCls}>
-              <span className={labelSpanCls}>Quantity</span>
+              <span className={labelSpanCls}>{t.office.qty}</span>
               <input name="quantity" type="number" min={1} required className={inputCls} />
             </label>
             <label className={labelCls}>
-              <span className={labelSpanCls}>Unit cost (TZS)</span>
+              <span className={labelSpanCls}>{t.office.unitCostTzs}</span>
               <input name="unitCost" type="number" min={0} step="0.01" className={inputCls} />
             </label>
           </div>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Reference (supplier / invoice)</span>
-            <input name="reference" className={inputCls} placeholder="e.g. INV-2026-014" />
+            <span className={labelSpanCls}>{t.ops.reference}</span>
+            <input name="reference" className={inputCls} placeholder={t.ops.referencePlaceholder} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Received by</span>
+            <span className={labelSpanCls}>{t.store.receivedBy}</span>
             <select name="receivedById" className={inputCls} defaultValue="">
               <option value="">—</option>
               {users.map((u) => (
@@ -139,7 +140,7 @@ export function PurchaseModal({ items, stations, users }: { items: ItemOpt[]; st
             </select>
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record purchase" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.ops.recordPurchase} />
         </form>
       </Modal>
     </>
@@ -156,28 +157,28 @@ export function IssueModal({ items, stations, users }: { items: ItemOpt[]; stati
   return (
     <>
       <Button variant="secondary" onClick={() => setOpen(true)}>
-        <PackageMinus className="h-4 w-4" /> Give stock
+        <PackageMinus className="h-4 w-4" /> {t.ops.give}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Issue stock to a station / storekeeper">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.ops.giveTitle}>
         <form action={formAction} className="space-y-4">
           <label className={labelCls}>
-            <span className={labelSpanCls}>Item</span>
+            <span className={labelSpanCls}>{t.store.item}</span>
             <ItemSelect items={items} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>From station</span>
+            <span className={labelSpanCls}>{t.ops.fromStation}</span>
             <StationSelect name="fromStationId" stations={stations} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>To station</span>
+            <span className={labelSpanCls}>{t.ops.toStation}</span>
             <StationSelect name="toStationId" stations={stations} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Quantity</span>
+            <span className={labelSpanCls}>{t.office.qty}</span>
             <input name="quantity" type="number" min={1} required className={inputCls} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Received by</span>
+            <span className={labelSpanCls}>{t.store.receivedBy}</span>
             <select name="receivedById" className={inputCls} defaultValue="">
               <option value="">—</option>
               {users.map((u) => (
@@ -186,11 +187,11 @@ export function IssueModal({ items, stations, users }: { items: ItemOpt[]; stati
             </select>
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Note (optional)</span>
+            <span className={labelSpanCls}>{t.ops.noteOptional}</span>
             <input name="reason" className={inputCls} />
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Issue stock" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.ops.issue} />
         </form>
       </Modal>
     </>
@@ -206,9 +207,9 @@ export function ReturnModal({ stations, openIssues }: { stations: StationOpt[]; 
   return (
     <>
       <Button variant="secondary" onClick={() => setOpen(true)}>
-        <Undo2 className="h-4 w-4" /> Return stock
+        <Undo2 className="h-4 w-4" /> {t.ops.return}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Return stock to the store">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.ops.returnTitle}>
         <ReturnModalInner stations={stations} openIssues={openIssues} onClose={() => setOpen(false)} />
       </Modal>
     </>
@@ -234,7 +235,7 @@ function ReturnModalInner({
   return (
     <form action={formAction} className="space-y-4">
           <label className={labelCls}>
-            <span className={labelSpanCls}>Original issue</span>
+            <span className={labelSpanCls}>{t.ops.originalIssue}</span>
             <select
               name="returnedMovementId"
               required
@@ -242,10 +243,10 @@ function ReturnModalInner({
               value={issueId}
               onChange={(e) => setIssueId(e.target.value)}
             >
-              <option value="" disabled>Select issued stock…</option>
+              <option value="" disabled>{t.ops.selectIssued}</option>
               {openIssues.map((i) => (
                 <option key={i.movementId} value={i.movementId}>
-                  {i.itemName} — {i.stationName || "—"} ({i.outstanding} {i.unit} outstanding)
+                  {i.itemName} — {i.stationName || "—"} ({i.outstanding} {i.unit} {t.ops.outstanding})
                 </option>
               ))}
             </select>
@@ -254,7 +255,7 @@ function ReturnModalInner({
           <input type="hidden" name="fromStationId" value={selected?.stationId ?? ""} />
           <div className="grid grid-cols-2 gap-3">
             <label className={labelCls}>
-              <span className={labelSpanCls}>Quantity</span>
+              <span className={labelSpanCls}>{t.office.qty}</span>
               <input
                 name="quantity"
                 type="number"
@@ -265,9 +266,9 @@ function ReturnModalInner({
               />
             </label>
             <label className={labelCls}>
-              <span className={labelSpanCls}>Return to (optional)</span>
+              <span className={labelSpanCls}>{t.ops.returnTo}</span>
               <select name="toStationId" className={inputCls} defaultValue="">
-                <option value="">Main store</option>
+                <option value="">{t.ops.mainStore}</option>
                 {stations.map((s) => (
                   <option key={s.id} value={s.id}>{s.name} — {s.regionName}</option>
                 ))}
@@ -275,11 +276,11 @@ function ReturnModalInner({
             </label>
           </div>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Note (optional)</span>
+            <span className={labelSpanCls}>{t.ops.noteOptional}</span>
             <input name="reason" className={inputCls} />
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={onClose} label="Record return" />
+          <SubmitRow pending={pending} onClose={onClose} label={t.ops.recordReturn} />
         </form>
   );
 }
@@ -294,37 +295,37 @@ export function LossModal({ items, stations }: { items: ItemOpt[]; stations: Sta
   return (
     <>
       <Button variant="danger" onClick={() => setOpen(true)}>
-        <AlertTriangle className="h-4 w-4" /> Lost / given out
+        <AlertTriangle className="h-4 w-4" /> {t.ops.lost}
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Record lost or handed-out stock">
+      <Modal open={open} onClose={() => setOpen(false)} title={t.ops.lostTitle}>
         <form action={formAction} className="space-y-4">
           <label className={labelCls}>
-            <span className={labelSpanCls}>Type</span>
+            <span className={labelSpanCls}>{t.common.type}</span>
             <select name="type" required className={inputCls} defaultValue="">
-              <option value="" disabled>Select type…</option>
-              <option value="LOST">Lost / damaged</option>
-              <option value="OUT">Given out (consumed)</option>
-              <option value="ADJUSTMENT">Stock-take adjustment (−)</option>
+              <option value="" disabled>{t.ops.selectType}</option>
+              <option value="LOST">{t.ops.lostDamaged}</option>
+              <option value="OUT">{t.ops.consumed}</option>
+              <option value="ADJUSTMENT">{t.ops.adjustment}</option>
             </select>
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Item</span>
+            <span className={labelSpanCls}>{t.store.item}</span>
             <ItemSelect items={items} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Station</span>
+            <span className={labelSpanCls}>{t.common.station}</span>
             <StationSelect name="fromStationId" stations={stations} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Quantity</span>
+            <span className={labelSpanCls}>{t.office.qty}</span>
             <input name="quantity" type="number" min={1} required className={inputCls} />
           </label>
           <label className={labelCls}>
-            <span className={labelSpanCls}>Reason (required)</span>
+            <span className={labelSpanCls}>{t.credit.reasonRequired}</span>
             <textarea name="reason" rows={2} required className={inputCls} />
           </label>
           <Feedback state={state} />
-          <SubmitRow pending={pending} onClose={() => setOpen(false)} label="Record" />
+          <SubmitRow pending={pending} onClose={() => setOpen(false)} label={t.ops.record} />
         </form>
       </Modal>
     </>
@@ -346,11 +347,10 @@ export function StockOps({
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
         <p className="flex items-center gap-2 font-semibold">
-          <Plus className="h-4 w-4" /> No stations yet
+          <Plus className="h-4 w-4" /> {t.ops.noStations}
         </p>
         <p className="mt-1">
-          Create a region and at least one station under <b>Store → Locations</b> before
-          recording stock movements.
+          {t.ops.noStationsA} <b>{t.ops.noStationsB}</b> {t.ops.noStationsC}
         </p>
       </div>
     );

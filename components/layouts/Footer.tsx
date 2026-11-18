@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 /**
  * HKB Protection — Enterprise Footer
  * ------------------------------------------------------------------
@@ -42,62 +43,41 @@ const getStaticYear = () => 2026;
 /* Hero's grid field — now shared as the `bg-grid-ink` utility in globals.css */
 
 const QUICK_LINKS = [
-  { label: "Home", href: mainSite() },
-  { label: "Services", href: mainSite("/#services") },
-  { label: "About Us", href: mainSite("/#about") },
-  { label: "Training Program", href: mainSite("/#training") },
-  { label: "Testimonials", href: mainSite("/#testimonials") },
-  { label: "Contact Us", href: mainSite("/contacts") },
+  { label: t.site.home, href: mainSite() },
+  { label: t.site.services, href: mainSite("/#services") },
+  { label: t.site.aboutUs, href: mainSite("/#about") },
+  { label: t.site.training, href: mainSite("/#training") },
+  { label: t.site.testimonials, href: mainSite("/#testimonials") },
+  { label: t.site.contactUs, href: mainSite("/contacts") },
   { label: "Nafasi za Ajira", href: "/jobs" },
 ];
 
-const SERVICES = [
-  "Manned Guarding",
-  "VIP Protection",
-  "Event Security",
-  "Industrial Security",
-  "Commercial Security",
-  "Residential Security",
-  "Risk Assessment",
-  "Access Control",
-  "Emergency Response",
-  "Security Consultancy",
-  "Patrol Services",
-  "Technology Integration",
-];
+const SERVICES = t.site.serviceList;
 
-const BUSINESS_LINES = [
-  "Tanzania Veterans Football Sports",
-  "Agricultural Products",
-  "Fish Supply",
-  "Tailoring Services",
-  "Security Equipment Supply",
-  "Corporate Catering",
-  "Transportation Services",
-];
+const BUSINESS_LINES = t.site.businessList;
 
 const COMPANY_INFO = [
   {
     icon: MapPin,
-    label: "Head Office",
+    label: t.site.headOffice,
     value: "Temeke, Dar es Salaam, Tanzania",
   },
   {
     icon: Phone,
-    label: "Phone",
+    label: t.common.phone,
     value: PHONES[0],
     href: PHONE_TELS[0],
   },
   {
     icon: Mail,
-    label: "Email",
+    label: t.common.email,
     value: "info@hkbprotection.co.tz",
     href: "mailto:info@hkbprotection.co.tz",
   },
   {
     icon: Clock,
-    label: "Office Hours",
-    value: "Mon – Sat: 08:00 – 17:00",
+    label: t.site.officeHours,
+    value: t.site.hours,
   },
 ];
 
@@ -201,7 +181,7 @@ export default function Footer() {
               <a
                 href={mainSite()}
                 className="group inline-flex items-center gap-3"
-                aria-label="HKB Protection — Home"
+                aria-label={`HKB Protection — ${t.site.home}`}
               >
                 <div
                   className="relative h-12 w-12 overflow-hidden bg-brass"
@@ -211,7 +191,7 @@ export default function Footer() {
                 >
                   <Image
                     src="/logo.jpg"
-                    alt="HKB Protection logo"
+                    alt={t.site.logo}
                     fill
                     className="object-cover"
                     sizes="48px"
@@ -229,16 +209,13 @@ export default function Footer() {
 
               {/* Company blurb */}
               <p className="mt-6 max-w-sm font-body text-[14px] leading-relaxed text-paper/55">
-                For more than 2 years, HKB Protection & Management Company
-                Limited has delivered reliable, professional and
-                technology-driven security solutions across Tanzania — a
-                registered, licensed and fully insured partner you can trust.
+                {t.site.blurb}
               </p>
 
               {/* Social media */}
               <div className="mt-7">
                 <span className="font-body text-[11px] font-medium uppercase tracking-[0.2em] text-paper/40">
-                  Follow Us
+                  {t.site.follow}
                 </span>
                 <div className="mt-3.5 flex items-center gap-2.5">
                   {SOCIALS.map((social) => (
@@ -296,7 +273,7 @@ export default function Footer() {
                   />
                   <div className="min-w-0">
                     <span className="font-body text-[10px] uppercase tracking-[0.16em] text-paper/40">
-                      Emergency Hotline
+                      {t.site.hotline}
                     </span>
                     <a
                       href={PHONE_TELS[1]}
@@ -321,7 +298,7 @@ export default function Footer() {
               className="lg:col-span-2"
             >
               <h3 className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-brass">
-                Quick Links
+                {t.site.quickLinks}
               </h3>
               <span className="mt-3 block h-0.5 w-8 bg-brass/40" />
 
@@ -349,7 +326,7 @@ export default function Footer() {
               className="lg:col-span-3"
             >
               <h3 className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-brass">
-                Our Services
+                {t.site.ourServices}
               </h3>
               <span className="mt-3 block h-0.5 w-8 bg-brass/40" />
 
@@ -377,7 +354,7 @@ export default function Footer() {
               className="lg:col-span-3"
             >
               <h3 className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-brass">
-                Business Lines
+                {t.site.businessLines}
               </h3>
               <span className="mt-3 block h-0.5 w-8 bg-brass/40" />
 
@@ -402,20 +379,19 @@ export default function Footer() {
         <div className="relative border-t border-charcoal/80">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-6 sm:flex-row sm:px-8">
             <p className="font-body text-[12px] text-paper/40">
-              © {year} HKB Protection & Management
-              Company Limited. All rights reserved.
+              © {year} HKB Protection & Management Company Limited. {t.site.rights}
             </p>
 
             <div className="flex items-center gap-5">
               <span className="font-body text-[10px] uppercase tracking-[0.18em] text-paper/30">
-                Registered · Licensed · Insured
+                {t.site.registered}
               </span>
               <span className="hidden h-3 w-px bg-charcoal sm:block" />
               <a
                 href={mainSite("/terms")}
                 className="font-body text-[11px] font-medium uppercase tracking-[0.14em] text-paper/40 transition-colors hover:text-brass"
               >
-                Terms and Condition
+                {t.site.terms}
               </a>
             </div>
           </div>
@@ -426,7 +402,7 @@ export default function Footer() {
       <motion.button
         type="button"
         onClick={scrollTop}
-        aria-label="Back to top"
+        aria-label={t.site.backToTop}
         initial={{ opacity: 0, scale: 0.8 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: "-40px" }}

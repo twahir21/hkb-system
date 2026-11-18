@@ -24,12 +24,12 @@ import type { Role } from "@/lib/db/schema";
 async function outsideBranch(actor: { userId: string; role: Role }, targetUserId: string) {
   const limit = await getStaffBranchLimit(actor.userId, actor.role);
   if (limit === null) return null;
-  if (limit === "none") return "You have no branch yet. Ask IT to set your branch.";
+  if (limit === "none") return "Bado huna tawi. Omba IT wakuwekee tawi lako.";
   const target = await db.query.users.findFirst({
     where: eq(users.id, targetUserId),
     columns: { branchId: true },
   });
-  return target?.branchId === limit ? null : "This staff member is not in your branch.";
+  return target?.branchId === limit ? null : "Mtumishi huyu hayupo kwenye tawi lako.";
 }
 
 export type ActionState = {
@@ -66,7 +66,7 @@ export async function markStaffAttendance(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi",
     };
   }
 
@@ -160,7 +160,7 @@ export async function markStaffAttendance(
 
   revalidatePath("/staff-attendance");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Staff attendance recorded successfully." };
+  return { ok: true, message: "Mahudhurio ya mtumishi yamerekodiwa." };
 }
 
 /** Super Admin only — edit the recorded check-in / sign-out times of an existing log */
@@ -180,7 +180,7 @@ export async function updateStaffTimes(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi",
     };
   }
 
@@ -198,7 +198,7 @@ export async function updateStaffTimes(
     return {
       ok: false,
       error:
-        "No attendance record exists for this staff member on this date. Mark them Present / Late / Absent first.",
+        "Hakuna rekodi ya mahudhurio ya mtumishi huyu kwa tarehe hii. Mrekodi kwanza Yupo / Amechelewa / Hayupo.",
     };
   }
 
@@ -226,7 +226,7 @@ export async function updateStaffTimes(
 
   revalidatePath("/staff-attendance");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Check-in / sign-out times updated." };
+  return { ok: true, message: "Muda wa kuingia / kutoka umesasishwa." };
 }
 
 /** Super Admin only — one-click sign-out: stamps the current time as sign-out */
@@ -245,7 +245,7 @@ export async function signOutStaff(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi",
     };
   }
 
@@ -271,7 +271,7 @@ export async function signOutStaff(
   if (!existing) {
     return {
       ok: false,
-      error: "No attendance record exists for this staff member on this date.",
+      error: "Hakuna rekodi ya mahudhurio ya mtumishi huyu kwa tarehe hii.",
     };
   }
 
@@ -298,8 +298,8 @@ export async function signOutStaff(
   return {
     ok: true,
     message: existing.checkOutTime
-      ? `Sign-out time updated to ${signOutTime}.`
-      : `Signed out at ${signOutTime}.`,
+      ? `Muda wa kutoka umesasishwa kuwa ${signOutTime}.`
+      : `Ametoka saa ${signOutTime}.`,
   };
 }
 
@@ -329,7 +329,7 @@ export async function markAllStaffPresent(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid date",
+      error: parsed.error.issues[0]?.message ?? "Tarehe si sahihi",
     };
   }
 
@@ -338,7 +338,7 @@ export async function markAllStaffPresent(
   // Office Assistant: only their own branch's staff.
   const branchLimit = await getStaffBranchLimit(user.userId, user.role);
   if (branchLimit === "none") {
-    return { ok: false, error: "You have no branch yet. Ask IT to set your branch." };
+    return { ok: false, error: "Bado huna tawi. Omba IT wakuwekee tawi lako." };
   }
 
   // Find all non-guard users
@@ -362,7 +362,7 @@ export async function markAllStaffPresent(
   const unmarkedStaff = staffUsers.filter((u) => !existingSet.has(u.id));
 
   if (unmarkedStaff.length === 0) {
-    return { ok: true, message: "All staff members are already marked for today." };
+    return { ok: true, message: "Watumishi wote tayari wamerekodiwa leo." };
   }
 
 
@@ -393,7 +393,7 @@ export async function markAllStaffPresent(
   revalidatePath("/dashboard");
   return {
     ok: true,
-    message: `Marked ${insertValues.length} staff member(s) as Present.`,
+    message: `Watumishi ${insertValues.length} wamerekodiwa kuwa wapo.`,
   };
 }
 
@@ -412,7 +412,7 @@ export async function clearStaffAttendance(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? "Taarifa si sahihi",
     };
   }
 
@@ -440,7 +440,7 @@ export async function clearStaffAttendance(
 
   revalidatePath("/staff-attendance");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Attendance record cleared." };
+  return { ok: true, message: "Rekodi ya mahudhurio imefutwa." };
 }
 
 /** Server-side sick-note / document upload via Firebase Admin */
@@ -452,13 +452,13 @@ export async function uploadStaffSickNote(
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, error: "No file was provided." };
+    return { ok: false, error: "Hakuna faili lililowekwa." };
   }
   if (!file.type.includes("pdf") && !file.type.includes("image")) {
-    return { ok: false, error: "Only PDF or image documents are accepted." };
+    return { ok: false, error: "Hati za PDF au picha pekee ndizo zinakubaliwa." };
   }
   if (file.size > 8 * 1024 * 1024) {
-    return { ok: false, error: "File exceeds the 8MB limit." };
+    return { ok: false, error: "Faili limezidi kikomo cha MB 8." };
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -466,8 +466,8 @@ export async function uploadStaffSickNote(
   if (!url) {
     return {
       ok: false,
-      error: "Document storage is not configured on the server.",
+      error: "Hifadhi ya hati haijawekwa kwenye seva.",
     };
   }
-  return { ok: true, url, message: "Document uploaded successfully." };
+  return { ok: true, url, message: "Hati imepakiwa." };
 }

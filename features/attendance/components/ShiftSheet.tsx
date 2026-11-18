@@ -8,7 +8,7 @@ import { AbsentModal } from "./AbsentModal";
 import { LateModal } from "./LateModal";
 import { markPresentOnly } from "@/features/attendance/actions/attendance.actions";
 import type { LeaveType, ShiftType } from "@/lib/db/schema";
-import { t } from "@/lib/i18n";
+import { enumLabel, t } from "@/lib/i18n";
 import { formatDate } from "@/lib/utils";
 
 export type LogDTO = {
@@ -31,12 +31,6 @@ export type ShiftSheetRowDTO = {
   /** Approved leave covering the sheet date. */
   leave: { type: LeaveType; startDate: string; endDate: string } | null;
   log: LogDTO | null;
-};
-
-const ABSENCE_LABEL: Record<string, string> = {
-  SICK: "Sick",
-  PERMITTED_REASON: "Permitted",
-  NOT_PERMITTED: "Not Permitted",
 };
 
 export function ShiftSheet({
@@ -99,7 +93,7 @@ export function ShiftSheet({
           <label className="text-sm">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
               <CalendarDays className="mr-1 inline h-3.5 w-3.5" />
-              Date
+              {t.common.date}
             </span>
             <input
               type="date"
@@ -119,7 +113,7 @@ export function ShiftSheet({
                   : "bg-white text-slate-600 hover:bg-slate-50")
               }
             >
-              <Sun className="h-4 w-4" /> Day
+              <Sun className="h-4 w-4" /> {t.status.DAY}
             </button>
             <button
               onClick={() => update({ shift: "NIGHT" })}
@@ -130,21 +124,21 @@ export function ShiftSheet({
                   : "bg-white text-slate-600 hover:bg-slate-50")
               }
             >
-              <Moon className="h-4 w-4" /> Night
+              <Moon className="h-4 w-4" /> {t.status.NIGHT}
             </button>
           </div>
 
           {supervisors.length > 1 && (
             <label className="text-sm">
               <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Supervisor
+                {t.reportsPage.supervisor}
               </span>
               <select
                 value={supervisorFilter ?? ""}
                 onChange={(e) => update({ supervisorId: e.target.value })}
                 className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
-                <option value="">All supervisors</option>
+                <option value="">{t.msv.allSupervisors}</option>
                 {supervisors.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -156,7 +150,7 @@ export function ShiftSheet({
 
           <label className="text-sm">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Search
+              {t.common.search}
             </span>
             <input
               type="text"
@@ -165,15 +159,15 @@ export function ShiftSheet({
                 setQ(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search guard, ID, location…"
+              placeholder={t.shift.search}
               className="w-full sm:w-56 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </label>
         </div>
 
         <p className="text-sm font-medium text-slate-600">
-          {formatDate(date)} · {shift === "DAY" ? "Day" : "Night"} shift ·{" "}
-          {filtered.length} {filtered.length === 1 ? "guard" : "guards"}
+          {formatDate(date)} · {t.charts.shiftOf} {enumLabel(shift)} ·{" "}
+          {filtered.length} {filtered.length === 1 ? t.shift.guard : t.charts.guards}
         </p>
       </div>
 
@@ -181,15 +175,15 @@ export function ShiftSheet({
         <table className="w-full min-w-max text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-              <th className="px-4 py-3 font-semibold">Employee ID</th>
-              <th className="px-4 py-3 font-semibold">Guard</th>
-              <th className="px-4 py-3 font-semibold">Work Location</th>
-              {canPii && <th className="px-4 py-3 font-semibold">Home</th>}
-              <th className="px-4 py-3 font-semibold">Supervisor</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Absence / Delay</th>
+              <th className="px-4 py-3 font-semibold">{t.employees.employeeNo}</th>
+              <th className="px-4 py-3 font-semibold">{t.records.guard}</th>
+              <th className="px-4 py-3 font-semibold">{t.shift.workLocation}</th>
+              {canPii && <th className="px-4 py-3 font-semibold">{t.shift.home}</th>}
+              <th className="px-4 py-3 font-semibold">{t.reportsPage.supervisor}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.status}</th>
+              <th className="px-4 py-3 font-semibold">{t.records.absenceDelay}</th>
               {canRecord && (
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <th className="px-4 py-3 font-semibold text-right">{t.common.actions}</th>
               )}
             </tr>
           </thead>
@@ -200,7 +194,7 @@ export function ShiftSheet({
                   colSpan={canPii ? (canRecord ? 8 : 7) : canRecord ? 7 : 6}
                   className="px-4 py-8 text-center text-sm text-slate-500"
                 >
-                  No guards found for this shift.
+                  {t.shift.empty}
                 </td>
               </tr>
             ) : paginatedRows.length === 0 ? (
@@ -209,7 +203,7 @@ export function ShiftSheet({
                   colSpan={canPii ? (canRecord ? 8 : 7) : canRecord ? 7 : 6}
                   className="px-4 py-8 text-center text-sm text-slate-500"
                 >
-                  No guards match &ldquo;{q}&rdquo;.
+                  {t.shift.noMatch} &ldquo;{q}&rdquo;.
                 </td>
               </tr>
             ) : (
@@ -233,7 +227,7 @@ export function ShiftSheet({
                           className="ml-2 align-middle"
                           title={`${t.leave.types[row.leave.type]}: ${row.leave.startDate} – ${row.leave.endDate}`}
                         >
-                          <Badge tone="violet">On leave</Badge>
+                          <Badge tone="violet">{t.leave.onLeave}</Badge>
                         </span>
                       )}
                     </td>
@@ -251,21 +245,21 @@ export function ShiftSheet({
                     <td className="px-4 py-3">
                       {hasLog ? (
                         <Badge tone={statusTone(row.log!.status)}>
-                          {row.log!.status}
+                          {enumLabel(row.log!.status)}
                           {isLate && row.log!.minutesLate
                             ? ` (+${row.log!.minutesLate}m)`
                             : ""}
                         </Badge>
                       ) : (
                         <span className="text-xs text-slate-400">
-                          Not recorded
+                          {t.myShift.notRecorded}
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {absentCat ? (
                         <Badge tone={statusTone(absentCat)}>
-                          {ABSENCE_LABEL[absentCat] ?? absentCat}
+                          {enumLabel(absentCat)}
                         </Badge>
                       ) : isLate && row.log?.reason ? (
                         <span
@@ -296,7 +290,7 @@ export function ShiftSheet({
                                 value="PRESENT"
                               />
                               <Button type="submit" variant="success" size="sm">
-                                Present
+                                {t.charts.present}
                               </Button>
                             </form>
                           )}
@@ -334,7 +328,7 @@ export function ShiftSheet({
             setPageSize(newSize);
             setPage(1);
           }}
-          itemLabel="guards"
+          itemLabel={t.charts.guards}
         />
       )}
     </div>
