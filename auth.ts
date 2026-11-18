@@ -127,10 +127,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       // On initial login from Credentials or Google
       if (user) {
-        token.userId = user.id;
+        // Google: with no DB adapter Auth.js hands us a random UUID as user.id,
+        // not our users.id — leave userId unset so the lookup below goes by email.
+        token.userId = account?.provider === "google" ? undefined : user.id;
         token.role = (user as { role?: Role }).role;
         token.username = (user as { username?: string | null }).username;
         token.name = user.name;
@@ -145,7 +147,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const found = await db.query.users.findFirst({
           where: token.userId
             ? eq(users.id, token.userId as string)
-            : eq(users.email, token.email as string),
+            : eq(sql`lower(${users.email})`, (token.email as string).toLowerCase()),
           columns: { id: true, role: true, username: true, fullName: true, avatarUrl: true },
         });
         // Account deleted → end the session.
