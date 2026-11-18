@@ -6,6 +6,7 @@ import { createItem, updateItem, type ActionState } from "@/features/store/actio
 import {
   createRegion,
   createStation,
+  setRegionBranch,
 } from "@/features/store/actions/locations.actions";
 
 const inputCls =
@@ -71,7 +72,23 @@ export function ItemActiveToggle({ id, isActive }: { id: string; isActive: boole
   );
 }
 
-export function RegionForm() {
+type BranchOption = { id: string; name: string; isHq: boolean };
+
+function BranchOptions({ branches }: { branches: BranchOption[] }) {
+  return (
+    <>
+      <option value="">— No branch —</option>
+      {branches.map((b) => (
+        <option key={b.id} value={b.id}>
+          {b.name}
+          {b.isHq ? " (HQ)" : ""}
+        </option>
+      ))}
+    </>
+  );
+}
+
+export function RegionForm({ branches }: { branches: BranchOption[] }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(createRegion, {
     ok: false,
   });
@@ -87,11 +104,80 @@ export function RegionForm() {
           <span className={labelSpanCls}>Description</span>
           <input name="description" className={inputCls} />
         </label>
+        <label className="block">
+          <span className={labelSpanCls}>Branch</span>
+          <select name="branchId" className={inputCls} defaultValue="">
+            <BranchOptions branches={branches} />
+          </select>
+        </label>
         <Feedback state={state} />
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Saving…" : "Add region"}
         </Button>
       </form>
+    </Card>
+  );
+}
+
+function RegionBranchRow({
+  region,
+  branches,
+}: {
+  region: { id: string; name: string; branchId: string | null };
+  branches: BranchOption[];
+}) {
+  const [state, formAction, pending] = useActionState<ActionState, FormData>(setRegionBranch, {
+    ok: false,
+  });
+
+  return (
+    <form action={formAction} className="space-y-1">
+      <input type="hidden" name="id" value={region.id} />
+      <div className="flex items-center gap-2">
+        <span className="w-28 shrink-0 truncate text-sm font-medium text-slate-800" title={region.name}>
+          {region.name}
+        </span>
+        <select
+          name="branchId"
+          className={inputCls}
+          defaultValue={region.branchId ?? ""}
+          key={region.branchId ?? ""}
+        >
+          <BranchOptions branches={branches} />
+        </select>
+        <Button type="submit" size="sm" variant="ghost" disabled={pending}>
+          {pending ? "…" : "Save"}
+        </Button>
+      </div>
+      <Feedback state={state} />
+    </form>
+  );
+}
+
+/** Choose which branch each region belongs to. Incidents in a region go to its branch. */
+export function RegionBranchList({
+  regions,
+  branches,
+}: {
+  regions: { id: string; name: string; branchId: string | null }[];
+  branches: BranchOption[];
+}) {
+  const unassigned = regions.filter((r) => !r.branchId).length;
+  return (
+    <Card
+      title="Region branches"
+      subtitle={
+        unassigned > 0
+          ? `${unassigned} region${unassigned === 1 ? "" : "s"} without a branch — incidents there use the reporter's branch`
+          : "Incidents in a region go to its branch"
+      }
+    >
+      <div className="space-y-3">
+        {regions.map((r) => (
+          <RegionBranchRow key={r.id} region={r} branches={branches} />
+        ))}
+        {regions.length === 0 && <p className="text-sm text-slate-400">No regions yet.</p>}
+      </div>
     </Card>
   );
 }

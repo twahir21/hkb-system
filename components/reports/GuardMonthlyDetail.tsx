@@ -39,7 +39,7 @@ const TIER_LABEL = {
   NO_DATA: "No Data",
 } as const;
 
-export function tierBadge(tier: GuardMonthlyDetail["performanceTier"]) {
+export function TierBadge({ tier }: { tier: GuardMonthlyDetail["performanceTier"] }) {
   return (
     <Badge tone={TIER_TONE[tier]} className="uppercase">
       {TIER_LABEL[tier]}

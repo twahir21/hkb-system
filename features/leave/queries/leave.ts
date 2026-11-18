@@ -4,6 +4,9 @@ import { and, asc, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzl
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
 import {
+  branches,
+  employeeProfiles,
+  guardProfiles,
   leaveRequests,
   leaveTypeEnum,
   users,
@@ -160,4 +163,95 @@ export async function getApprovedLeaveOn(userIds: string[], date: string) {
       )
     );
   return new Map(rows.map((r) => [r.userId, r.type]));
+}
+
+export type LeaveCalendarEntry = {
+  id: string;
+  userId: string;
+  employeeName: string;
+  type: LeaveType;
+  status: LeaveStatus;
+  startDate: string;
+  endDate: string;
+};
+
+/** Approved + pending leave overlapping a month (YYYY-MM), inside the scope. */
+export async function listLeaveForMonth(scope: LeaveScope, month: string): Promise<LeaveCalendarEntry[]> {
+  const [y, m] = month.split("-").map(Number);
+  const first = `${month}-01`;
+  const last = `${month}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, "0")}`;
+  return db
+    .select({
+      id: leaveRequests.id,
+      userId: leaveRequests.userId,
+      employeeName: employee.fullName,
+      type: leaveRequests.type,
+      status: leaveRequests.status,
+      startDate: leaveRequests.startDate,
+      endDate: leaveRequests.endDate,
+    })
+    .from(leaveRequests)
+    .innerJoin(employee, eq(leaveRequests.userId, employee.id))
+    .where(
+      and(
+        scopeWhere(scope),
+        inArray(leaveRequests.status, ["APPROVED", "PENDING"]),
+        lte(leaveRequests.startDate, last),
+        gte(leaveRequests.endDate, first)
+      )
+    )
+    .orderBy(asc(leaveRequests.startDate), asc(employee.fullName));
+}
+
+export type LeaveLetterData = {
+  id: string;
+  userId: string;
+  employeeName: string;
+  employeeNo: string | null;
+  jobTitle: string | null;
+  branchName: string | null;
+  type: LeaveType;
+  status: LeaveStatus;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string | null;
+  reviewedByName: string | null;
+  reviewedAt: Date | null;
+  reviewNotes: string | null;
+};
+
+/** One leave request with what the approval letter needs, inside the scope. */
+export async function getLeaveForLetter(scope: LeaveScope, id: string): Promise<LeaveLetterData | null> {
+  const reviewer = alias(users, "reviewer");
+  const [row] = await db
+    .select({
+      id: leaveRequests.id,
+      userId: leaveRequests.userId,
+      employeeName: employee.fullName,
+      staffNo: employeeProfiles.employeeNo,
+      guardNo: guardProfiles.employeeId,
+      jobTitle: employeeProfiles.jobTitle,
+      branchName: branches.name,
+      type: leaveRequests.type,
+      status: leaveRequests.status,
+      startDate: leaveRequests.startDate,
+      endDate: leaveRequests.endDate,
+      days: leaveRequests.days,
+      reason: leaveRequests.reason,
+      reviewedByName: reviewer.fullName,
+      reviewedAt: leaveRequests.reviewedAt,
+      reviewNotes: leaveRequests.reviewNotes,
+    })
+    .from(leaveRequests)
+    .innerJoin(employee, eq(leaveRequests.userId, employee.id))
+    .leftJoin(employeeProfiles, eq(employeeProfiles.userId, employee.id))
+    .leftJoin(guardProfiles, eq(guardProfiles.userId, employee.id))
+    .leftJoin(branches, eq(employee.branchId, branches.id))
+    .leftJoin(reviewer, eq(leaveRequests.reviewedById, reviewer.id))
+    .where(and(eq(leaveRequests.id, id), scopeWhere(scope)))
+    .limit(1);
+  if (!row) return null;
+  const { staffNo, guardNo, ...rest } = row;
+  return { ...rest, employeeNo: staffNo ?? guardNo ?? null, jobTitle: rest.jobTitle ?? (guardNo ? "Mlinzi" : null) };
 }

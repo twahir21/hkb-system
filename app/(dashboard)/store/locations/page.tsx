@@ -2,7 +2,8 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors } from "@/features/hr/queries/guards";
 import { listInChargeUsers, listRegions, listStations } from "@/features/store/queries/stock";
-import { RegionForm, StationForm, StationManager } from "@/features/store";
+import { RegionBranchList, RegionForm, StationForm, StationManager } from "@/features/store";
+import { listBranches } from "@/features/branches/queries/branches";
 import { getRegionSiteAnalytics } from "@/features/hr/queries/locations";
 import { RegionAnalyticsCard } from "@/features/hr/components/RegionAnalyticsCard";
 
@@ -16,12 +17,13 @@ export default async function StoreLocationsPage() {
     );
   }
 
-  const [regions, stations, supervisors, analytics, inCharges] = await Promise.all([
+  const [regions, stations, supervisors, analytics, inCharges, branches] = await Promise.all([
     listRegions(),
     listStations(),
     getSupervisors(),
     getRegionSiteAnalytics(),
     listInChargeUsers(),
+    listBranches(),
   ]);
 
   return (
@@ -38,7 +40,11 @@ export default async function StoreLocationsPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
-          <RegionForm />
+          <RegionForm branches={branches} />
+          <RegionBranchList
+            regions={regions.map((r) => ({ id: r.id, name: r.name, branchId: r.branchId }))}
+            branches={branches}
+          />
           <StationForm
             regions={regions.map((r) => ({ id: r.id, name: r.name }))}
             supervisors={supervisors.map((s) => ({ id: s.id, fullName: s.fullName }))}

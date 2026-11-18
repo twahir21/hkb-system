@@ -20,7 +20,11 @@ export default async function RecordsPage() {
     const guardIds = scope.kind === "supervisor" ? null : await getScopedGuardIds(scope);
     logs = await listLogs({ guardIds, limit: 2000 });
   } else {
-    logs = [];
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
+        You do not have permission to view attendance records.
+      </div>
+    );
   }
 
   return (

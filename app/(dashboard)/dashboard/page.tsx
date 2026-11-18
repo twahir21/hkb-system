@@ -80,6 +80,8 @@ export default async function DashboardPage() {
   // Branch-scoped roles (Office Assistant, In-Charge), guards and the
   // storekeeper do not see other branches' numbers.
   const showAttendance = hasPermission(role, "ATTENDANCE_VIEW_ALL");
+  const canOpenReports =
+    hasPermission(role, "REPORTS_FULL_PDF") || hasPermission(role, "REPORTS_SUMMARY");
   const incidentScope = await getIncidentScope({ userId, role });
   const incidentCounts =
     incidentScope.kind === "all" || incidentScope.kind === "branch"
@@ -220,7 +222,7 @@ export default async function DashboardPage() {
           label={`${monthlySummary.monthName} Rate`}
           value={`${monthlySummary.overallAttendancePercentage}%`}
           icon={<Award className="h-5 w-5 text-brand-600" />}
-          href="/reports"
+          href={canOpenReports ? "/reports" : undefined}
           subtitle={`${monthlySummary.totalShifts} shifts logged`}
         />
       </div>

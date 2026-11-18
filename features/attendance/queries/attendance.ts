@@ -3,14 +3,18 @@ import "server-only";
 import { and, desc, eq, gte, inArray, lte, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
-import { attendanceLogs, guardProfiles, users } from "@/lib/db/schema";
+import { attendanceLogs, guardProfiles, leaveRequests, users, type LeaveType } from "@/lib/db/schema";
 import { listGuards, type GuardRow } from "@/features/hr/queries/guards";
 import { guardInScope, type GuardScope } from "@/lib/auth/guard-scope";
 
 const supervisor = alias(users, "supervisor");
 
+export type ShiftLeave = { type: LeaveType; startDate: string; endDate: string };
+
 export type ShiftSheetRow = GuardRow & {
   log: typeof attendanceLogs.$inferSelect | null;
+  /** Approved leave covering the sheet date, if any. */
+  leave: ShiftLeave | null;
 };
 
 export async function getShiftSheet(
@@ -43,8 +47,37 @@ export async function getShiftSheet(
         )
     : [];
 
+  const leaveRows = scoped.length
+    ? await db
+        .select({
+          userId: leaveRequests.userId,
+          type: leaveRequests.type,
+          startDate: leaveRequests.startDate,
+          endDate: leaveRequests.endDate,
+        })
+        .from(leaveRequests)
+        .where(
+          and(
+            eq(leaveRequests.status, "APPROVED"),
+            lte(leaveRequests.startDate, date),
+            gte(leaveRequests.endDate, date),
+            inArray(
+              leaveRequests.userId,
+              scoped.map((g) => g.userId),
+            ),
+          ),
+        )
+    : [];
+
   const logMap = new Map(logRows.map((l) => [l.guardId, l]));
-  return scoped.map((g) => ({ ...g, log: logMap.get(g.id) ?? null }));
+  const leaveMap = new Map(
+    leaveRows.map((l) => [l.userId, { type: l.type, startDate: l.startDate, endDate: l.endDate }]),
+  );
+  return scoped.map((g) => ({
+    ...g,
+    log: logMap.get(g.id) ?? null,
+    leave: leaveMap.get(g.userId) ?? null,
+  }));
 }
 
 export type LogRow = {

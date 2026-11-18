@@ -173,6 +173,10 @@ const BASE_PERMISSIONS = {
   // Contracts include salary — HR, Accounts and IT only.
   CONTRACT_VIEW: ["CEO", "SUPER_ADMIN", "HR", "BURSAR"],
   CONTRACT_MANAGE: ["SUPER_ADMIN", "HR"],
+  // Employee documents (IDs, certificates) are PII — same viewers as PII_VIEW.
+  // Office Assistant scoping applies if widened later (D6).
+  EMPLOYEE_DOC_VIEW: ["CEO", "SUPER_ADMIN", "HR"],
+  EMPLOYEE_DOC_MANAGE: ["SUPER_ADMIN", "HR"],
 
   // Leave (Likizo)
   LEAVE_REQUEST_OWN: [...ROLE_VALUES],

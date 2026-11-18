@@ -6,12 +6,14 @@ import { db } from "@/lib/db";
 import {
   branches,
   contracts,
+  employeeDocuments,
   employeeProfiles,
   guardProfiles,
   users,
   type ContractStatus,
   type ContractType,
   type Department,
+  type EmployeeDocumentType,
   type Role,
 } from "@/lib/db/schema";
 
@@ -159,4 +161,36 @@ export async function listExpiringContracts(days = 60): Promise<ExpiringContract
       ...r,
       daysLeft: Math.round((Date.parse(r.endDate) - Date.parse(today)) / 86_400_000),
     }));
+}
+
+export type EmployeeDocumentRow = {
+  id: string;
+  type: EmployeeDocumentType;
+  title: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  expiresOn: string | null;
+  uploadedByName: string | null;
+  createdAt: Date;
+};
+
+/** An employee's stored documents (never exposes the storage URL). */
+export async function listEmployeeDocuments(userId: string): Promise<EmployeeDocumentRow[]> {
+  return db
+    .select({
+      id: employeeDocuments.id,
+      type: employeeDocuments.type,
+      title: employeeDocuments.title,
+      fileName: employeeDocuments.fileName,
+      contentType: employeeDocuments.contentType,
+      sizeBytes: employeeDocuments.sizeBytes,
+      expiresOn: employeeDocuments.expiresOn,
+      uploadedByName: users.fullName,
+      createdAt: employeeDocuments.createdAt,
+    })
+    .from(employeeDocuments)
+    .leftJoin(users, eq(employeeDocuments.uploadedById, users.id))
+    .where(eq(employeeDocuments.userId, userId))
+    .orderBy(asc(employeeDocuments.type), desc(employeeDocuments.createdAt));
 }

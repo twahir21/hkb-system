@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { getGuardMonthlyDetail, getGuardByUserId } from "@/lib/queries";
-import { GuardMonthlyDetail, tierBadge } from "@/components/reports/GuardMonthlyDetail";
+import { GuardMonthlyDetail, TierBadge } from "@/components/reports/GuardMonthlyDetail";
 import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
 
 type PageProps = {
@@ -59,7 +59,7 @@ export default async function GuardMonthlyDetailPage({ params, searchParams }: P
             {detail.guard.supervisorName ? ` · Supervisor: ${detail.guard.supervisorName}` : ""}
           </p>
         </div>
-        {tierBadge(detail.performanceTier)}
+        <TierBadge tier={detail.performanceTier} />
       </div>
 
       <GuardMonthlyDetail detail={detail} basePath={`/reports/guards/${guardId}`} />

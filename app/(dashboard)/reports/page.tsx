@@ -111,7 +111,7 @@ export default async function ReportsPage({
       ) : (
         <MonthlySummaryView
           summary={summary}
-          supervisors={(scope.kind === "supervisor" ? [] : supervisors).map((s) => ({
+          supervisors={(scope.kind === "all" ? supervisors : []).map((s) => ({
             id: s.id,
             name: s.fullName,
             role: s.role,

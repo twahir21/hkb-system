@@ -59,6 +59,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
     workLocation: g.workLocation,
     homeLocation: canPii ? g.homeLocation : null,
     supervisorName: g.supervisorName,
+    leave: g.leave,
     log: g.log
       ? {
           id: g.log.id,

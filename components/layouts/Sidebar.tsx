@@ -119,7 +119,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/store/transfers",
         label: t.nav.stockTransfers,
         icon: ArrowLeftRight,
-        anyOf: ["STOCK_TRANSFER_INITIATE", "STOCK_TRANSFER_APPROVE"],
+        anyOf: ["STOCK_TRANSFER_INITIATE", "STOCK_TRANSFER_APPROVE", "STOCK_VIEW"],
       },
       {
         href: "/store/reports",

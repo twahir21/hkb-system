@@ -27,6 +27,13 @@ export const itemUpdateSchema = itemSchema.extend({
 export const regionSchema = z.object({
   name: z.string().trim().min(2).max(150),
   description: z.string().trim().max(2000).optional(),
+  /** Branch that owns the region. Empty = none (incidents fall back to reporter's branch). */
+  branchId: uuid.optional(),
+});
+
+export const regionBranchSchema = z.object({
+  id: uuid,
+  branchId: uuid.nullable(),
 });
 
 export const stationSchema = z.object({

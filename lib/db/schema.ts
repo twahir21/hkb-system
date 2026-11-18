@@ -760,6 +760,37 @@ export const contracts = pgTable(
   ]
 );
 
+// Employee documents (certificates, IDs, CVs…) kept in private object storage.
+export const employeeDocumentTypeEnum = pgEnum("employee_document_type", [
+  "NATIONAL_ID", // Kitambulisho cha Taifa (NIDA)
+  "CERTIFICATE", // Cheti (elimu / mafunzo)
+  "CV", // Wasifu
+  "POLICE_CLEARANCE", // Barua ya polisi / tabia njema
+  "MEDICAL", // Ripoti ya afya
+  "REFERENCE", // Barua ya utambulisho / mdhamini
+  "OTHER",
+]);
+
+export const employeeDocuments = pgTable(
+  "employee_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    type: employeeDocumentTypeEnum("type").notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    fileUrl: text("file_url").notNull(), // object storage URL (private; served via signed links)
+    fileName: varchar("file_name", { length: 255 }).notNull(),
+    contentType: varchar("content_type", { length: 100 }).notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    expiresOn: date("expires_on"), // e.g. ID / clearance expiry
+    uploadedById: uuid("uploaded_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("employee_documents_user_idx").on(table.userId)]
+);
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Leave management (Likizo)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -806,6 +837,7 @@ export const leaveRequests = pgTable(
 
 export type Role = (typeof roleEnum.enumValues)[number];
 export type LeaveType = (typeof leaveTypeEnum.enumValues)[number];
+export type EmployeeDocumentType = (typeof employeeDocumentTypeEnum.enumValues)[number];
 export type LeaveStatus = (typeof leaveStatusEnum.enumValues)[number];
 export type Department = (typeof departmentEnum.enumValues)[number];
 export type ContractType = (typeof contractTypeEnum.enumValues)[number];

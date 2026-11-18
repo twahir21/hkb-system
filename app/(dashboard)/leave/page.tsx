@@ -6,9 +6,11 @@ import {
   getLeaveBalance,
   getLeaveScope,
   listLeaveEmployees,
+  listLeaveForMonth,
   listLeaveRequests,
 } from "@/features/leave/queries/leave";
 import { LeaveDecision, LeaveRequestForm } from "@/features/leave/components/LeaveForms";
+import { LeaveCalendar } from "@/features/leave/components/LeaveCalendar";
 import { Badge, Card } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -25,14 +27,18 @@ export default async function LeavePage({
 
   const sp = await searchParams;
   const pendingOnly = sp.status === "PENDING";
+  const calendarView = sp.view === "calendar";
+  const today = new Date().toISOString().slice(0, 10);
+  const month = sp.month && /^\d{4}-(0[1-9]|1[0-2])$/.test(sp.month) ? sp.month : today.slice(0, 7);
   const scope = await getLeaveScope(user);
   const canFileOthers = hasPermission(user.role, "LEAVE_FILE_FOR_OTHERS");
   const canApprove = hasPermission(user.role, "LEAVE_APPROVE");
 
-  const [rows, balance, employees] = await Promise.all([
-    listLeaveRequests(scope, pendingOnly ? "PENDING" : undefined),
+  const [rows, balance, employees, monthEntries] = await Promise.all([
+    calendarView ? Promise.resolve([]) : listLeaveRequests(scope, pendingOnly ? "PENDING" : undefined),
     getLeaveBalance(user.userId),
     canFileOthers ? listLeaveEmployees(scope) : Promise.resolve([]),
+    calendarView ? listLeaveForMonth(scope, month) : Promise.resolve([]),
   ]);
 
   return (
@@ -74,15 +80,33 @@ export default async function LeavePage({
         <div className="space-y-3 xl:col-span-2">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-slate-900">{L.requests}</h3>
-            <div className="flex gap-1 rounded-xl bg-slate-100 p-1 text-xs font-semibold">
-              <Link href="/leave" className={cn("rounded-lg px-3 py-1.5", !pendingOnly ? "bg-white shadow-sm" : "text-slate-500")}>
-                {L.filter.all}
-              </Link>
-              <Link href="/leave?status=PENDING" className={cn("rounded-lg px-3 py-1.5", pendingOnly ? "bg-white shadow-sm" : "text-slate-500")}>
-                {L.filter.pending}
-              </Link>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex gap-1 rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+                <Link href="/leave" className={cn("rounded-lg px-3 py-1.5", !calendarView ? "bg-white shadow-sm" : "text-slate-500")}>
+                  {L.view.list}
+                </Link>
+                <Link
+                  href={`/leave?view=calendar&month=${month}`}
+                  className={cn("rounded-lg px-3 py-1.5", calendarView ? "bg-white shadow-sm" : "text-slate-500")}
+                >
+                  {L.view.calendar}
+                </Link>
+              </div>
+              {!calendarView && (
+                <div className="flex gap-1 rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+                  <Link href="/leave" className={cn("rounded-lg px-3 py-1.5", !pendingOnly ? "bg-white shadow-sm" : "text-slate-500")}>
+                    {L.filter.all}
+                  </Link>
+                  <Link href="/leave?status=PENDING" className={cn("rounded-lg px-3 py-1.5", pendingOnly ? "bg-white shadow-sm" : "text-slate-500")}>
+                    {L.filter.pending}
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
+          {calendarView ? (
+            <LeaveCalendar month={month} entries={monthEntries} today={today} />
+          ) : (
           <div className="overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left text-sm">
               <thead>
@@ -132,6 +156,14 @@ export default async function LeavePage({
                           canCancel={r.userId === user.userId}
                         />
                       )}
+                      {r.status === "APPROVED" && (
+                        <a
+                          href={`/api/leave/${r.id}/pdf`}
+                          className="whitespace-nowrap text-xs font-semibold text-brand-700 hover:underline"
+                        >
+                          {L.letter}
+                        </a>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -145,6 +177,7 @@ export default async function LeavePage({
               </tbody>
             </table>
           </div>
+          )}
         </div>
       </div>
     </div>

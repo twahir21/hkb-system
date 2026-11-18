@@ -7,7 +7,8 @@ import { Badge, Button, Pagination, statusTone } from "@/components/ui";
 import { AbsentModal } from "./AbsentModal";
 import { LateModal } from "./LateModal";
 import { markPresentOnly } from "@/features/attendance/actions/attendance.actions";
-import type { ShiftType } from "@/lib/db/schema";
+import type { LeaveType, ShiftType } from "@/lib/db/schema";
+import { t } from "@/lib/i18n";
 import { formatDate } from "@/lib/utils";
 
 export type LogDTO = {
@@ -27,6 +28,8 @@ export type ShiftSheetRowDTO = {
   workLocation: string;
   homeLocation: string | null;
   supervisorName: string | null;
+  /** Approved leave covering the sheet date. */
+  leave: { type: LeaveType; startDate: string; endDate: string } | null;
   log: LogDTO | null;
 };
 
@@ -225,6 +228,14 @@ export function ShiftSheet({
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-800">
                       {row.fullName}
+                      {row.leave && (
+                        <span
+                          className="ml-2 align-middle"
+                          title={`${t.leave.types[row.leave.type]}: ${row.leave.startDate} – ${row.leave.endDate}`}
+                        >
+                          <Badge tone="violet">On leave</Badge>
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {row.workLocation}

@@ -7,6 +7,7 @@ import { regions, stations, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import {
+  regionBranchSchema,
   regionSchema,
   stationSchema,
   stationUpdateSchema,
@@ -24,6 +25,7 @@ export async function createRegion(
   const parsed = regionSchema.safeParse({
     name: formData.get("name") ?? undefined,
     description: formData.get("description") || undefined,
+    branchId: formData.get("branchId") || undefined,
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid region" };
@@ -36,7 +38,7 @@ export async function createRegion(
       action: "STORE_REGION_CREATE",
       entity: "regions",
       entityId: region.id,
-      metadata: { name: parsed.data.name },
+      metadata: { name: parsed.data.name, branchId: parsed.data.branchId ?? null },
     });
   } catch {
     return { ok: false, error: "A region with this name already exists." };
@@ -45,6 +47,45 @@ export async function createRegion(
   revalidatePath("/store/locations");
   revalidatePath("/store");
   return { ok: true, message: "Region created." };
+}
+
+/** Set (or clear) the branch a region belongs to. */
+export async function setRegionBranch(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const actor = await requirePermission("STORE_LOCATIONS_MANAGE");
+
+  const parsed = regionBranchSchema.safeParse({
+    id: formData.get("id") ?? undefined,
+    branchId: formData.get("branchId") || null,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid region branch" };
+  }
+
+  try {
+    const [region] = await db
+      .update(regions)
+      .set({ branchId: parsed.data.branchId, updatedAt: new Date() })
+      .where(eq(regions.id, parsed.data.id))
+      .returning();
+    if (!region) return { ok: false, error: "Region not found." };
+
+    await writeAuditLog({
+      actorId: actor.userId,
+      action: "STORE_REGION_UPDATE",
+      entity: "regions",
+      entityId: region.id,
+      metadata: { name: region.name, branchId: parsed.data.branchId },
+    });
+  } catch {
+    return { ok: false, error: "Failed to update region branch." };
+  }
+
+  revalidatePath("/store/locations");
+  revalidatePath("/incidents");
+  return { ok: true, message: "Saved." };
 }
 
 export async function createStation(
