@@ -7,6 +7,7 @@ import { Badge, Button, DataTable, Pagination, statusTone, type Column } from "@
 import { ShiftHeatmapStrip } from "@/components/ui/charts";
 import { formatDate } from "@/lib/utils";
 import type { GuardMonthlyDetail } from "@/lib/queries/monthly-summary";
+import { enumLabel } from "@/lib/i18n";
 
 const MONTHS = [
   { value: 1, label: "January" },
@@ -31,18 +32,10 @@ const TIER_TONE = {
   NO_DATA: "slate",
 } as const;
 
-const TIER_LABEL = {
-  EXCELLENT: "Excellent",
-  GOOD: "Good",
-  WARNING: "Warning",
-  CRITICAL: "Critical",
-  NO_DATA: "No Data",
-} as const;
-
 export function TierBadge({ tier }: { tier: GuardMonthlyDetail["performanceTier"] }) {
   return (
     <Badge tone={TIER_TONE[tier]} className="uppercase">
-      {TIER_LABEL[tier]}
+      {enumLabel(tier)}
     </Badge>
   );
 }
@@ -94,14 +87,14 @@ export function GuardMonthlyDetail({
     {
       key: "shift",
       header: "Shift",
-      cell: (r) => <Badge tone={r.shift === "DAY" ? "brand" : "violet"}>{r.shift}</Badge>,
+      cell: (r) => <Badge tone={r.shift === "DAY" ? "brand" : "violet"}>{enumLabel(r.shift)}</Badge>,
     },
     {
       key: "status",
       header: "Status",
       cell: (r) => (
         <span className="flex items-center gap-2">
-          <Badge tone={statusTone(r.status)}>{r.status}</Badge>
+          <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>
           {r.status === "LATE" && r.minutesLate ? (
             <span className="text-xs font-semibold text-amber-700">+{r.minutesLate}m</span>
           ) : null}
@@ -114,7 +107,7 @@ export function GuardMonthlyDetail({
       cell: (r) =>
         r.absenceCategory ? (
           <Badge tone={statusTone(r.absenceCategory)}>
-            {r.absenceCategory.replaceAll("_", " ")}
+            {enumLabel(r.absenceCategory)}
             {r.allowedDays ? ` (${r.allowedDays}d)` : ""}
           </Badge>
         ) : (

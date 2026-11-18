@@ -1,4 +1,5 @@
 import { Document, Page, View, Text, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
+import { enumLabel } from "@/lib/i18n";
 
 /** A guard row as it appears in the payroll export (PII already blanked by the caller if unauthorized). */
 export type GuardPayrollPdfRow = {
@@ -354,36 +355,36 @@ const COLS = {
 type Col = { key: string; label: string; width: number; align?: "right" | "left" | "center" };
 
 const SUMMARY_COLS: Col[] = [
-  { key: "name", label: "FULL NAME", width: COLS.name },
-  { key: "phone", label: "PHONE", width: COLS.phone },
-  { key: "gender", label: "G", width: COLS.gender, align: "center" },
-  { key: "age", label: "AGE", width: COLS.age, align: "right" },
-  { key: "work", label: "WORK SITE", width: COLS.work },
-  { key: "sup", label: "SUPERVISOR", width: COLS.sup },
-  { key: "shifts", label: "SH", width: COLS.shifts, align: "right" },
-  { key: "present", label: "P", width: COLS.present, align: "right" },
-  { key: "late", label: "L", width: COLS.late, align: "right" },
-  { key: "absent", label: "A", width: COLS.absent, align: "right" },
-  { key: "sick", label: "SK", width: COLS.sick, align: "right" },
-  { key: "perm", label: "PM", width: COLS.perm, align: "right" },
-  { key: "nperm", label: "NP", width: COLS.nperm, align: "right" },
-  { key: "minLate", label: "LT-M", width: COLS.minLate, align: "right" },
-  { key: "att", label: "ATT%", width: COLS.att, align: "right" },
-  { key: "debt", label: "DEBT (TZS)", width: COLS.debt, align: "right" },
-  { key: "ded", label: "DED (TZS)", width: COLS.ded, align: "right" },
-  { key: "status", label: "STATUS", width: COLS.status, align: "center" },
+  { key: "name", label: "JINA KAMILI", width: COLS.name },
+  { key: "phone", label: "SIMU", width: COLS.phone },
+  { key: "gender", label: "J", width: COLS.gender, align: "center" },
+  { key: "age", label: "UMRI", width: COLS.age, align: "right" },
+  { key: "work", label: "KITUO", width: COLS.work },
+  { key: "sup", label: "MSIMAMIZI", width: COLS.sup },
+  { key: "shifts", label: "ZM", width: COLS.shifts, align: "right" },
+  { key: "present", label: "Y", width: COLS.present, align: "right" },
+  { key: "late", label: "C", width: COLS.late, align: "right" },
+  { key: "absent", label: "H", width: COLS.absent, align: "right" },
+  { key: "sick", label: "G", width: COLS.sick, align: "right" },
+  { key: "perm", label: "R", width: COLS.perm, align: "right" },
+  { key: "nperm", label: "BR", width: COLS.nperm, align: "right" },
+  { key: "minLate", label: "DK-C", width: COLS.minLate, align: "right" },
+  { key: "att", label: "MAH%", width: COLS.att, align: "right" },
+  { key: "debt", label: "DENI (TZS)", width: COLS.debt, align: "right" },
+  { key: "ded", label: "MAKATO (TZS)", width: COLS.ded, align: "right" },
+  { key: "status", label: "HALI", width: COLS.status, align: "center" },
 ];
 
 const EXEC_COLS: Col[] = [
-  { key: "client", label: "CLIENT / ACCOUNT NAME", width: 224 },
-  { key: "guards", label: "GUARDS", width: 50, align: "right" },
-  { key: "active", label: "ACTIVE", width: 45, align: "right" },
-  { key: "disabled", label: "DIS", width: 45, align: "right" },
-  { key: "shifts", label: "SHIFTS", width: 50, align: "right" },
-  { key: "att", label: "ATT %", width: 50, align: "right" },
-  { key: "minLate", label: "LATE (MIN)", width: 60, align: "right" },
-  { key: "debt", label: "OUTSTANDING DEBT (TZS)", width: 135, align: "right" },
-  { key: "ded", label: "DEDUCTED (TZS)", width: 135, align: "right" },
+  { key: "client", label: "MTEJA / AKAUNTI", width: 224 },
+  { key: "guards", label: "WALINZI", width: 50, align: "right" },
+  { key: "active", label: "HAI", width: 45, align: "right" },
+  { key: "disabled", label: "IMEZ.", width: 45, align: "right" },
+  { key: "shifts", label: "ZAMU", width: 50, align: "right" },
+  { key: "att", label: "MAH. %", width: 50, align: "right" },
+  { key: "minLate", label: "KUCHELEWA (DK)", width: 60, align: "right" },
+  { key: "debt", label: "DENI LINALODAIWA (TZS)", width: 135, align: "right" },
+  { key: "ded", label: "ZILIZOKATWA (TZS)", width: 135, align: "right" },
 ];
 
 function cellStyle(col: Col) {
@@ -415,7 +416,7 @@ function rowValues(row: GuardPayrollPdfRow): Record<string, string> {
     att: pct(row.attendancePercentage),
     debt: row.outstandingDebt > 0 ? fmt(Math.round(row.outstandingDebt)) : "—",
     ded: row.deductedThisPeriod > 0 ? fmt(Math.round(row.deductedThisPeriod)) : "—",
-    status: row.isActive ? "Active" : "Disabled",
+    status: row.isActive ? enumLabel("ACTIVE") : enumLabel("DISABLED"),
   };
 }
 
@@ -446,8 +447,8 @@ function Masthead({
           {data.title.toUpperCase()} {subLabel ? `— ${subLabel.toUpperCase()}` : ""}
         </Text>
         <Text style={styles.meta}>
-          Period: {data.periodLabel}
-          {"\n"}Generated: {data.generatedAt} · By: {data.generatedBy}
+          Kipindi: {data.periodLabel}
+          {"\n"}Imetolewa: {data.generatedAt} · Na: {data.generatedBy}
         </Text>
       </View>
     </View>
@@ -462,15 +463,15 @@ function PageFooter({
   chunkTitle?: string;
 }) {
   const noPiiNote = data.piiIncluded
-    ? "Contains confidential personal & financial data — handle per HKB Security policy."
-    : "Personal contact details withheld (viewing without PII clearance).";
+    ? "Ina taarifa za siri za binafsi na fedha — itunzwe kwa mujibu wa sera ya usalama ya HKB."
+    : "Taarifa binafsi za mawasiliano zimefichwa (huna ruhusa ya kuziona).";
 
   return (
     <View style={styles.footer} fixed>
       <Text>{noPiiNote}</Text>
-      <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+      <Text render={({ pageNumber, totalPages }) => `Ukurasa ${pageNumber} kati ya ${totalPages}`} />
       <Text>
-        {data.company} · {chunkTitle ? `${chunkTitle} · ` : ""}Confidential Payroll Dossier
+        {data.company} · {chunkTitle ? `${chunkTitle} · ` : ""}Jalada la Siri la Mishahara
       </Text>
     </View>
   );
@@ -478,31 +479,31 @@ function PageFooter({
 
 function DetailCard({ row }: { row: GuardPayrollPdfRow }) {
   const fields: Array<[string, string]> = [
-    ["Employee ID", row.employeeId],
-    ["Gender / Age", `${row.gender} / ${row.age} yrs`],
-    ["Contact Phone", row.phone || "—"],
-    ["Email Address", row.email || "—"],
-    ["Home Location", row.homeLocation || "—"],
-    ["Work Site", row.workLocation || "—"],
-    ["Client Account", row.clientName ?? "—"],
-    ["Assigned Supervisor", row.supervisorName ?? "—"],
-    ["Registration Date", row.registrationDate],
-    ["Next of Kin", row.kinName ? `${row.kinName} (${row.kinRelation})` : "—"],
-    ["Kin Phone", row.kinPhone || "—"],
-    ["Attendance Shifts", `${pct(row.attendancePercentage)} (${row.presentCount + row.lateCount}/${row.totalShifts} shifts)`],
-    ["On-Time Record", `${pct(row.onTimePercentage)} (${row.totalMinutesLate} min total late)`],
+    ["Namba ya mtumishi", row.employeeId],
+    ["Jinsia / Umri", `${row.gender === "FEMALE" ? "Ke" : row.gender === "MALE" ? "Me" : row.gender} / miaka ${row.age}`],
+    ["Simu", row.phone || "—"],
+    ["Barua pepe", row.email || "—"],
+    ["Makazi", row.homeLocation || "—"],
+    ["Kituo cha kazi", row.workLocation || "—"],
+    ["Mteja", row.clientName ?? "—"],
+    ["Msimamizi", row.supervisorName ?? "—"],
+    ["Tarehe ya usajili", row.registrationDate],
+    ["Ndugu wa karibu", row.kinName ? `${row.kinName} (${row.kinRelation})` : "—"],
+    ["Simu ya ndugu", row.kinPhone || "—"],
+    ["Mahudhurio", `${pct(row.attendancePercentage)} (zamu ${row.presentCount + row.lateCount}/${row.totalShifts})`],
+    ["Kufika kwa wakati", `${pct(row.onTimePercentage)} (jumla dk ${row.totalMinutesLate} za kuchelewa)`],
     [
-      "Absences Breakdown",
-      `${row.absentCount} (${row.sickCount} sick, ${row.permittedCount} permitted, ${row.notPermittedCount} unexcused)`,
+      "Mchanganuo wa kutokuwepo",
+      `${row.absentCount} (wagonjwa ${row.sickCount}, ruhusa ${row.permittedCount}, bila ruhusa ${row.notPermittedCount})`,
     ],
     [
-      "Outstanding Credit / Debt",
+      "Deni linalodaiwa",
       row.outstandingDebt > 0
-        ? `${money(row.outstandingDebt)} (${row.outstandingCount} open)`
-        : "None (TZS 0)",
+        ? `${money(row.outstandingDebt)} (madeni ${row.outstandingCount})`
+        : "Hakuna (TZS 0)",
     ],
-    ["Deducted This Period", row.deductedThisPeriod > 0 ? money(row.deductedThisPeriod) : "TZS 0"],
-    ["Account Status", row.isActive ? "ACTIVE" : `DISABLED ${row.disabledAtLabel ? `(${row.disabledAtLabel})` : ""}`],
+    ["Yaliyokatwa kipindi hiki", row.deductedThisPeriod > 0 ? money(row.deductedThisPeriod) : "TZS 0"],
+    ["Hali ya akaunti", row.isActive ? enumLabel("ACTIVE") : `${enumLabel("DISABLED")} ${row.disabledAtLabel ? `(${row.disabledAtLabel})` : ""}`],
   ];
 
   return (
@@ -513,7 +514,7 @@ function DetailCard({ row }: { row: GuardPayrollPdfRow }) {
           <Text style={styles.detailEmp}>({row.employeeId})</Text>
         </View>
         <Text style={row.isActive ? styles.badgeActive : styles.badgeDisabled}>
-          {row.isActive ? "ACTIVE GUARD" : "DISABLED GUARD"}
+          {row.isActive ? "MLINZI HAI" : "MLINZI AMEZIMWA"}
         </Text>
       </View>
       <View style={styles.detailGrid}>
@@ -542,36 +543,36 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
     <Document
       title={data.title}
       author="HKB Protection & Management Co."
-      subject={`Guard payroll export — ${data.periodLabel}`}
+      subject={`Ripoti ya mishahara ya walinzi — ${data.periodLabel}`}
     >
       {/* 1. Executive Master Overview Page (when multiple clients are present) */}
       {showExecutiveOverview && (
         <Page size="A4" orientation="landscape" style={styles.page}>
-          <Masthead data={data} subLabel="Executive Master Overview" />
+          <Masthead data={data} subLabel="Muhtasari Mkuu" />
 
           {/* Scope info */}
           <View style={styles.scope}>
             <Text>
-              <Text style={styles.scopeLabel}>Scope &amp; Filters: </Text>
+              <Text style={styles.scopeLabel}>Wigo na Vichujio: </Text>
               {data.scopeLines.join(" · ")}
             </Text>
           </View>
 
           {/* Grand KPI Strip */}
           <View style={styles.kpiStrip}>
-            <Kpi value={String(t.guards)} label="Total Guards" />
-            <Kpi value={String(t.activeGuards)} label="Active" />
-            <Kpi value={String(t.disabledGuards)} label="Disabled" />
-            <Kpi value={fmt(t.totalShifts)} label="Total Shifts" />
-            <Kpi value={pct(t.attendancePercentage)} label="Avg Attendance" />
-            <Kpi value={fmt(t.totalMinutesLate)} label="Total Min Late" />
-            <Kpi value={money(t.outstandingDebt)} label="Total Debt Owed" />
-            <Kpi value={money(t.deductedThisPeriod)} label="Total Deductions" />
+            <Kpi value={String(t.guards)} label="Jumla ya walinzi" />
+            <Kpi value={String(t.activeGuards)} label="Hai" />
+            <Kpi value={String(t.disabledGuards)} label="Wamezimwa" />
+            <Kpi value={fmt(t.totalShifts)} label="Jumla ya zamu" />
+            <Kpi value={pct(t.attendancePercentage)} label="Wastani wa mahudhurio" />
+            <Kpi value={fmt(t.totalMinutesLate)} label="Jumla dk za kuchelewa" />
+            <Kpi value={money(t.outstandingDebt)} label="Jumla ya madeni" />
+            <Kpi value={money(t.deductedThisPeriod)} label="Jumla ya makato" />
           </View>
 
           {/* Client Breakdown Summary Table */}
           <View>
-            <Text style={styles.sectionHeading}>Client Payroll Accounts Breakdown</Text>
+            <Text style={styles.sectionHeading}>Mchanganuo wa Mishahara kwa Mteja</Text>
             <View style={styles.tableHead} fixed>
               {EXEC_COLS.map((col) => (
                 <Text key={col.key} style={cellStyle(col)}>
@@ -604,7 +605,7 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
 
             <View style={styles.totalRow} wrap={false}>
               <Text style={{ width: execLeftWidth, paddingLeft: 2 }}>
-                COMPANY GRAND TOTALS ({groups.length} Client Accounts)
+                JUMLA KUU YA KAMPUNI (wateja {groups.length})
               </Text>
               <Text style={cellStyle(EXEC_COLS[1])}>{t.guards}</Text>
               <Text style={cellStyle(EXEC_COLS[2])}>{t.activeGuards}</Text>
@@ -621,22 +622,22 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
           <View style={styles.signatures} wrap={false}>
             <View style={styles.sigBox}>
               <View style={styles.sigLine} />
-              <Text style={styles.sigLabel}>Prepared by (HR Officer)</Text>
-              <Text style={styles.sigSub}>Name &amp; Signature / Date</Text>
+              <Text style={styles.sigLabel}>Imeandaliwa na (Afisa HR)</Text>
+              <Text style={styles.sigSub}>Jina na Sahihi / Tarehe</Text>
             </View>
             <View style={styles.sigBox}>
               <View style={styles.sigLine} />
-              <Text style={styles.sigLabel}>Verified by (Bursar / Accounts Head)</Text>
-              <Text style={styles.sigSub}>Name &amp; Signature / Date</Text>
+              <Text style={styles.sigLabel}>Imehakikiwa na (Mhasibu / Mkuu wa Hesabu)</Text>
+              <Text style={styles.sigSub}>Jina na Sahihi / Tarehe</Text>
             </View>
             <View style={styles.sigBox}>
               <View style={styles.sigLine} />
-              <Text style={styles.sigLabel}>Approved by (Managing Director / COO)</Text>
-              <Text style={styles.sigSub}>Name &amp; Signature / Date</Text>
+              <Text style={styles.sigLabel}>Imeidhinishwa na (Mkurugenzi Mtendaji / COO)</Text>
+              <Text style={styles.sigSub}>Jina na Sahihi / Tarehe</Text>
             </View>
           </View>
 
-          <PageFooter data={data} chunkTitle="Master Overview" />
+          <PageFooter data={data} chunkTitle="Muhtasari Mkuu" />
         </Page>
       )}
 
@@ -646,12 +647,12 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
           <Masthead data={data} />
           <View style={styles.scope}>
             <Text>
-              <Text style={styles.scopeLabel}>Scope &amp; Filters: </Text>
+              <Text style={styles.scopeLabel}>Wigo na Vichujio: </Text>
               {data.scopeLines.join(" · ")}
             </Text>
           </View>
           <Text style={{ marginTop: 24, color: MUTED, fontSize: 8.5, textAlign: "center" }}>
-            No guards match the selected scope and criteria for this period.
+            Hakuna walinzi wanaolingana na vigezo vilivyochaguliwa kwa kipindi hiki.
           </Text>
           <PageFooter data={data} />
         </Page>
@@ -669,22 +670,22 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
 
               {/* Client Header Banner */}
               <View style={styles.clientBanner}>
-                <Text style={styles.clientBannerTitle}>Client: {group.clientName}</Text>
+                <Text style={styles.clientBannerTitle}>Mteja: {group.clientName}</Text>
                 <Text style={styles.clientBannerMeta}>
-                  {gt.guards} Guards Total ({gt.activeGuards} Active, {gt.disabledGuards} Disabled)
+                  Jumla walinzi {gt.guards} (hai {gt.activeGuards}, wamezimwa {gt.disabledGuards})
                 </Text>
               </View>
 
               {/* Client KPI Strip */}
               <View style={styles.kpiStrip}>
-                <Kpi value={String(gt.guards)} label="Guards Assigned" />
-                <Kpi value={fmt(gt.totalShifts)} label="Client Shifts" />
-                <Kpi value={pct(gt.attendancePercentage)} label="Attendance Rate" />
-                <Kpi value={fmt(gt.lateCount)} label="Late Incidents" />
-                <Kpi value={fmt(gt.totalMinutesLate)} label="Min Late" />
-                <Kpi value={fmt(gt.notPermittedCount)} label="Unexcused Abs" />
-                <Kpi value={money(gt.outstandingDebt)} label="Outstanding Debt" />
-                <Kpi value={money(gt.deductedThisPeriod)} label="Deducted in Period" />
+                <Kpi value={String(gt.guards)} label="Walinzi" />
+                <Kpi value={fmt(gt.totalShifts)} label="Zamu za mteja" />
+                <Kpi value={pct(gt.attendancePercentage)} label="Kiwango cha mahudhurio" />
+                <Kpi value={fmt(gt.lateCount)} label="Waliochelewa" />
+                <Kpi value={fmt(gt.totalMinutesLate)} label="Dk za kuchelewa" />
+                <Kpi value={fmt(gt.notPermittedCount)} label="Bila ruhusa" />
+                <Kpi value={money(gt.outstandingDebt)} label="Deni linalodaiwa" />
+                <Kpi value={money(gt.deductedThisPeriod)} label="Makato ya kipindi" />
               </View>
 
               {/* Client Guard Roster Table */}
@@ -721,7 +722,7 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
                 {/* Client Subtotals Row */}
                 <View style={styles.totalRow} wrap={false}>
                   <Text style={{ width: totalColLeft, paddingLeft: 2 }}>
-                    SUBTOTALS — {group.clientName.toUpperCase()} ({gt.guards} guards: {gt.activeGuards} active, {gt.disabledGuards} disabled)
+                    JUMLA NDOGO — {group.clientName.toUpperCase()} (walinzi {gt.guards}: hai {gt.activeGuards}, wamezimwa {gt.disabledGuards})
                   </Text>
                   <Text style={{ width: COLS.shifts, textAlign: "right", paddingRight: 2 }}>{gt.totalShifts}</Text>
                   <Text style={{ width: COLS.present, textAlign: "right", paddingRight: 2 }}>{gt.presentCount}</Text>
@@ -738,11 +739,15 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
                 </View>
               </View>
 
+              <Text style={{ marginTop: 4, fontSize: 6.5, color: MUTED }}>
+                Ufunguo: J = jinsia · ZM = zamu · Y = yupo · C = amechelewa · H = hayupo · G = mgonjwa · R = ruhusa · BR = bila ruhusa · DK-C = dakika za kuchelewa · MAH% = mahudhurio
+              </Text>
+
               {/* Client Guard Dossiers (Optional) */}
               {data.includeDetails && group.rows.length > 0 && (
                 <View break>
                   <Text style={{ fontSize: 10, fontWeight: 700, color: GOLD, marginTop: 4, marginBottom: 4 }}>
-                    Guard Dossiers &amp; Next-of-Kin Details — {group.clientName}
+                    Majalada ya Walinzi na Ndugu wa Karibu — {group.clientName}
                   </Text>
                   {group.rows.map((row) => (
                     <DetailCard key={row.employeeId} row={row} />
@@ -754,18 +759,18 @@ export function GuardPayrollDocument({ data }: { data: GuardPayrollPdfData }) {
               <View style={styles.signatures} wrap={false}>
                 <View style={styles.sigBox}>
                   <View style={styles.sigLine} />
-                  <Text style={styles.sigLabel}>Prepared by (HR Officer)</Text>
-                  <Text style={styles.sigSub}>Name &amp; Signature / Date</Text>
+                  <Text style={styles.sigLabel}>Imeandaliwa na (Afisa HR)</Text>
+                  <Text style={styles.sigSub}>Jina na Sahihi / Tarehe</Text>
                 </View>
                 <View style={styles.sigBox}>
                   <View style={styles.sigLine} />
-                  <Text style={styles.sigLabel}>Verified by (Bursar / Accounts)</Text>
-                  <Text style={styles.sigSub}>Name &amp; Signature / Date</Text>
+                  <Text style={styles.sigLabel}>Imehakikiwa na (Mhasibu / Hesabu)</Text>
+                  <Text style={styles.sigSub}>Jina na Sahihi / Tarehe</Text>
                 </View>
                 <View style={styles.sigBox}>
                   <View style={styles.sigLine} />
-                  <Text style={styles.sigLabel}>Approved by (Operations / Client Manager)</Text>
-                  <Text style={styles.sigSub}>Name &amp; Signature / Date</Text>
+                  <Text style={styles.sigLabel}>Imeidhinishwa na (Operesheni / Meneja wa Mteja)</Text>
+                  <Text style={styles.sigSub}>Jina na Sahihi / Tarehe</Text>
                 </View>
               </View>
 

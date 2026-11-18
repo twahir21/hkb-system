@@ -4,15 +4,41 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
 import type { LogRow } from "@/features/attendance/queries/attendance";
+import { getSickNoteUrl } from "@/features/attendance/actions/attendance.actions";
+import { enumLabel } from "@/lib/i18n";
 
-const ABSENCE_LABEL: Record<string, string> = {
-  SICK: "Sick",
-  PERMITTED_REASON: "Permitted",
-  NOT_PERMITTED: "Not Permitted",
-};
+export type RecordRow = Omit<LogRow, "documentUrl"> & { hasDocument: boolean };
 
-export function RecordsView({ logs }: { logs: LogRow[] }) {
+export function RecordsView({ logs, canAuditDocs }: { logs: RecordRow[]; canAuditDocs: boolean }) {
   const [q, setQ] = useState("");
+  const [openingDoc, setOpeningDoc] = useState<string | null>(null);
+  const [docError, setDocError] = useState<string | null>(null);
+
+  // Open the tab synchronously (popup blockers), then point it at the signed link.
+  const openSickNote = async (logId: string) => {
+    setDocError(null);
+    setOpeningDoc(logId);
+    const tab = window.open("", "_blank");
+    try {
+      const res = await getSickNoteUrl(logId);
+      if (res.ok) {
+        if (tab) {
+          tab.opener = null;
+          tab.location.href = res.url;
+        } else {
+          window.location.href = res.url;
+        }
+      } else {
+        tab?.close();
+        setDocError(res.error);
+      }
+    } catch {
+      tab?.close();
+      setDocError("Could not open the document.");
+    } finally {
+      setOpeningDoc(null);
+    }
+  };
   const [status, setStatus] = useState("ALL");
 
   const filtered = useMemo(() => {
@@ -26,7 +52,7 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
     });
   }, [logs, q, status]);
 
-  const columns: Column<LogRow>[] = [
+  const columns: Column<RecordRow>[] = [
     {
       key: "date",
       header: "Date",
@@ -38,7 +64,7 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
       key: "shift",
       header: "Shift",
       cell: (r) => (
-        <Badge tone={r.shift === "DAY" ? "amber" : "slate"}>{r.shift}</Badge>
+        <Badge tone={r.shift === "DAY" ? "amber" : "slate"}>{enumLabel(r.shift)}</Badge>
       ),
     },
     {
@@ -56,7 +82,7 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
       header: "Status",
       cell: (r) => (
         <Badge tone={statusTone(r.status)}>
-          {r.status}
+          {enumLabel(r.status)}
           {r.status === "LATE" && r.minutesLate ? ` (+${r.minutesLate}m)` : ""}
         </Badge>
       ),
@@ -68,7 +94,7 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
         r.absenceCategory ? (
           <div>
             <Badge tone={statusTone(r.absenceCategory)}>
-              {ABSENCE_LABEL[r.absenceCategory] ?? r.absenceCategory}
+              {enumLabel(r.absenceCategory)}
             </Badge>
             {r.allowedDays && (
               <p className="mt-1 text-xs text-slate-400">
@@ -98,23 +124,32 @@ export function RecordsView({ logs }: { logs: LogRow[] }) {
       key: "doc",
       header: "Doc",
       cell: (r) =>
-        r.documentUrl ? (
-          <a
-            href={r.documentUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-brand-600 hover:underline"
-          >
-            View
-          </a>
-        ) : (
+        !r.hasDocument ? (
           <span className="text-xs text-slate-400">—</span>
+        ) : canAuditDocs ? (
+          <button
+            type="button"
+            onClick={() => openSickNote(r.id)}
+            disabled={openingDoc === r.id}
+            className="text-brand-600 hover:underline disabled:opacity-50"
+          >
+            {openingDoc === r.id ? "Opening…" : "View"}
+          </button>
+        ) : (
+          <span className="text-xs text-slate-500" title="Only HR can open sick notes">
+            Attached
+          </span>
         ),
     },
   ];
 
   return (
     <div className="space-y-4">
+      {docError && (
+        <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          {docError}
+        </p>
+      )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

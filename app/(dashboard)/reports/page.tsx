@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors, getMonthlyAttendanceSummary } from "@/lib/queries";
@@ -21,7 +22,7 @@ export default async function ReportsPage({
   if (!user || (!canFull && !canSummary && !canPayrollExport)) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view reports or attendance summaries.
+        {t.denied.reports}
       </div>
     );
   }
@@ -49,9 +50,9 @@ export default async function ReportsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Attendance &amp; Reports</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t.reportsPage.title}</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Monthly overall and individual employee attendance summaries, late tracking, and PDF exports.
+            {t.reportsPage.subtitle}
           </p>
         </div>
 
@@ -67,7 +68,7 @@ export default async function ReportsPage({
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Monthly Summary
+              {t.reportsPage.tabMonthly}
             </a>
           )}
           {canFull && (
@@ -79,7 +80,7 @@ export default async function ReportsPage({
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Custom Date PDF Builder
+              {t.reportsPage.tabCustom}
             </a>
           )}
           {canPayrollExport && (
@@ -91,7 +92,7 @@ export default async function ReportsPage({
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Guard Payroll Export PDF
+              {t.reportsPage.tabPayroll}
             </a>
           )}
         </div>

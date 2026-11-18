@@ -6,9 +6,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "HKB Attendance Management System",
+  title: "Mfumo wa HKB — Mahudhurio na Usimamizi",
   description:
-    "Shift-based attendance management for HKB Protection & Management Co. — Shift clock-in, guard registry, leave processing, PDF reports.",
+    "Mfumo wa mahudhurio ya zamu wa HKB Protection & Management Co. — mahudhurio ya zamu, daftari la walinzi, likizo na ripoti za PDF.",
   icons: {
     icon: "/logo.jpg",
     shortcut: "/logo.jpg",

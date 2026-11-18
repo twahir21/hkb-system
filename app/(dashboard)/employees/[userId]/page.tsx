@@ -12,6 +12,8 @@ import {
 } from "@/features/employees/components/EmployeeForms";
 import { Badge, Card } from "@/components/ui";
 import { getStaffBranchLimit } from "@/lib/auth/guard-scope";
+import { listEmployeeTrainings } from "@/features/trainings/queries/trainings";
+import { ATTENDANCE_TONE, CertificateButton } from "@/features/trainings/components/TrainingAttendees";
 
 const STATUS_TONE = { ACTIVE: "emerald", ENDED: "slate", TERMINATED: "rose" } as const;
 
@@ -36,10 +38,12 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
   const canManageContracts = hasPermission(user.role, "CONTRACT_MANAGE");
   const canViewDocs = hasPermission(user.role, "EMPLOYEE_DOC_VIEW");
   const canManageDocs = hasPermission(user.role, "EMPLOYEE_DOC_MANAGE");
-  const [contractRows, documentRows] = await Promise.all([
+  const [contractRows, documentRows, trainingRows] = await Promise.all([
     canViewContracts ? listContracts(userId) : Promise.resolve([]),
     canViewDocs ? listEmployeeDocuments(userId) : Promise.resolve([]),
+    listEmployeeTrainings(userId),
   ]);
+  const TR = t.trainings;
   const p = emp.profile;
 
   return (
@@ -99,6 +103,42 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
             }))}
           />
         )}
+
+        <Card title={TR.history}>
+          {trainingRows.length === 0 ? (
+            <p className="text-sm text-slate-400">{TR.noHistory}</p>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {trainingRows.map((r) => (
+                <li key={r.trainingId} className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm">
+                  <div className="min-w-0">
+                    <p className="font-medium text-slate-800">
+                      <Link href={`/trainings/${r.trainingId}`} className="hover:underline">
+                        {r.title}
+                      </Link>{" "}
+                      {r.status === "CANCELLED" ? (
+                        <Badge tone="rose">{TR.cancelled}</Badge>
+                      ) : (
+                        <Badge tone={ATTENDANCE_TONE[r.attendance]}>{TR.attendance[r.attendance]}</Badge>
+                      )}{" "}
+                      {r.completed && <Badge tone="violet">{TR.completed}</Badge>}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {r.startDate === r.endDate ? r.startDate : `${r.startDate} → ${r.endDate}`} · {TR.trainer}: {r.trainer}
+                    </p>
+                    {r.completed && (
+                      <p className="text-[11px] text-slate-400">
+                        {TR.completedOn}: {r.completedOn ?? "—"}
+                        {r.certificateNo ? ` · ${TR.certificateNo}: ${r.certificateNo}` : ""}
+                      </p>
+                    )}
+                  </div>
+                  {r.certificateFileName && <CertificateButton trainingId={r.trainingId} userId={userId} />}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
 
         {canViewContracts && (
           <div className="space-y-6">

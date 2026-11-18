@@ -5,6 +5,7 @@ import { Button, Badge, DataTable, statusTone, type Column } from "@/components/
 import { Phone, GraduationCap } from "lucide-react";
 import type { JobApplicationRow } from "@/features/jobs/queries/jobs";
 import { JobApplicationDetailModal } from "./JobApplicationDetailModal";
+import { enumLabel } from "@/lib/i18n";
 
 const STATUS_FILTERS = [
   "ALL",
@@ -75,7 +76,7 @@ export function JobApplicationsView({
     {
       key: "status",
       header: "Status",
-      cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge>,
+      cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
       key: "action",

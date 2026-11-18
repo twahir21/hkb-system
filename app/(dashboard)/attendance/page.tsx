@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getShiftSheet } from "@/features/attendance/queries/attendance";
@@ -30,7 +31,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
   if (!canView || !user) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view attendance records.
+        {t.denied.attendance}
       </div>
     );
   }
@@ -81,18 +82,18 @@ export default async function AttendancePage({ searchParams }: PageProps) {
         </div>
       )}
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Shift Sheet</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.shiftSheetPage.title}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Per-shift clock-in for{" "}
+          {t.shiftSheetPage.subtitlePrefix}{" "}
           {scope.kind === "supervisor"
-            ? "your assigned guards"
+            ? t.shiftSheetPage.scopeSupervisor
             : scope.kind === "branch"
-              ? "your branch's guards"
+              ? t.shiftSheetPage.scopeBranch
               : scope.kind === "stations"
-                ? "the guards at your site"
+                ? t.shiftSheetPage.scopeStations
                 : scope.kind === "none"
-                  ? "guards (none: you have no branch or site yet — ask IT)"
-                  : "guards"}.
+                  ? t.shiftSheetPage.scopeNone
+                  : t.shiftSheetPage.scopeAll}.
         </p>
       </div>
 

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listBranchesWithOwners } from "@/features/branches/queries/branches";
@@ -9,7 +10,7 @@ export default async function BranchesPage() {
   if (!user || !hasPermission(user.role, "BRANCH_MANAGE")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to manage branches.
+        {t.denied.branches}
       </div>
     );
   }
@@ -19,10 +20,9 @@ export default async function BranchesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Branches</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.branchesPage.title}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          One system for HQ and every remote branch. Office Assistants own their branch — assign
-          them in User Accounts.
+          {t.branchesPage.subtitle}
         </p>
       </div>
 
@@ -34,10 +34,10 @@ export default async function BranchesPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-                <th className="px-4 py-3 font-semibold">Branch</th>
-                <th className="px-4 py-3 font-semibold">Owner (Office Assistant)</th>
-                <th className="px-4 py-3 font-semibold">Staff</th>
-                <th className="px-4 py-3 text-right font-semibold">Action</th>
+                <th className="px-4 py-3 font-semibold">{t.branchesPage.branch}</th>
+                <th className="px-4 py-3 font-semibold">{t.branchesPage.owner}</th>
+                <th className="px-4 py-3 font-semibold">{t.branchesPage.staff}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t.common.action}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -48,7 +48,7 @@ export default async function BranchesPage() {
                   </td>
                   <td className="px-4 py-3 text-slate-600">
                     {b.isHq ? "—" : b.owners.length ? b.owners.join(", ") : (
-                      <span className="text-amber-600">No owner yet</span>
+                      <span className="text-amber-600">{t.branchesPage.noOwner}</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-slate-600">{b.staffCount}</td>
@@ -58,7 +58,7 @@ export default async function BranchesPage() {
               {rows.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-4 py-10 text-center text-slate-400">
-                    No branches yet — run the database migration.
+                    {t.branchesPage.empty}
                   </td>
                 </tr>
               )}

@@ -39,6 +39,7 @@ import { StaffEditTimeModal } from "./StaffEditTimeModal";
 import { formatDate } from "@/lib/utils";
 import { StaffAttendanceCharts } from "./charts/StaffAttendanceCharts";
 import { BarChart3, FileDown } from "lucide-react";
+import { enumLabel } from "@/lib/i18n";
 
 type ViewTab = "sheet" | "analytics" | "history";
 
@@ -671,27 +672,21 @@ export function StaffAttendanceView({
                               log.status === "PRESENT" ? (
                                 <Badge tone="emerald">
                                   <CheckCircle2 className="h-3 w-3 mr-1" />
-                                  Present
+                                  {enumLabel("PRESENT")}
                                 </Badge>
                               ) : log.status === "LATE" ? (
                                 <Badge tone="amber">
                                   <Clock className="h-3 w-3 mr-1" />
-                                  Late (+{log.minutesLate ?? 0}m)
+                                  {enumLabel("LATE")} (+{log.minutesLate ?? 0}m)
                                 </Badge>
                               ) : (
                                 <Badge tone="rose">
                                   <XCircle className="h-3 w-3 mr-1" />
-                                  Absent (
-                                  {log.absenceCategory === "SICK"
-                                    ? "Sick"
-                                    : log.absenceCategory === "PERMITTED_REASON"
-                                      ? "Permitted"
-                                      : "Unauthorized"}
-                                  )
+                                  {enumLabel("ABSENT")} ({enumLabel(log.absenceCategory ?? "NOT_PERMITTED")})
                                 </Badge>
                               )
                             ) : (
-                              <Badge tone="slate">Not Marked</Badge>
+                              <Badge tone="slate">{enumLabel("NOT_MARKED")}</Badge>
                             )}
                           </td>
 
@@ -973,20 +968,14 @@ export function StaffAttendanceView({
                         </td>
                         <td className="px-4 py-3">
                           {item.status === "PRESENT" ? (
-                            <Badge tone="emerald">Present</Badge>
+                            <Badge tone="emerald">{enumLabel("PRESENT")}</Badge>
                           ) : item.status === "LATE" ? (
                             <Badge tone="amber">
-                              Late (+{item.minutesLate ?? 0}m)
+                              {enumLabel("LATE")} (+{item.minutesLate ?? 0}m)
                             </Badge>
                           ) : (
                             <Badge tone="rose">
-                              Absent (
-                              {item.absenceCategory === "SICK"
-                                ? "Sick"
-                                : item.absenceCategory === "PERMITTED_REASON"
-                                  ? "Permitted"
-                                  : "Unauthorized"}
-                              )
+                              {enumLabel("ABSENT")} ({enumLabel(item.absenceCategory ?? "NOT_PERMITTED")})
                             </Badge>
                           )}
                         </td>

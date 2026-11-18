@@ -31,6 +31,8 @@ import {
   IdCard,
   Plane,
   CalendarClock,
+  GraduationCap,
+  CalendarDays,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -91,6 +93,18 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/meetings",
         label: t.nav.meetings,
         icon: CalendarClock,
+        anyOf: "ALL",
+      },
+      {
+        href: "/trainings",
+        label: t.nav.trainings,
+        icon: GraduationCap,
+        anyOf: "ALL",
+      },
+      {
+        href: "/calendar",
+        label: t.nav.calendar,
+        icon: CalendarDays,
         anyOf: "ALL",
       },
       {

@@ -104,12 +104,12 @@ export async function GET(request: Request) {
   });
 
   const scopeLines: string[] = [exportData.filters.statusLabel];
-  if (exportData.filters.clientName) scopeLines.push(`Client: ${exportData.filters.clientName}`);
+  if (exportData.filters.clientName) scopeLines.push(`Mteja: ${exportData.filters.clientName}`);
   if (exportData.filters.supervisorName)
-    scopeLines.push(`Supervisor: ${exportData.filters.supervisorName}`);
-  if (!v.includeZeroActivity) scopeLines.push("Only guards with activity or outstanding debt");
-  if (v.includeZeroActivity) scopeLines.push("Zero-activity guards included");
-  if (!includePii) scopeLines.push("Personal contact details withheld");
+    scopeLines.push(`Msimamizi: ${exportData.filters.supervisorName}`);
+  if (!v.includeZeroActivity) scopeLines.push("Walinzi wenye shughuli au deni pekee");
+  if (v.includeZeroActivity) scopeLines.push("Wakiwemo walinzi wasio na shughuli");
+  if (!includePii) scopeLines.push("Taarifa binafsi za mawasiliano zimefichwa");
 
   const allRows: GuardPayrollPdfRow[] = exportData.rows.map((r) => ({
     employeeId: r.employeeId,
@@ -145,7 +145,7 @@ export async function GET(request: Request) {
     deductedThisPeriod: r.deductedThisPeriod,
   }));
 
-  const UNASSIGNED_LABEL = "Unassigned / Standby Pool";
+  const UNASSIGNED_LABEL = "Bila mteja / Akiba";
   const clientMap = new Map<string, GuardPayrollPdfRow[]>();
 
   for (const row of allRows) {
@@ -174,9 +174,9 @@ export async function GET(request: Request) {
   });
 
   const data: GuardPayrollPdfData = {
-    title: "Guard Payroll Export",
+    title: "Ripoti ya Mishahara ya Walinzi",
     company: "HKB Protection & Management Co.",
-    companySubtitle: "Guard Profile, Attendance & Credit Summary — Payroll Working Sheet",
+    companySubtitle: "Wasifu, Mahudhurio na Madeni ya Walinzi — Karatasi ya Kazi ya Mishahara",
     periodLabel: period.label,
     startDate: period.fromDate,
     endDate: period.toDate,

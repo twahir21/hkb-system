@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listStockTransfers, listItems, listStations } from "@/features/store/queries/stock";
@@ -11,7 +12,7 @@ export default async function StockTransfersPage() {
   if (!user || (!canRequest && !canApprove && !hasPermission(user?.role, "STOCK_VIEW"))) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view stock transfers.
+        {t.store.deniedTransfers}
       </div>
     );
   }
@@ -25,10 +26,9 @@ export default async function StockTransfersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Stock Transfers</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.store.transfersTitle}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Transfer stock between stations and regions. Approved transfers move the stock
-          immediately.
+          {t.store.transfersSubtitle}
         </p>
       </div>
       <StockTransferView

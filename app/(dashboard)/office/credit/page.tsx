@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
+import { enumLabel, t } from "@/lib/i18n";
 import {
   listCredits,
   listGuardOptions,
@@ -26,7 +27,7 @@ export default async function OfficeCreditPage() {
   if (!user || !canView) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view guard debts.
+        {t.denied.credit}
       </div>
     );
   }
@@ -47,10 +48,9 @@ export default async function OfficeCreditPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Guard Debts (Credit)</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t.credit.title}</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Fish, maize flour and medical treatments given on credit — deducted from salary
-            at month end by the bursar.
+            {t.credit.subtitle}
           </p>
         </div>
         {canRecord && <RecordCreditModal guards={guards} />}
@@ -59,33 +59,35 @@ export default async function OfficeCreditPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Outstanding total
+            {t.credit.outstandingTotal}
           </p>
           <p className="mt-1 text-2xl font-bold text-amber-700">
             {outstandingTotal.toLocaleString()} TZS
           </p>
-          <p className="text-xs text-slate-400">{outstanding.length} unpaid entries</p>
+          <p className="text-xs text-slate-400">{outstanding.length} {t.credit.unpaidEntries}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Guards owing
+            {t.credit.guardsOwing}
           </p>
           <p className="mt-1 text-2xl font-bold text-slate-900">
             {guards.filter((g) => g.outstandingAmount > 0).length}
           </p>
-          <p className="text-xs text-slate-400">of {guards.length} guards registered</p>
+          <p className="text-xs text-slate-400">{t.credit.ofGuards.replace("{n}", String(guards.length))}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Last deduction month
+            {t.credit.lastDeductionMonth}
           </p>
           <p className="mt-1 text-2xl font-bold text-slate-900">
             {deductionMonths[0]?.deductionMonth ?? "—"}
           </p>
           <p className="text-xs text-slate-400">
             {deductionMonths[0]
-              ? `${deductionMonths[0].totalAmount.toLocaleString()} TZS across ${deductionMonths[0].guards} guards`
-              : "No deductions recorded yet"}
+              ? t.credit.acrossGuards
+                  .replace("{amount}", deductionMonths[0].totalAmount.toLocaleString())
+                  .replace("{n}", String(deductionMonths[0].guards))
+              : t.credit.noDeductions}
           </p>
         </div>
       </div>
@@ -94,21 +96,21 @@ export default async function OfficeCreditPage() {
         <table className="w-full min-w-max text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-              <th className="px-4 py-3 font-semibold">Date</th>
-              <th className="px-4 py-3 font-semibold">Guard</th>
-              <th className="px-4 py-3 font-semibold">Type</th>
-              <th className="px-4 py-3 font-semibold">Description</th>
-              <th className="px-4 py-3 font-semibold">Amount</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Recorded by</th>
-              {canSettle && <th className="px-4 py-3 font-semibold">Actions</th>}
+              <th className="px-4 py-3 font-semibold">{t.common.date}</th>
+              <th className="px-4 py-3 font-semibold">{t.office.guard}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.type}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.description}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.amount}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.status}</th>
+              <th className="px-4 py-3 font-semibold">{t.office.recordedBy}</th>
+              {canSettle && <th className="px-4 py-3 font-semibold">{t.common.actions}</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {credits.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-10 text-center text-slate-400">
-                  No debts recorded yet.
+                  {t.credit.empty}
                 </td>
               </tr>
             ) : (
@@ -131,7 +133,7 @@ export default async function OfficeCreditPage() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-semibold ${statusTone[c.status] ?? ""}`}
                     >
-                      {c.status}
+                      {enumLabel(c.status)}
                     </span>
                     {c.deductionMonth && (
                       <p className="text-xs text-slate-400">{c.deductionMonth}</p>
@@ -145,7 +147,7 @@ export default async function OfficeCreditPage() {
                           <SettleEntryForm
                             creditIds={[c.id]}
                             defaultMonth={defaultMonth}
-                            label="Deduct"
+                            label={t.credit.deduct}
                           />
                           <WriteOffForm creditId={c.id} />
                         </div>

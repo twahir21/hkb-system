@@ -5,6 +5,7 @@ import { Badge, DataTable, statusTone, type Column } from "@/components/ui";
 import type { TransferRow } from "@/features/hr/queries/transfers";
 import { RequestTransferModal } from "./RequestModal";
 import { ReviewCell } from "./ReviewCell";
+import { enumLabel } from "@/lib/i18n";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 type GuardOpt = { id: string; name: string; employeeId: string };
@@ -54,7 +55,7 @@ export function TransfersView({
     {
       key: "status",
       header: "Status",
-      cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge>,
+      cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
       key: "meta",

@@ -22,19 +22,9 @@ Single source of truth: `lib/auth/roles.ts` + `lib/auth/rbac.ts`. Scoping: `lib/
 |---|------|--------|--------|
 | C12 | Manual login test per role (incl. In-Charge, Office Assistant, CEO, combined roles) against a Neon branch | pending | medium |
 | C22 | Regions page: choose a region's branch (new regions have no branch; incidents then use reporter's branch) | done | small |
-| C11 | Wire `SICKNESS_DOC_AUDIT` to records UI, or drop it from the guide | pending | medium |
-| C23 | Guard dashboard: show the guard's own shift status | pending | medium |
-| C13 | Rewrite `USER_GUIDE.md` for new roles (see errors below) | pending | medium |
-
-### USER_GUIDE.md errors to fix in C13
-
-1. Role table missing: Operations Manager, Operations Officer, In-Charge, Secretary, Office Assistant, CEO, combined roles.
-2. Pages missing: Staff Attendance, Clients, Job Applications, News, Auto Print, Incidents, Mpangokazi, Leave, Employees, Branches.
-3. Sign-in: also username + password (not only Google).
-4. 6.2: corrections are made by re-marking on the **Shift Sheet**, not in Attendance Records.
-5. 5.4 sick-document audit: depends on C11.
-6. 7.4 "stock for your area": no area scoping; Supervisors see all stock.
-7. 10.1 Guard dashboard own shift status: depends on C23.
+| C11 | Wire `SICKNESS_DOC_AUDIT` to records UI, or drop it from the guide | done | medium |
+| C23 | Guard dashboard: show the guard's own shift status | done | medium |
+| C13 | Rewrite `USER_GUIDE.md` for new roles | done | medium |
 
 ---
 
@@ -46,20 +36,20 @@ Single source of truth: `lib/auth/roles.ts` + `lib/auth/rbac.ts`. Scoping: `lib/
 | D2.4 | Leave calendar + PDF letter | done | medium |
 | D3.4 | Employee documents (certificates, IDs) storage | done | medium |
 | D5.1 | Meetings: title, date/time, venue/online link, branch, invitees, agenda | done | medium |
-| D5.2 | Month calendar view (meetings + trainings + approved leave) | pending | medium |
-| D5.3 | Minutes (kumbukumbu) upload / text after meeting | pending | small |
-| D4.1 | Training sessions: title, trainer, date, venue, branch | pending | small |
-| D4.2 | Attendees + attendance + certificate/completion record per employee | pending | medium |
-| D6.1 | HR: full access D2–D5 for all branches | pending | small |
-| D6.2 | Secretary (HQ): meetings, trainings, employee view, leave intake | pending | small |
-| D6.3 | Office Assistant: same as Secretary, own branch only (C6 scoping exists) | pending | medium |
+| D5.2 | Month calendar view (meetings + trainings + approved leave) | done | medium |
+| D5.3 | Minutes (kumbukumbu) upload / text after meeting | done | small |
+| D4.1 | Training sessions: title, trainer, date, venue, branch (also add them to `/calendar`, tone "violet") | done | small |
+| D4.2 | Attendees + attendance + certificate/completion record per employee | done | medium |
+| D6.1 | HR: full access D2–D5 for all branches | done | small |
+| D6.2 | Secretary (HQ): meetings, trainings, employee view, leave intake | done | small |
+| D6.3 | Office Assistant: same as Secretary, own branch only (C6 scoping exists) | done | medium |
 
 ## 3. Swahili
 
 | # | Task | Status | Effort |
 |---|------|--------|--------|
 | D7.3 | Translate every page and form (~25 pages). New screens built in Swahili from day one | pending | hard |
-| D7.4 | Translate PDFs and status badges | pending | medium |
+| D7.4 | Translate PDFs and status badges | done | medium |
 | D7.5 | Rewrite USER_GUIDE.md in Swahili (after C13) | pending | medium |
 
 ---

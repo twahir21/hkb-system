@@ -187,12 +187,74 @@ const BASE_PERMISSIONS = {
   LEAVE_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
 
   // Meetings (Vikao). Everyone sees meetings they are invited to.
-  // Office Assistant joins via D6.3 (own branch only).
-  MEETING_MANAGE: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY"],
+  // Office Assistant (D6.3): manages and sees its own branch's meetings only (branch-limit.ts).
+  MEETING_MANAGE: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OFFICE_ASSISTANT"],
   MEETING_VIEW_ALL: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
+  MEETING_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
+
+  // Trainings (Mafunzo). Everyone sees company-wide trainings and their own branch's.
+  // Office Assistant (D6.3): manages its own branch's trainings only (branch-limit.ts).
+  TRAINING_MANAGE: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OFFICE_ASSISTANT"],
+  TRAINING_VIEW_ALL: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
 } as const;
 
 export type Permission = keyof typeof BASE_PERMISSIONS;
+
+/**
+ * D6.1 — HR has full access to the HR suite (leave, employees, contracts,
+ * employee documents, trainings, meetings) for ALL branches. Compile-time
+ * guard: any permission with one of these prefixes that leaves HR out fails
+ * `tsc`. Branch-limited variants (held instead of the *_VIEW_ALL one) are
+ * listed as exceptions.
+ */
+type HrSuitePermission = Extract<
+  Permission,
+  `${"LEAVE_" | "EMPLOYEE_" | "CONTRACT_" | "TRAINING_" | "MEETING_"}${string}`
+>;
+type HrSuiteExceptions = "LEAVE_VIEW_BRANCH" | "MEETING_VIEW_BRANCH";
+type HrMissing = {
+  [P in Exclude<HrSuitePermission, HrSuiteExceptions>]: "HR" extends (typeof BASE_PERMISSIONS)[P][number] ? never : P;
+}[Exclude<HrSuitePermission, HrSuiteExceptions>];
+type AssertNever<T extends never> = T;
+/** If this errors, add "HR" to the permission named in the error (or list it as an exception). */
+export type HrFullAccessCheck = AssertNever<HrMissing>;
+
+/**
+ * D6.2 — Secretary (HQ): manages meetings and trainings, views every employee,
+ * and files leave for anyone (all branches; not branch-limited like Office
+ * Assistant). Approving leave and editing employees/contracts stay with HR.
+ */
+type SecretaryRequired =
+  | "MEETING_MANAGE"
+  | "MEETING_VIEW_ALL"
+  | "TRAINING_MANAGE"
+  | "TRAINING_VIEW_ALL"
+  | "EMPLOYEE_VIEW"
+  | "LEAVE_FILE_FOR_OTHERS"
+  | "LEAVE_VIEW_ALL";
+type SecretaryMissing = {
+  [P in SecretaryRequired]: "SECRETARY" extends (typeof BASE_PERMISSIONS)[P][number] ? never : P;
+}[SecretaryRequired];
+/** If this errors, add "SECRETARY" to the permission named in the error. */
+export type SecretaryAccessCheck = AssertNever<SecretaryMissing>;
+
+/**
+ * D6.3 — Office Assistant: the Secretary's HR-suite duties (meetings, trainings,
+ * employee view, leave intake) limited to its own branch. The branch limit is
+ * enforced in queries/actions via getStaffBranchLimit (lib/auth/branch-limit.ts).
+ */
+type OfficeAssistantRequired =
+  | "MEETING_MANAGE"
+  | "MEETING_VIEW_BRANCH"
+  | "TRAINING_MANAGE"
+  | "EMPLOYEE_VIEW"
+  | "LEAVE_FILE_FOR_OTHERS"
+  | "LEAVE_VIEW_BRANCH";
+type OfficeAssistantMissing = {
+  [P in OfficeAssistantRequired]: "OFFICE_ASSISTANT" extends (typeof BASE_PERMISSIONS)[P][number] ? never : P;
+}[OfficeAssistantRequired];
+/** If this errors, add "OFFICE_ASSISTANT" to the permission named in the error. */
+export type OfficeAssistantAccessCheck = AssertNever<OfficeAssistantMissing>;
 
 /**
  * Combined roles never get these from a base role:

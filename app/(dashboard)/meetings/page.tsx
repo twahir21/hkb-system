@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
+import { getManageBranchLimit } from "@/lib/auth/branch-limit";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui";
@@ -20,13 +21,16 @@ export default async function MeetingsPage({
 
   const sp = await searchParams;
   const past = sp.when === "past";
-  const canManage = hasPermission(user.role, "MEETING_MANAGE");
-  const scope = getMeetingScope(user);
+  // Office Assistant: organises its own branch's meetings only.
+  const limit = await getManageBranchLimit(user);
+  const canManage = hasPermission(user.role, "MEETING_MANAGE") && limit !== "none";
+  const ownBranch = limit !== null && limit !== "none" ? limit : undefined;
+  const scope = await getMeetingScope(user);
 
   const [rows, staff, branches] = await Promise.all([
     listMeetings(scope, past ? "past" : "upcoming"),
-    canManage ? listInvitableStaff() : Promise.resolve([]),
-    canManage ? listBranches() : Promise.resolve([]),
+    canManage ? listInvitableStaff(ownBranch) : Promise.resolve([]),
+    canManage ? listBranches().then((bs) => (ownBranch ? bs.filter((b) => b.id === ownBranch) : bs)) : Promise.resolve([]),
   ]);
 
   return (
@@ -39,7 +43,7 @@ export default async function MeetingsPage({
       <div className={cn("grid gap-6", canManage && "xl:grid-cols-5")}>
         {canManage && (
           <div className="xl:col-span-2">
-            <MeetingForm staff={staff} branches={branches} />
+            <MeetingForm staff={staff} branches={branches} fixedBranchId={ownBranch} />
           </div>
         )}
 

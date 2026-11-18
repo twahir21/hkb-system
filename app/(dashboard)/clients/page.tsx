@@ -3,6 +3,7 @@ import { hasPermission } from "@/lib/auth/rbac";
 import { listClientsWithCounts } from "@/features/hr/queries/clients";
 import { ClientForm, ClientActiveToggle } from "@/features/hr/components/ClientManager";
 import { Badge } from "@/components/ui";
+import { enumLabel } from "@/lib/i18n";
 
 export default async function ClientsPage() {
   const user = await getCurrentUser();
@@ -50,9 +51,9 @@ export default async function ClientsPage() {
                   <td className="px-4 py-3 text-slate-600">{c.guardCount}</td>
                   <td className="px-4 py-3">
                     {c.isActive ? (
-                      <Badge tone="emerald">Active</Badge>
+                      <Badge tone="emerald">{enumLabel("ACTIVE")}</Badge>
                     ) : (
-                      <Badge tone="slate">Inactive</Badge>
+                      <Badge tone="slate">{enumLabel("INACTIVE")}</Badge>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">

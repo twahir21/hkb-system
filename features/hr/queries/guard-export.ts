@@ -13,18 +13,18 @@ import { listClients } from "@/features/hr/queries/clients";
 import { listRegions, listStations } from "@/features/store/queries/stock";
 
 const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "Januari",
+  "Februari",
+  "Machi",
+  "Aprili",
+  "Mei",
+  "Juni",
+  "Julai",
+  "Agosti",
+  "Septemba",
+  "Oktoba",
+  "Novemba",
+  "Desemba",
 ];
 
 export type GuardPayrollStatus = "ALL" | "ACTIVE" | "DISABLED";
@@ -135,9 +135,9 @@ export type GuardPayrollQueryFilters = {
 };
 
 const STATUS_LABELS: Record<GuardPayrollStatus, string> = {
-  ALL: "All guards (active + those disabled during the period)",
-  ACTIVE: "Active guards only",
-  DISABLED: "Disabled guards only",
+  ALL: "Walinzi wote (hai + waliozimwa ndani ya kipindi)",
+  ACTIVE: "Walinzi hai pekee",
+  DISABLED: "Walinzi waliozimwa pekee",
 };
 
 /**

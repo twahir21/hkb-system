@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listCoverageRequests } from "@/features/coverage/queries/coverage";
@@ -11,7 +12,7 @@ export default async function CoverageRequestsPage() {
   if (!user || !canView) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view coverage requests.
+        {t.denied.coverage}
       </div>
     );
   }
@@ -23,11 +24,11 @@ export default async function CoverageRequestsPage() {
     <div className="space-y-6">
       <MarkCoverageSeen />
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Coverage Requests</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.coveragePage.title}</h2>
         <p className="mt-1 text-sm text-slate-500">
           {canManage
-            ? "Public enquiries from the website. Update status, add internal notes or delete."
-            : "Public enquiries from the website (read-only). Contact the Super Admin for changes."}
+            ? t.coveragePage.subtitleManage
+            : t.coveragePage.subtitleRead}
         </p>
       </div>
       <CoverageRequestsView requests={requests} canManage={canManage} />

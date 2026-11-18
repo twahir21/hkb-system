@@ -5,6 +5,7 @@ import { Button, Badge, DataTable, statusTone, type Column } from "@/components/
 import { Mail, Phone } from "lucide-react";
 import type { CoverageRequestRow } from "@/features/coverage/queries/coverage";
 import { CoverageRequestDetailModal } from "./CoverageRequestDetailModal";
+import { enumLabel } from "@/lib/i18n";
 
 const STATUS_FILTERS = [
   "ALL",
@@ -80,7 +81,7 @@ export function CoverageRequestsView({
     {
       key: "status",
       header: "Status",
-      cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge>,
+      cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
       key: "action",

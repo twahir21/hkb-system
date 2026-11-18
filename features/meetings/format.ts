@@ -19,3 +19,13 @@ export function meetingTimeRange(start: Date, end: Date | null): string {
 export function meetingHasEnded(start: Date, end: Date | null, now = Date.now()): boolean {
   return (end ?? new Date(start.getTime() + 2 * 60 * 60 * 1000)).getTime() < now;
 }
+
+/** Has the meeting started? (Minutes can be recorded from then on.) */
+export function meetingHasStarted(start: Date, now = Date.now()): boolean {
+  return start.getTime() <= now;
+}
+
+/** YYYY-MM-DD of a moment in EAT. */
+export function eatDay(d: Date): string {
+  return d.toLocaleDateString("en-CA", { timeZone: TZ });
+}

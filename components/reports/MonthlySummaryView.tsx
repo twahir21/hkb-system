@@ -22,6 +22,7 @@ import type {
   OverallMonthlySummary,
   GuardMonthlyStat,
 } from "@/lib/queries/monthly-summary";
+import { enumLabel } from "@/lib/i18n";
 
 type SupervisorOpt = { id: string; name: string; role: string };
 
@@ -91,15 +92,15 @@ export function MonthlySummaryView({
   const getTierBadge = (tier: GuardMonthlyStat["performanceTier"]) => {
     switch (tier) {
       case "EXCELLENT":
-        return <Badge tone="emerald">Excellent (≥95%)</Badge>;
+        return <Badge tone="emerald">{enumLabel("EXCELLENT")} (≥95%)</Badge>;
       case "GOOD":
-        return <Badge tone="brand">Good (85-94%)</Badge>;
+        return <Badge tone="brand">{enumLabel("GOOD")} (85-94%)</Badge>;
       case "WARNING":
-        return <Badge tone="amber">Warning (70-84%)</Badge>;
+        return <Badge tone="amber">{enumLabel("WARNING")} (70-84%)</Badge>;
       case "CRITICAL":
-        return <Badge tone="rose">Critical (&lt;70%)</Badge>;
+        return <Badge tone="rose">{enumLabel("CRITICAL")} (&lt;70%)</Badge>;
       default:
-        return <Badge tone="slate">No Shifts</Badge>;
+        return <Badge tone="slate">{enumLabel("NO_SHIFTS")}</Badge>;
     }
   };
 
@@ -389,10 +390,10 @@ export function MonthlySummaryView({
               className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 focus:border-brand-500 focus:outline-none"
             >
               <option value="">All Tiers</option>
-              <option value="EXCELLENT">Excellent (≥95%)</option>
-              <option value="GOOD">Good (85-94%)</option>
-              <option value="WARNING">Warning (70-84%)</option>
-              <option value="CRITICAL">Critical (&lt;70%)</option>
+              <option value="EXCELLENT">{enumLabel("EXCELLENT")} (≥95%)</option>
+              <option value="GOOD">{enumLabel("GOOD")} (85-94%)</option>
+              <option value="WARNING">{enumLabel("WARNING")} (70-84%)</option>
+              <option value="CRITICAL">{enumLabel("CRITICAL")} (&lt;70%)</option>
             </select>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth/dal";
@@ -14,7 +15,7 @@ export default async function GuardsPage() {
   if (!user || !hasPermission(user.role, "GUARD_MANAGE")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to manage the guard registry.
+        {t.denied.guards}
       </div>
     );
   }
@@ -36,15 +37,15 @@ export default async function GuardsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Guard Registry</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t.guardsPage.title}</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Register guards, manage profiles, supervisor assignments and disabled guards.
+            {t.guardsPage.subtitle}
           </p>
         </div>
         {canExportPayroll && (
           <a href="/reports?tab=guards-pdf">
             <Button variant="secondary">
-              <FileDown className="h-4 w-4 text-brand-600" /> Export Payroll PDF
+              <FileDown className="h-4 w-4 text-brand-600" /> {t.guardsPage.exportPayroll}
             </Button>
           </a>
         )}

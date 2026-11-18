@@ -25,6 +25,7 @@ import {
   deleteGuard,
 } from "@/features/hr/actions/guards.actions";
 import { formatDate } from "@/lib/utils";
+import { enumLabel } from "@/lib/i18n";
 
 type Supervisor = { id: string; name: string; role: string };
 
@@ -334,10 +335,10 @@ export function GuardManager({
       header: "Status",
       cell: (r) =>
         r.isActive ? (
-          <Badge tone="emerald">Active</Badge>
+          <Badge tone="emerald">{enumLabel("ACTIVE")}</Badge>
         ) : (
           <div className="flex flex-col items-start gap-1">
-            <Badge tone="rose">Disabled</Badge>
+            <Badge tone="rose">{enumLabel("DISABLED")}</Badge>
             {r.disabledAt && (
               <span className="text-[10px] text-slate-400">
                 {formatDate(r.disabledAt)}

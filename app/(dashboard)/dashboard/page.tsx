@@ -29,6 +29,8 @@ import { getIncidentScope, getOpenIncidentCounts } from "@/features/incidents/qu
 import { listExpiringContracts } from "@/features/employees/queries/employees";
 import { t } from "@/lib/i18n";
 import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
+import { getMyShiftStatus } from "@/features/attendance/queries/my-shift";
+import { MyShiftCard } from "@/features/attendance/components/MyShiftCard";
 
 function Stat({
   label,
@@ -115,6 +117,10 @@ export default async function DashboardPage() {
     guardScope
   );
 
+  // Guards / In-Charge: their own shift status today.
+  const showMyShift = hasPermission(role, "ATTENDANCE_VIEW_OWN");
+  const myShift = showMyShift ? await getMyShiftStatus(userId) : null;
+
   const canRecord = hasPermission(role, "ATTENDANCE_RECORD");
   const canSeeTransfers = hasPermission(role, "TRANSFER_APPROVE");
   const canSeeGuards = hasPermission(role, "GUARD_MANAGE");
@@ -144,6 +150,8 @@ export default async function DashboardPage() {
           )}
         </div>
       </div>
+
+      {showMyShift && <MyShiftCard data={myShift} />}
 
       {incidentCounts && (
         <Link

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
@@ -9,7 +10,7 @@ export default async function CreditSettlementPage() {
   if (!user || !hasPermission(user?.role, "CREDIT_SETTLE")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        Only the bursar (or an admin) can run salary deductions.
+        {t.credit.bursarOnly}
       </div>
     );
   }
@@ -25,18 +26,17 @@ export default async function CreditSettlementPage() {
     <div className="space-y-6">
       <div>
         <Link href="/office/credit" className="text-sm text-brand-600 hover:underline">
-          ← Back to guard debts
+          ← {t.credit.back}
         </Link>
-        <h2 className="mt-2 text-2xl font-bold text-slate-900">Month-End Salary Deductions</h2>
+        <h2 className="mt-2 text-2xl font-bold text-slate-900">{t.credit.settleTitle}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Outstanding debts per guard. &ldquo;Deduct all&rdquo; marks every outstanding entry of
-          that guard as deducted for {defaultMonth}.
+          {t.credit.settleSubtitle.replace("{month}", defaultMonth)}
         </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Total to deduct this month
+          {t.credit.totalToDeduct}
         </p>
         <p className="mt-1 text-3xl font-bold text-slate-900">
           {grandTotal.toLocaleString()} TZS
@@ -45,7 +45,7 @@ export default async function CreditSettlementPage() {
 
       {byGuard.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-400">
-          Nothing outstanding — all debts are settled. 🎉
+          {t.credit.allSettled}
         </div>
       ) : (
         <div className="space-y-4">
@@ -55,8 +55,7 @@ export default async function CreditSettlementPage() {
                 <div>
                   <p className="font-semibold text-slate-900">{guard.guardName}</p>
                   <p className="text-xs text-slate-400">
-                    {guard.employeeId} · {guard.entries.length} entr
-                    {guard.entries.length === 1 ? "y" : "ies"}
+                    {guard.employeeId} · {guard.entries.length} {t.credit.entries}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -66,7 +65,7 @@ export default async function CreditSettlementPage() {
                   <SettleEntryForm
                     creditIds={guard.entries.map((e) => e.id)}
                     defaultMonth={defaultMonth}
-                    label="Deduct all"
+                    label={t.credit.deductAll}
                   />
                 </div>
               </div>
@@ -97,7 +96,7 @@ export default async function CreditSettlementPage() {
       {deducted.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Recent deductions
+            {t.credit.recent}
           </h3>
           <ul className="space-y-1 text-sm text-slate-600">
             {deducted.slice(0, 10).map((d) => (

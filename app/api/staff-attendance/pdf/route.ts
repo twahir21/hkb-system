@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   });
 
   const reportData: StaffReportData = {
-    title: "Staff Attendance & Roll Call Register",
+    title: "Daftari la Mahudhurio ya Watumishi",
     company: "HKB Protection & Management Co.",
     date: date || new Date().toISOString().slice(0, 10),
     startDate: startDate || undefined,

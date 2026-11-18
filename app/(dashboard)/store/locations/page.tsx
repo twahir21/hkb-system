@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors } from "@/features/hr/queries/guards";
@@ -12,7 +13,7 @@ export default async function StoreLocationsPage() {
   if (!user || !hasPermission(user?.role, "STORE_LOCATIONS_MANAGE")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to manage store locations.
+        {t.store.deniedLocations}
       </div>
     );
   }
@@ -29,9 +30,9 @@ export default async function StoreLocationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Regions &amp; Stations</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.store.locationsTitle}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Where stock is held and guards are posted — manage stations, assign supervisors and each site&apos;s In-Charge.
+          {t.store.locationsSubtitle}
         </p>
       </div>
       <RegionAnalyticsCard

@@ -12,6 +12,7 @@ import {
 } from "@/features/news/actions/news.actions";
 import { NewsForm } from "./NewsForm";
 import type { NewsRow } from "@/features/news/news.types";
+import { enumLabel } from "@/lib/i18n";
 
 function formatDate(value: Date | null): string {
   return value
@@ -130,7 +131,7 @@ export function NewsManager({ items, canManage }: { items: NewsRow[]; canManage:
         <Badge
           tone={r.status === "PUBLISHED" ? "emerald" : r.status === "DRAFT" ? "amber" : "slate"}
         >
-          {r.status}
+          {enumLabel(r.status)}
         </Badge>
       ),
     },

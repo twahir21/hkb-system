@@ -59,7 +59,8 @@ async function resolveBranch(
   if (role === "OFFICE_ASSISTANT" && (!branch || branch.isHq)) {
     return { ok: false, error: "An Office Assistant must be assigned to a remote branch (not HQ)." };
   }
-  if (role === "SECRETARY" && branch && !branch.isHq) {
+  // Secretary access spans all branches, so it (and Secretary + Supervisor) stays at HQ.
+  if ((role === "SECRETARY" || role === "SECRETARY_SUPERVISOR") && branch && !branch.isHq) {
     return { ok: false, error: "A Secretary works at HQ. Use Office Assistant for remote branches." };
   }
   return { ok: true, branchId: branch?.id ?? null };
@@ -392,7 +393,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       errors.push({ row: rowNum, identifier, reason: "Office Assistant needs a remote branch (not HQ)" });
       continue;
     }
-    if (roleRaw === "SECRETARY" && branch && !branch.isHq) {
+    if ((roleRaw === "SECRETARY" || roleRaw === "SECRETARY_SUPERVISOR") && branch && !branch.isHq) {
       errors.push({ row: rowNum, identifier, reason: "Secretary must be at HQ" });
       continue;
     }

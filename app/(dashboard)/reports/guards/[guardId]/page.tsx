@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { getGuardMonthlyDetail, getGuardByUserId } from "@/lib/queries";
@@ -31,7 +32,7 @@ export default async function GuardMonthlyDetailPage({ params, searchParams }: P
   if (!user || (!canViewAll && !isOwnGuardProfile)) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view this attendance summary.
+        {t.reportsPage.deniedGuard}
       </div>
     );
   }
@@ -44,7 +45,7 @@ export default async function GuardMonthlyDetailPage({ params, searchParams }: P
   if (!detail) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-600">
-        Guard profile not found.
+        {t.reportsPage.guardNotFound}
       </div>
     );
   }
@@ -56,7 +57,7 @@ export default async function GuardMonthlyDetailPage({ params, searchParams }: P
           <h2 className="text-2xl font-bold text-slate-900">{detail.guard.fullName}</h2>
           <p className="mt-1 text-sm text-slate-500">
             {detail.guard.employeeId} · {detail.guard.workLocation}
-            {detail.guard.supervisorName ? ` · Supervisor: ${detail.guard.supervisorName}` : ""}
+            {detail.guard.supervisorName ? ` · ${t.reportsPage.supervisor}: ${detail.guard.supervisorName}` : ""}
           </p>
         </div>
         <TierBadge tier={detail.performanceTier} />

@@ -1,10 +1,10 @@
-# HKB Attendance Management Portal — User Guide (All Roles)
+# HKB Portal — User Guide (All Roles)
 
-Welcome to the **HKB Attendance Management Portal**. This manual walks every user — from Askari (Guard) to Super Admin — through signing in and using the system step by step.
+This guide shows every user of the **HKB Portal**, from Askari (Guard) to CEO, how to sign in and do their daily work step by step.
 
-> **Roles covered:** Super Admin · HR Personnel · Senior Supervisor · Supervisor · Bursar / Finance · Storekeeper · Askari (Guard)
+> The portal screens are in **Swahili**. This guide gives each sidebar label in Swahili first, then the English meaning in brackets, for example **Daftari la Zamu** (Shift Sheet).
 >
-> Screens you can open are controlled by your role — the sidebar only shows what you are allowed to use. If a step below does not appear for you, your role does not include it.
+> Your role decides what you see. The sidebar shows only the pages your role may open. If a step in this guide does not appear for you, your role does not include it.
 
 ---
 
@@ -12,389 +12,744 @@ Welcome to the **HKB Attendance Management Portal**. This manual walks every use
 
 1. [Getting Started (Sign In & Sign Out)](#1-getting-started-sign-in--sign-out)
 2. [Understanding the Interface](#2-understanding-the-interface)
-3. [What Each Role Can See (Quick Map)](#3-what-each-role-can-see-quick-map)
-4. [Super Admin — Step by Step](#4-super-admin--step-by-step)
-5. [HR Personnel — Step by Step](#5-hr-personnel--step-by-step)
-6. [Senior Supervisor — Step by Step](#6-senior-supervisor--step-by-step)
-7. [Supervisor — Step by Step](#7-supervisor--step-by-step)
-8. [Bursar / Finance — Step by Step](#8-bursar--finance--step-by-step)
-9. [Storekeeper — Step by Step](#9-storekeeper--step-by-step)
-10. [Askari / Guard — Step by Step](#10-askari--guard--step-by-step)
-11. [Common Workflows (Detailed)](#11-common-workflows-detailed)
-12. [Status Badge Legend](#12-status-badge-legend)
-13. [Troubleshooting & FAQ](#13-troubleshooting--faq)
-14. [Getting Help / Requesting Access](#14-getting-help--requesting-access)
+3. [Roles in the Company](#3-roles-in-the-company)
+4. [What Each Role Can See (Quick Map)](#4-what-each-role-can-see-quick-map)
+5. [Pages for Everyone](#5-pages-for-everyone)
+6. [IT / System Administrator (Super Admin)](#6-it--system-administrator-super-admin)
+7. [CEO](#7-ceo)
+8. [Operations Manager](#8-operations-manager)
+9. [Senior Supervisor](#9-senior-supervisor)
+10. [Operations Officer](#10-operations-officer)
+11. [Supervisor](#11-supervisor)
+12. [In-Charge](#12-in-charge)
+13. [Askari / Guard](#13-askari--guard)
+14. [HR Office](#14-hr-office)
+15. [Accountant (Bursar)](#15-accountant-bursar)
+16. [Secretary (HQ)](#16-secretary-hq)
+17. [Office Assistant (Branch)](#17-office-assistant-branch)
+18. [Storekeeper](#18-storekeeper)
+19. [Combined Roles](#19-combined-roles)
+20. [Common Workflows (Detailed)](#20-common-workflows-detailed)
+21. [Status Badge Legend](#21-status-badge-legend)
+22. [Troubleshooting & FAQ](#22-troubleshooting--faq)
+23. [Getting Help / Requesting Access](#23-getting-help--requesting-access)
 
 ---
 
 ## 1. Getting Started (Sign In & Sign Out)
 
 ### Step 1 — Open the portal
-Open your web browser (Chrome, Edge, Firefox, or Safari) and go to the portal address provided by the IT & Technical Department. You will land on the **Login** page.
+Open your web browser (Chrome, Edge, Firefox or Safari). Go to the portal address given by the IT Department. The **Login** page opens ("Ingia kwenye akaunti yako").
 
-### Step 2 — Sign in with Google
-1. Click **Sign in with Google**.
-2. Choose the **Google account your employer registered for you** (the exact work email given to IT).
-3. Approve the Google permission prompt if shown.
+### Step 2 — Sign in
+You can sign in in **two ways**.
 
-> ⚠️ **Important:** You cannot create your own account. Only users pre-registered in the system (by the Super Admin) can sign in. Personal or unregistered Google accounts will be blocked.
+**A. Username (or email) and password**
+1. In **Jina la mtumiaji au Barua pepe** (Username or Email), type your username or your work email.
+2. In **Nenosiri** (Password), type your password. Use the eye icon to show or hide it.
+3. Click **Ingia** (Sign in).
 
-### Step 3 — You arrive at your Dashboard
-After signing in you are taken straight to your **role-specific Dashboard**. What you see there depends on your role (see [Section 3](#3-what-each-role-can-see-quick-map)).
+**B. Google account**
+1. Click **Ingia kwa Google** (Sign in with Google).
+2. Choose the **Google account IT registered for you** (your exact work email).
+
+> ⚠️ **Important:** You cannot create your own account. Only users registered by IT can sign in. Unregistered accounts are blocked. IT gives you your username and first password.
+
+### Step 3 — Your Dashboard
+After signing in, the portal opens your **Dashibodi** (Dashboard). What it shows depends on your role (see [Section 4](#4-what-each-role-can-see-quick-map)).
 
 ### Step 4 — Sign out when done
-- Click your profile area in the **top bar** and choose **Sign out**, or use the sign-out control provided in the top-right corner.
-- Always sign out, especially on shared or public computers.
+- Click **Toka** (Sign out) in the top bar.
+- Always sign out on shared or public computers.
 
-### If you are denied access
-If Google signs you in but the portal shows **"Access Denied"**, your account is not yet registered with the right role. The page includes a pre-written email link to request access from the IT & Technical Department. Include:
-- Your full official name & employee ID
-- Your designated role (e.g., Guard, Supervisor, HR, Bursar)
-- Your assigned work location / station
+### If access is denied
+If you see **"Umezuiwa Kuingia"** (Access Denied), your account is not registered, or it has no role yet. The page has a button to email the IT Department. Include:
+- Your full name and employee number
+- Your role (for example Guard, Supervisor, HR, Accountant)
+- Your branch and work station
+
+If you see **"Jina la mtumiaji/barua pepe au nenosiri si sahihi"**, your username or password is wrong. Check them and try again.
+
+---
 
 ## 2. Understanding the Interface
 
-Once signed in, every screen uses the same layout:
+Every screen uses the same layout:
 
 ```
-┌──────────────┬──────────────────────────────────────────┐
-│              │  TOP BAR (menu button, date, profile)    │
-│  SIDEBAR     ├──────────────────────────────────────────┤
-│  (left)      │                                          │
-│  • Operate   │            PAGE CONTENT                  │
-│  • Store     │   (tables, cards, forms, modals)         │
-│  • Office    │                                          │
-│  • Manage    │                                          │
-│              │  SIDEBAR FOOTER (your name/role/email)   │
-└──────────────┴──────────────────────────────────────────┘
+┌──────────────────┬──────────────────────────────────────────┐
+│                  │  TOP BAR (menu button, date, Sign out)   │
+│  SIDEBAR         ├──────────────────────────────────────────┤
+│  • Operesheni    │                                          │
+│  • Stoo          │            PAGE CONTENT                  │
+│  • Ofisi         │   (tables, cards, forms, dialogs)        │
+│  • Usimamizi     │                                          │
+│                  │                                          │
+│  Auto Print      │                                          │
+│  Your name/role  │                                          │
+└──────────────────┴──────────────────────────────────────────┘
 ```
 
-- **Sidebar (left):** grouped links — *Operate*, *Store*, *Office*, *Manage*. Only links your role permits are shown.
-- **Top bar:** on phones/tablets, tap the **menu (☰) button** to slide the sidebar open; tap outside it to close.
-- **Sidebar footer:** shows your name, role label, and work email — confirm this if you share a device.
-- **Tables:** most tables support searching/filtering and column sorting.
-- **Modals:** actions like "Mark Absent", "Register Guard", or "Approve Transfer" open a dialog — complete the fields and press the confirm button. Close with ✕ or Cancel.
-- **Toasts:** success/error pop-ups appear briefly after you save something. Wait for the confirmation before moving on.
-- **Current page highlight:** the active sidebar link is highlighted in blue.
-
-## 3. What Each Role Can See (Quick Map)
-
-✅ = full use · 👁 = view only · — = not visible
-
-| Page (sidebar label) | Super Admin | HR | Senior Sup. | Supervisor | Bursar | Storekeeper | Guard |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Dashboard** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Shift Sheet** (`/attendance`) | ✅ edit | 👁 | ✅ record+edit | ✅ record | 👁 | — | — |
-| **Attendance Records** (`/records`) | ✅ | ✅ | ✅ | ✅ | ✅ | — | 👁 own |
-| **My Summary** (`/my-summary`) | — | — | — | — | — | — | ✅ |
-| **Stock Holdings** (`/store`) | ✅ | 👁 | 👁 | 👁 | 👁 | ✅ | — |
-| **Stock Ledger** (`/store/ledger`) | ✅ | 👁 | 👁 | 👁 | 👁 | ✅ | — |
-| **Stock Transfers** (`/store/transfers`) | ✅ approve | — | initiate | initiate | — | ✅ approve | — |
-| **Stock Reports** (`/store/reports`) | ✅ | 👁 | 👁 | 👁 | 👁 | ✅ | — |
-| **Store Items** (`/store/items`) | ✅ | — | — | — | — | ✅ | — |
-| **Regions & Stations** (`/store/locations`) | ✅ | — | — | — | — | ✅ | — |
-| **Guard Debts** (`/office/credit`) | ✅ | 👁 | — | — | ✅ | ✅ | — |
-| **Salary Deductions** (`/office/credit/settlement`) | ✅ | — | — | — | ✅ | — | — |
-| **Business Tracking** (`/office/business`) | ✅ | 👁 | — | — | ✅ | ✅ | — |
-| **My Debts** (`/my-credits`) | — | — | — | — | — | — | ✅ |
-| **User Accounts** (`/users`) | ✅ | — | — | — | — | — | — |
-| **Guard Registry** (`/guards`) | ✅ | ✅ | — | — | — | — | — |
-| **Transfers** (`/transfers`) | ✅ approve | ✅ approve | initiate | initiate | — | — | — |
-| **Coverage Requests** (`/coverage-requests`) | ✅ manage | 👁 | — | — | 👁 | — | — |
-| **Reports** (`/reports`) | ✅ PDF | ✅ PDF | summary | — | ✅ PDF | — | — |
-
-## 4. Super Admin — Step by Step
-
-The Super Admin has **every permission** in the system and is responsible for setting it up and overseeing all activity.
-
-### 4.1 Register system users
-1. In the sidebar go to **Manage → User Accounts**.
-2. Click **Add User** (or similar "Register User" button).
-3. Fill in the person's **full name**, **work email**, **username**, and select their **role**: `SUPER_ADMIN`, `SENIOR_SUPERVISOR`, `OPERATION_OFFICER`, `SUPERVISOR`, `HR`, `BURSAR`, `STOREKEEPER`, `SECRETARY`, or `GUARD`.
-4. Save. The person can now sign in with that Google email.
-5. To add many users at once, use the **bulk CSV import** in the same page and follow the on-screen CSV format instructions (email, full name, username, role — one row per user).
-
-### 4.2 Manage the guard registry
-1. Go to **Manage → Guard Registry**.
-2. Click **Register Guard**; fill employee ID, personal details, and assign a **Supervisor** (this decides which shift sheet the guard appears on).
-3. You can also see and edit sensitive PII (next of kin, home address) and import guards in bulk via CSV.
-
-### 4.3 Record / correct attendance
-1. Go to **Operate → Shift Sheet**.
-2. Pick the **date** and the **Day** or **Night** shift.
-3. Mark each assigned guard **Present** or **Absent** (absence opens the branch form — see [Workflow 11.1](#111-record-attendance-and-handle-absences)).
-4. As Super Admin you may also **edit existing records** (a permission no one below Senior Supervisor has).
-
-### 4.4 Approve staff transfers
-1. Go to **Manage → Transfers**.
-2. Review **Pending** requests; open the details and read the reason.
-3. Click **Approve** (guard moves to the requesting supervisor) or **Reject** and write **reviewer notes** explaining why.
-
-### 4.5 Store operations
-- Use **Store → Store Items** and **Regions & Stations** to define what stock exists and where.
-- Record stock movements, approve **Stock Transfers**, and monitor **Stock Holdings / Ledger / Reports**.
-
-### 4.6 Office finances
-- **Office → Guard Debts**: record guard credit (fish, maize flour, medical).
-- **Office → Salary Deductions**: settle debts against salary.
-- **Office → Business Tracking**: record daily fish & maize-flour business figures (with history view).
-
-### 4.7 Reports and oversight
-- **Operate → Dashboard** shows today's present/absent counts, pending transfers, and recent activity.
-- **Manage → Reports**: pick a date range (and filters), then **Generate PDF** to download official reports (attendance ledger, absence breakdown, payroll deductions).
-- **Manage → Coverage Requests**: view public coverage submissions; as Super Admin you can also manage/resolve them (a red badge shows how many are new).
+- **Sidebar groups:** **Operesheni** (Operations), **Stoo** (Store), **Ofisi** (Office), **Usimamizi** (Management). Only pages your role may open are listed.
+- **Phones and tablets:** tap the **menu (☰)** button to open the sidebar. Tap outside it to close.
+- **Sidebar footer:** shows your name, role and email. Check it on a shared device.
+- **Auto Print button:** in the sidebar footer. See [Section 5.5](#55-auto-print).
+- **Dialogs:** actions such as "Mark Absent" open a dialog. Fill the fields and press the confirm button. Close with ✕ or Cancel.
+- **Pop-up messages:** a short success or error message appears after you save. Wait for it before you move on.
+- **Active page:** the current sidebar link is highlighted in blue.
 
 ---
 
-## 5. HR Personnel — Step by Step
+## 3. Roles in the Company
 
-HR owns **people administration**: guards, transfers, sick-note audits, and full PDF reporting.
+### Field (operations) chain of command
 
-### 5.1 Register and manage guards
-1. Go to **Manage → Guard Registry**.
-2. Click **Register Guard** and complete the form (employee ID, contact, next of kin, home details).
-3. **Assign each guard to a Supervisor** — this is what puts them on a supervisor's shift sheet.
-4. Edit any guard's record as their situation changes. HR has full PII visibility.
-5. Use **bulk CSV import** to onboard many guards at once.
+| Role (portal label) | Who | Works with |
+|---|---|---|
+| **Meneja wa Operesheni** (Operations Manager) | Heads field operations | All regions and branches |
+| **Msimamizi Mkuu** (Senior Supervisor) | Main supervisor of a region | All guards; Mpangokazi of own region |
+| **Afisa Operesheni** (Operations Officer) | Receives supervisors' reports | All guards; Mpangokazi of own region |
+| **Msimamizi** (Supervisor) | Runs several sites | Guards assigned to them |
+| **Mkuu wa Kituo (In-Charge)** | A guard who leads one site | Guards at the site they lead |
+| **Askari / Mlinzi** (Guard) | Security guard | Own attendance and debts |
 
-### 5.2 Monitor attendance (read-only)
-- **Operate → Shift Sheet** and **Attendance Records** let you view everyone's attendance. HR cannot record or edit attendance — that is done by supervisors.
+### Office and management
 
-### 5.3 Approve transfers
-1. Go to **Manage → Transfers**.
-2. Open each **Pending** request, then **Approve** or **Reject** with reviewer notes. The guard's assigned supervisor updates automatically on approval.
+| Role (portal label) | Who | Works with |
+|---|---|---|
+| **Mkurugenzi Mtendaji (CEO)** | Heads the company | Views everything; approves leave, transfers, incidents. No IT controls |
+| **IT / Msimamizi wa Mfumo** (IT / System Administrator, "Super Admin") | Runs the system | Everything, including user accounts and branches |
+| **Ofisi ya Rasilimali Watu (HR)** | HR Office | Guards, employees, contracts, leave, meetings, trainings — all branches |
+| **Mhasibu** (Accountant / Bursar) | Finance | Guard debts, salary deductions, payroll reports, staff attendance |
+| **Katibu (HQ)** (Secretary) | HQ office, Dar es Salaam | Meetings, trainings, leave intake, staff attendance, news — all branches |
+| **Msaidizi wa Ofisi (Tawi)** (Office Assistant) | Office at a remote branch (Tabora, Dodoma) | Same office duties as the Secretary, **own branch only** |
+| **Mtunza Stoo** (Storekeeper) | Store | Stock items, stock levels, stock transfers |
 
-### 5.4 Audit sick documents
-- Where a guard was marked **Sick** with a doctor's note, HR can open/download the uploaded document from the attendance records to verify authenticity (Sickness Document Audit permission).
+### Combined roles
+Some people do two jobs. They get the pages of both roles (see [Section 19](#19-combined-roles)):
+- **IT + Msimamizi** (IT + Supervisor)
+- **Katibu + Msimamizi** (Secretary + Supervisor)
 
-### 5.5 Debts and reports
-- **Office → Guard Debts** and **Business Tracking** are visible to HR for reference.
-- **Manage → Reports**: generate full PDF reports (attendance, absences, payroll deduction list) for any date range.
-
-## 6. Senior Supervisor — Step by Step
-
-The Senior Supervisor runs attendance **across supervisors** and can correct records and request guard transfers.
-
-### 6.1 Record daily attendance
-1. Go to **Operate → Shift Sheet**.
-2. Select the **date** with the date picker.
-3. Toggle **Day** or **Night** — the assigned guards for that shift load automatically.
-4. Click **Mark Present** for guards who reported, **Mark Absent** for those who did not.
-5. Absent guards open the **absence form** — choose the correct branch (Sick / Permitted / Not Permitted) as explained in [Workflow 11.1](#111-record-attendance-and-handle-absences).
-
-### 6.2 Correct earlier records
-- Unlike plain Supervisors, the Senior Supervisor has **attendance edit** rights: open **Operate → Attendance Records**, locate the record, and correct it (e.g., fix a wrongly marked absence). All changes are audit-logged.
-
-### 6.3 Request a transfer
-1. Go to **Manage → Transfers**.
-2. Click **Request Transfer**, pick the guard and the target supervisor/post, and give a clear reason.
-3. The request goes to HR / Super Admin as **Pending**; you'll see the outcome (Approved/Rejected) on the same page.
-
-### 6.4 Reports
-- **Manage → Reports** gives you **summary** reports (totals and breakdowns) for your date range. Full payroll PDFs are restricted to Bursar/HR/Super Admin.
+### Branches
+HKB has three branches: **Dar es Salaam (HQ)**, **Tabora** and **Dodoma**. Each region belongs to a branch. A guard belongs to the branch of their site's region.
 
 ---
 
-## 7. Supervisor — Step by Step
+## 4. What Each Role Can See (Quick Map)
 
-The Supervisor marks attendance for **their own assigned guards** each shift.
+**Legend:** ✅ full use · 👁 view only · 📝 limited actions (see note) · — not visible
+**Scope marks:** **(A)** only guards assigned to you · **(S)** only the site you lead · **(B)** only your branch · **(O)** only your own records
 
-### 7.1 Take the shift attendance (your main daily task)
-1. Go to **Operate → Shift Sheet**.
-2. Choose the **date**, then switch between **Day** and **Night** tabs.
-3. The table lists **only guards assigned to you** for that shift.
-4. For each guard click **Mark Present** or **Mark Absent**:
-   - **Present** — saved instantly with your name and timestamp.
-   - **Absent** — the absence form opens (see [Workflow 11.1](#111-record-attendance-and-handle-absences)).
-5. Finish before the end of the shift; a lock prevents accidental duplicate submissions for the same guard/date/shift.
+### 4.1 Field roles and top management
 
-### 7.2 Check your records
-- **Operate → Attendance Records** shows attendance so you can confirm what you submitted.
+| Page (sidebar label) | IT | CEO | Ops Mgr | Senior Sup. | Ops Officer | Supervisor | In-Charge | Guard |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| **Dashibodi** (Dashboard) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Daftari la Zamu** (Shift Sheet) | ✅ record + correct | 👁 | ✅ record + correct | ✅ record + correct | 📝 record | 📝 record (A) | 📝 record (S) | — |
+| **Mahudhurio ya Watumishi** (Staff Attendance) | ✅ | 👁 | — | — | — | — | — | — |
+| **Kumbukumbu za Mahudhurio** (Attendance Records) | ✅ | ✅ | 👁 | 👁 | 👁 | 👁 | 👁 (O) | 👁 (O) |
+| **Mpangokazi** | ✅ | 👁 | ✅ | ✅ | ✅ | 📝 own guards | — | — |
+| **Likizo** (Leave) | ✅ approve | ✅ approve | 👁 all + own | own | own | own | own | own |
+| **Vikao** (Meetings) | ✅ | ✅ | 👁 all | invited | invited | invited | invited | invited |
+| **Mafunzo** (Trainings) | ✅ | ✅ | 👁 all | 👁 | 👁 | 👁 | 👁 | 👁 |
+| **Kalenda** (Calendar) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Matukio** (Incidents) | ✅ manage | ✅ manage | ✅ manage | report | report | report | report | — |
+| **Muhtasari Wangu** (My Summary) | — | — | — | — | — | — | ✅ | ✅ |
+| **Stoo** (Store) pages | ✅ | 👁 | 📝 | 📝 | 📝 | 📝 | — | — |
+| **Madeni ya Walinzi** (Guard Debts) | ✅ | 👁 | — | — | — | — | — | — |
+| **Makato ya Mshahara** (Salary Deductions) | ✅ | — | — | — | — | — | — | — |
+| **Biashara za Ofisi** (Office Business) | ✅ | 👁 | — | — | — | — | — | — |
+| **Madeni Yangu** (My Debts) | — | — | — | — | — | — | ✅ | ✅ |
+| **Akaunti za Watumiaji** (User Accounts) | ✅ | — | — | — | — | — | — | — |
+| **Wafanyakazi** (Employees) | ✅ | 👁 (+ contracts, documents) | 👁 | — | — | — | — | — |
+| **Matawi** (Branches) | ✅ | — | — | — | — | — | — | — |
+| **Daftari la Walinzi** (Guard Registry) | ✅ | — | — | — | — | — | — | — |
+| **Wateja** (Clients) | ✅ | — | — | — | — | — | — | — |
+| **Uhamisho wa Walinzi** (Guard Transfers) | ✅ | ✅ approve | ✅ request + approve | request | request | request | — | — |
+| **Maombi ya Ulinzi** (Coverage Requests) | ✅ manage | 👁 | — | — | — | — | — | — |
+| **Maombi ya Kazi** (Job Applications) | ✅ | 👁 | — | — | — | — | — | — |
+| **Habari** (News) | ✅ | 👁 | — | — | — | — | — | — |
+| **Ripoti** (Reports) | ✅ full PDF | ✅ full PDF | ✅ full PDF | summary | summary | — | — | — |
 
-### 7.3 Request a transfer
-1. **Manage → Transfers → Request Transfer**.
-2. Select the guard, new supervisor/post, and reason; submit.
-3. Track its status (Pending / Approved / Rejected with reviewer notes) on the same page.
+Notes:
+- **Store 📝:** field roles view stock and **request** stock transfers. Only the Storekeeper and IT record stock and approve transfers.
+- **Mpangokazi 📝 (Supervisor):** a Supervisor writes the form for their own guards only. Senior Supervisors and Operations Officers see their own region's forms.
 
-### 7.4 Store visibility
-- You can **view** Stock Holdings, Ledger, and Reports for your area, and **initiate stock transfer requests** from **Store → Stock Transfers** (a Storekeeper or Super Admin approves them).
+### 4.2 Office roles
 
-> ❌ As Supervisor you cannot edit attendance (only Senior Supervisor/Super Admin can), register guards, or approve transfers.
+| Page (sidebar label) | HR | Accountant | Secretary | Office Assistant | Storekeeper |
+|---|:-:|:-:|:-:|:-:|:-:|
+| **Dashibodi** (Dashboard) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Daftari la Zamu** (Shift Sheet) | 👁 | 👁 | 👁 | 👁 (B) | — |
+| **Mahudhurio ya Watumishi** (Staff Attendance) | — | ✅ | ✅ | ✅ (B) | ✅ |
+| **Kumbukumbu za Mahudhurio** (Attendance Records) | ✅ (+ sick notes) | 👁 | 👁 | 👁 (B) | — |
+| **Mpangokazi** | 👁 | — | 👁 | 👁 (B) | — |
+| **Likizo** (Leave) | ✅ approve | 👁 all + own | file for others | file for others (B) | own |
+| **Vikao** (Meetings) | ✅ | invited | ✅ | ✅ (B) | invited |
+| **Mafunzo** (Trainings) | ✅ | 👁 | ✅ | ✅ (B) | 👁 |
+| **Kalenda** (Calendar) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Matukio** (Incidents) | report | — | report | ✅ manage (B) | — |
+| **Stoo** (Store) pages | 👁 | 👁 | 👁 | — | ✅ |
+| **Madeni ya Walinzi** (Guard Debts) | 👁 | ✅ | 👁 | — | ✅ record |
+| **Makato ya Mshahara** (Salary Deductions) | — | ✅ | — | — | — |
+| **Biashara za Ofisi** (Office Business) | 👁 | ✅ | 👁 | — | ✅ |
+| **Wafanyakazi** (Employees) | ✅ edit | — | 👁 | 👁 (B) | — |
+| **Daftari la Walinzi** (Guard Registry) | ✅ | — | — | — | — |
+| **Wateja** (Clients) | ✅ | — | — | — | — |
+| **Uhamisho wa Walinzi** (Guard Transfers) | ✅ approve | — | — | — | — |
+| **Maombi ya Ulinzi** (Coverage Requests) | 👁 | 👁 | 👁 | — | — |
+| **Maombi ya Kazi** (Job Applications) | ✅ | — | 👁 | — | — |
+| **Habari** (News) | 👁 | — | ✅ | — | — |
+| **Ripoti** (Reports) | ✅ full PDF | ✅ full PDF | summary | summary (B) | — |
 
----
-
-## 8. Bursar / Finance — Step by Step
-
-The Bursar handles **money**: guard debts, salary deductions, payroll exports, and official PDF reports.
-
-### 8.1 Record guard debts (credit)
-1. Go to **Office → Guard Debts**.
-2. Click the button to record a new debt; select the **guard**, choose the type (**fish**, **maize flour**, **medical**, etc.), enter the **amount/date**, and save.
-3. The running balance per guard updates immediately.
-
-### 8.2 Settle debts from salary
-1. Go to **Office → Salary Deductions**.
-2. Choose the guard and the amount to deduct for the pay period; the outstanding balance reduces accordingly.
-3. Keep a deduction history per guard for payroll review.
-
-### 8.3 Track the office businesses
-- **Office → Business Tracking**: enter daily figures for the fish and maize-flour business; open **History** to review past entries.
-
-### 8.4 Produce payroll and attendance reports
-1. Go to **Manage → Reports**.
-2. Set the **start/end dates** (and optional supervisor/guard filters).
-3. Click **Generate PDF** — the server prepares an official PDF (attendance ledger, absence breakdown, and the **payroll deduction list**) and downloads it.
-4. You can also open a specific guard's report page from the records list to review their history.
-5. Use **Operate → Shift Sheet / Attendance Records** in view-only mode to verify figures before paying.
-
-### 8.5 Stock and coverage visibility
-- **Store** pages are view-only for the Bursar — useful for reconciling stock values.
-- **Manage → Coverage Requests** shows new public coverage submissions so you're aware of extra deployment costs.
-
-## 9. Storekeeper — Step by Step
-
-The Storekeeper controls **inventory**: items, locations, stock levels, and stock transfers.
-
-### 9.1 Set up items and locations (first-time setup)
-1. Go to **Store → Store Items**; add every item the company handles (name, unit, etc.).
-2. Go to **Store → Regions & Stations**; add the regions and stations/stores where stock is held.
-
-### 9.2 Record stock movements
-1. Go to **Store → Stock Holdings** to see current quantities at each location.
-2. Record receipts and issues for each item/location — every entry is written to the **Stock Ledger**.
-
-### 9.3 Review the ledger
-- **Store → Stock Ledger** is the full movement history (in/out, who recorded it, when). Use it to investigate discrepancies.
-
-### 9.4 Handle stock transfers
-1. **Store → Stock Transfers** lists transfer requests.
-2. Requests initiated by Supervisors/Senior Supervisors arrive as **Pending**.
-3. **Approve** to release the stock to the requesting station, or **Reject** with a reason. You can also initiate your own transfers.
-
-### 9.5 Reports and office duties
-- **Store → Stock Reports**: summaries of holdings and movements for your date range.
-- **Office → Guard Debts** and **Business Tracking**: the Storekeeper also records guard credit purchases and business figures alongside the Bursar.
+Note: the Accountant also sees employee **contracts** (salary) from an employee's profile.
 
 ---
 
-## 10. Askari / Guard — Step by Step
+## 5. Pages for Everyone
 
-Guards have the simplest view: **their own attendance and their own debts**.
+These pages work the same for every role.
 
-### 10.1 Check your attendance
-1. Sign in — you land on the **Dashboard** showing your **current shift status** (e.g., whether you were marked present today).
-2. Go to **Operate → My Summary** to see your attendance history: days present, sick days (with permitted days noted), and any not-permitted absences.
-3. **Operate → Attendance Records** also shows your own records only.
+### 5.1 Dashboard (Dashibodi)
+- Shows the numbers and recent activity your role is allowed to see.
+- **Guards and In-Charges** see a **"Zamu yangu leo"** (My shift today) card. It shows today's Day and Night shift, your post, your status (Present / Late / Absent), the last 7 days, your supervisor and your month summary.
 
-> ℹ️ You do **not** mark your own attendance — your **Supervisor** does it for you on the shift sheet. If a record is wrong, tell your supervisor immediately so HR/Senior Supervisor can correct it.
+### 5.2 Leave (Likizo)
+1. Go to **Operesheni → Likizo**.
+2. See **Salio langu la likizo** (My leave balance): entitled, used and remaining days.
+3. Click **Omba likizo** (Request leave). Choose the leave type, the start date (**Kuanzia**) and end date (**Hadi**), and a reason.
+4. Click **Tuma ombi** (Send request). The request shows as **Inasubiri** (Pending).
+5. When HR, the CEO or IT decides, the status changes to **Imeidhinishwa** (Approved) or **Imekataliwa** (Rejected). Read the decision notes.
+6. You can **Ghairi** (Cancel) a request that is still pending.
+7. For an approved request, click **Barua (PDF)** to download the leave letter.
 
-### 10.2 Check your debts
-1. Go to **Office → My Debts**.
-2. You'll see any credit you took (fish, maize flour, medical), amounts already deducted from salary, and your outstanding balance.
+Leave types: annual, sick, maternity, paternity, compassionate/emergency, unpaid.
 
-### 10.3 If you can't report for work
-- Notify your **Supervisor** as early as possible. For sickness, provide a **doctor's note** — your supervisor uploads it with the absence record so the day counts as *Sick* rather than *Not Permitted* (which affects pay).
+### 5.3 Meetings (Vikao) and Trainings (Mafunzo)
+- **Vikao:** you see every meeting you are invited to — title, date and time, venue or online link, and agenda. After the meeting, the minutes (**kumbukumbu**) may be attached as text or a file.
+- **Mafunzo:** you see company-wide trainings and your branch's trainings — title, trainer, date and venue.
 
----
+### 5.4 Calendar (Kalenda)
+- A month view of **meetings**, **trainings** and **approved leave**.
+- Use **Mwezi uliopita** / **Mwezi ujao** (previous / next month) and **Mwezi huu** (this month).
 
-## 11. Common Workflows (Detailed)
-
-### 11.1 Record attendance and handle absences
-*(Supervisor, Senior Supervisor, Super Admin)*
-
-1. **Operate → Shift Sheet** → pick **date** → toggle **Day/Night** → the assigned guards load.
-2. Click **Mark Present** — done (green status saved with audit trail).
-3. Click **Mark Absent** — a modal opens with **three options**:
-   - **Sick** — select the sick dates and **upload the doctor's note** (a progress bar shows the upload; the file is stored securely). The day is flagged as sick leave, not a pay deduction.
-   - **Permitted Reason** — choose the reason (e.g., leave, duty elsewhere) and the allowed days. Validated against the guard's permitted allowance.
-   - **Not Permitted** — no valid reason. The absence is flagged for **salary deduction** and appears in the Bursar's payroll report.
-4. Save. Status badges update everywhere (records, dashboard, reports).
-
-### 11.2 Transfer a guard between supervisors/posts
-1. **Initiate** (Supervisor / Senior Supervisor / Super Admin): *Manage → Transfers → Request Transfer* → guard + destination + reason → submit.
-2. **Review** (HR / Super Admin): the request appears as **Pending**; the system also notifies Admin/HR of the new event.
-3. **Decide**: **Approve** (the guard's assigned supervisor is updated automatically) or **Reject** with written notes. The requester sees the decision and notes.
-
-### 11.3 Generate an official PDF report
-*(Super Admin, HR, Bursar; summary-only for Senior Supervisor)*
-1. **Manage → Reports**.
-2. Choose **start date**, **end date**, and optional filters (supervisor, guard, shift).
-3. Click **Generate PDF** — the report is built on the server and downloads as a file (attendance ledger, absence breakdown by category, and payroll deductions where authorized).
-
-### 11.4 Stock transfer request → approval
-1. **Request** (Supervisor/Senior Supervisor/Storekeeper/Super Admin): *Store → Stock Transfers* → item, quantity, from/to location → submit.
-2. **Approve** (Storekeeper / Super Admin): review pending requests and approve or reject.
-
-### 11.5 Deduct a guard's debt from salary
-1. Bursar (or Super Admin): **Office → Guard Debts** — confirm outstanding balance.
-2. **Office → Salary Deductions** — record the deduction for the period.
-3. Guard sees the updated balance on **My Debts**.
-
-## 12. Status Badge Legend
-
-| Badge | Meaning | Colour | Why it matters |
-|---|---|---|---|
-| **PRESENT** | Guard reported for the shift | Green (emerald) | Attendance & reports |
-| **SICK** | Absent with sickness + doctor's note | Amber | HR audits the document |
-| **PERMITTED** | Absent with an allowed reason | Amber | Checked against allowed days |
-| **NOT PERMITTED** | Absence without valid reason | Red (rose) | Flagged for salary deduction |
-| **PENDING** | Transfer/stock transfer awaiting decision | Amber | Reviewer action needed |
-| **APPROVED** | Request accepted | Green | Change applied automatically |
-| **REJECTED** | Request refused (with notes) | Red | Reviewer notes explain why |
+### 5.5 Auto Print
+- The **Auto Print** button in the sidebar footer opens the HKB Direct Auto Print page.
+- It works only on the **HQ office Wi-Fi**. The access code is copied for you when you open the print page.
 
 ---
 
-## 13. Troubleshooting & FAQ
+## 6. IT / System Administrator (Super Admin)
 
-**Q: "Sign in with Google" succeeds but I get Access Denied.**
-Your email isn't registered, or your role changed. Contact the IT & Technical Department (use the email link on the Access Denied page) or ask the Super Admin to register/fix your account in **User Accounts**.
+IT has **every permission** and runs the system: accounts, branches, setup and corrections.
 
-**Q: I signed in with the wrong Google account.**
-Sign out, then sign in again with the work email that was registered for you.
+### 6.1 Register system users
+1. Go to **Usimamizi → Akaunti za Watumiaji** (User Accounts).
+2. Click **Register New User**.
+3. Fill in full name, work email, **username**, gender, **role**, **branch** and password.
+4. Save. The person can now sign in with username + password, or with Google if the email is a Google account.
+5. To add many users at once, use the **CSV import** on the same page. Follow the on-screen format.
+6. To change someone's role, edit their account here. Only IT can change roles.
 
-**Q: My guard list on the Shift Sheet is empty.**
-Check the **date** and **Day/Night** toggle first. If still empty, no guards are assigned to you for that shift — ask HR to assign guards to you in the **Guard Registry**.
+### 6.2 Branches, regions and stations
+1. **Usimamizi → Matawi** (Branches): add or edit branches.
+2. **Stoo → Mikoa na Vituo** (Regions & Stations): add regions and choose each region's **branch**. Add stations (sites) and set each site's **In-Charge**.
 
-**Q: I can't click "Mark Present/Absent".**
-The record may already be locked for that shift (duplicate submissions are blocked), or your role only has view access (HR/Bursar view; only Supervisors/Senior Supervisor/Super Admin record).
+> A region without a branch: incidents at its sites use the reporter's branch. Set a branch for every region.
 
-**Q: I marked someone absent by mistake.**
-Ask a **Senior Supervisor or Super Admin** to correct the record — they hold the attendance-edit permission. All edits are audit-logged.
+### 6.3 Guards and clients
+- **Usimamizi → Daftari la Walinzi** (Guard Registry) and **Wateja** (Clients). See [HR Office](#14-hr-office) for the steps.
 
-**Q: The doctor's note upload fails or hangs.**
-Check your internet connection and file size/type, then retry. If it keeps failing, record the absence and hand the physical note to HR, who can follow up.
+### 6.4 Attendance
+- **Daftari la Zamu** (Shift Sheet): record and **correct** guard attendance (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
+- **Mahudhurio ya Watumishi** (Staff Attendance): record office staff attendance. Only IT can change recorded **check-in / sign-out times**.
 
-**Q: The PDF report doesn't download.**
-Only Super Admin/HR/Bursar can generate full PDFs, and Senior Supervisors get summaries. Confirm your role, your date range, then retry. If the button spins for a long time, reduce the date range.
+### 6.5 Everything else
+IT can use every page in this guide: store, office finance, leave approval, meetings, trainings, incidents, transfers, coverage requests, job applications, news and reports.
+
+---
+
+## 7. CEO
+
+The CEO **views all data** in every branch and **approves** key requests. The CEO has no IT controls (no user accounts, no branches).
+
+### 7.1 Daily oversight
+- **Dashibodi:** company-wide numbers.
+- **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mahudhurio ya Watumishi**, **Mpangokazi**: view only.
+- **Kumbukumbu za Mahudhurio:** you can open guards' **sick notes** (see [Workflow 20.2](#202-audit-a-sick-note)).
+
+### 7.2 Approvals
+- **Likizo:** approve or reject leave requests (see [Workflow 20.5](#205-leave-request--approval)).
+- **Uhamisho wa Walinzi:** approve or reject guard transfers.
+- **Matukio:** follow up incidents in all branches: add actions, mark solved or reopen.
+
+### 7.3 Meetings and trainings
+- **Vikao** and **Mafunzo:** create, edit and cancel meetings and trainings for any branch.
+
+### 7.4 People and money (view)
+- **Wafanyakazi:** all employees, contracts and employee documents.
+- **Madeni ya Walinzi**, **Biashara za Ofisi**, **Stoo** pages, **Maombi ya Ulinzi**, **Maombi ya Kazi**, **Habari**: view only.
+- **Ripoti:** full PDF reports and payroll exports.
+
+---
+
+## 8. Operations Manager
+
+The Operations Manager oversees **all regions**.
+
+### 8.1 Attendance
+1. **Daftari la Zamu:** record attendance for any guard, and **correct** earlier marks (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
+2. **Kumbukumbu za Mahudhurio:** view all records.
+
+### 8.2 Mpangokazi
+- Write the daily region form for any branch's guards, and view **all** regions' forms (see [Workflow 20.3](#203-mpangokazi-daily-region-report)).
+
+### 8.3 Transfers
+- **Uhamisho wa Walinzi:** request guard transfers **and approve or reject** them.
+
+### 8.4 Incidents
+- **Matukio:** report incidents, and manage incidents in **all branches** (add actions, mark solved, reopen).
+
+### 8.5 Other pages
+- **Wafanyakazi:** view employees (no contracts).
+- **Likizo:** view all leave requests. **Vikao** / **Mafunzo:** view all.
+- **Stoo:** view stock; request stock transfers.
+- **Ripoti:** full PDF reports and payroll exports.
+
+---
+
+## 9. Senior Supervisor
+
+The Senior Supervisor is the main supervisor of a **region**.
+
+### 9.1 Record daily attendance
+1. Go to **Operesheni → Daftari la Zamu**.
+2. Pick the **date**, then **Mchana** (Day) or **Usiku** (Night).
+3. Mark each guard **Present**, **Late** or **Absent** (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
+
+### 9.2 Correct earlier marks
+- Corrections are made **on the Shift Sheet**, not in Attendance Records.
+- Open the same date and shift and **mark the guard again** with the right status. The new mark replaces the old one and records your name.
+- Only the Senior Supervisor, Operations Manager and IT can correct a mark.
+
+### 9.3 Mpangokazi
+- Write the daily region form for any guards in your branch. View your **own region's** forms.
+
+### 9.4 Transfers, incidents, store, reports
+- **Uhamisho wa Walinzi:** request a transfer. HR, the Operations Manager, the CEO or IT decides.
+- **Matukio:** report an incident.
+- **Stoo:** view stock; request stock transfers.
+- **Ripoti:** summary reports.
+
+---
+
+## 10. Operations Officer
+
+The Operations Officer receives supervisors' reports and supports the region.
+
+- **Daftari la Zamu:** record attendance (first mark only; ask a Senior Supervisor to correct a mark).
+- **Kumbukumbu za Mahudhurio:** view all records.
+- **Mpangokazi:** write the form for any guards in your branch; view your **own region's** forms.
+- **Uhamisho wa Walinzi:** request transfers.
+- **Matukio:** report incidents.
+- **Stoo:** view stock; request stock transfers.
+- **Ripoti:** summary reports.
+
+---
+
+## 11. Supervisor
+
+The Supervisor marks attendance for **the guards assigned to them** each shift.
+
+### 11.1 Take shift attendance (main daily task)
+1. Go to **Operesheni → Daftari la Zamu**.
+2. Pick the **date**, then **Mchana** (Day) or **Usiku** (Night).
+3. The list shows **only guards assigned to you**.
+4. For each guard, mark **Present**, **Late** or **Absent** (see [Workflow 20.1](#201-record-guard-attendance-and-handle-absences)).
+5. A guard on **approved leave** shows a **"Yuko likizo"** (On leave) badge.
+
+> ❌ You cannot change a mark after saving it. If you made a mistake, ask a **Senior Supervisor**, the **Operations Manager** or **IT** to re-mark the guard on the Shift Sheet.
+
+### 11.2 Check records
+- **Kumbukumbu za Mahudhurio** shows the attendance history so you can confirm your marks.
+
+### 11.3 Mpangokazi
+- Write the daily form for **your own guards** (see [Workflow 20.3](#203-mpangokazi-daily-region-report)).
+
+### 11.4 Transfers, incidents, store
+- **Uhamisho wa Walinzi → Request Transfer:** pick the guard, the new supervisor or post, and the reason. Track the status on the same page.
+- **Matukio:** report incidents at your sites (see [Workflow 20.4](#204-report-and-follow-up-an-incident)).
+- **Stoo:** you see **all stock** (stock is not limited by area). You can **request** stock transfers; the Storekeeper or IT approves them.
+
+---
+
+## 12. In-Charge
+
+The In-Charge (**Mkuu wa Kituo**) is a **guard who leads one site**. They have the guard pages plus attendance for their site.
+
+### 12.1 Mark your site's guards
+1. Go to **Operesheni → Daftari la Zamu**.
+2. Pick the **date** and **Mchana / Usiku**.
+3. The list shows **only guards at the site you lead**.
+4. Mark each guard **Present**, **Late** or **Absent**.
+
+> ℹ️ You **cannot mark your own attendance**. Your Supervisor marks you.
+> You cannot change a mark after saving it. Ask a Senior Supervisor to correct it.
+
+### 12.2 Your own pages
+- **Dashibodi:** your "Zamu yangu leo" card (see [Section 5.1](#51-dashboard-dashibodi)).
+- **Muhtasari Wangu**, **Kumbukumbu za Mahudhurio** (your own records), **Madeni Yangu**: same as a guard (see [Section 13](#13-askari--guard)).
+- **Matukio:** report incidents at your site.
+
+---
+
+## 13. Askari / Guard
+
+Guards see **their own attendance, debts and leave**.
+
+### 13.1 Check your attendance
+1. Sign in. The **Dashibodi** shows **"Zamu yangu leo"** (My shift today): your post, today's Day/Night status, the last 7 days, your supervisor and your month summary.
+2. **Operesheni → Muhtasari Wangu** (My Summary): days present, sick days, permitted days and absences without permission.
+3. **Kumbukumbu za Mahudhurio** shows your own records only.
+
+> ℹ️ You do **not** mark your own attendance. Your Supervisor or In-Charge does it. If a record is wrong, tell your Supervisor. A Senior Supervisor can correct it.
+>
+> If the card says your account is not linked to a guard profile, contact your Supervisor or HR.
+
+### 13.2 Check your debts
+1. Go to **Ofisi → Madeni Yangu** (My Debts).
+2. See the credit you took (fish, maize flour, medical), amounts already deducted from salary, and your balance.
+
+### 13.3 Leave, meetings, trainings
+- **Likizo:** request leave and track it (see [Section 5.2](#52-leave-likizo)).
+- **Vikao**, **Mafunzo**, **Kalenda:** see what you are invited to.
+
+### 13.4 If you cannot report for work
+- Tell your **Supervisor** as early as possible.
+- If you are sick, give the **doctor's note** to your Supervisor. They attach it to the absence, so the day counts as **Sick**, not **Not Permitted** (which affects pay).
+
+---
+
+## 14. HR Office
+
+HR manages **people** in **all branches**: guards, employees, contracts, leave, meetings and trainings.
+
+### 14.1 Register and manage guards
+1. Go to **Usimamizi → Daftari la Walinzi** (Guard Registry).
+2. Click **Add guard**. Fill employee number, contact details, next of kin and home details.
+3. **Assign a Supervisor**, the site and the client. The Supervisor decides which Shift Sheet the guard appears on.
+4. Edit a guard's record when things change. Use **CSV import** to add many guards.
+
+### 14.2 Clients (Wateja)
+- **Usimamizi → Wateja:** add the companies guards work for. The table shows each client's number of guards.
+
+### 14.3 Employees (Wafanyakazi)
+1. Go to **Usimamizi → Wafanyakazi**.
+2. Tabs: **Watumishi** (Staff), **Walinzi** (Guards), **Mikataba inayoisha** (Contracts ending soon).
+3. Open an employee to edit their profile: department, job title, branch, phone, NIDA number, next of kin.
+4. **Mikataba** (Contracts): add or edit contracts, including salary.
+5. **Hati za mtumishi** (Employee documents): upload IDs and certificates.
+
+### 14.4 Leave
+- **Likizo:** see all requests, file a request for any employee, and **approve or reject** requests (see [Workflow 20.5](#205-leave-request--approval)).
+
+### 14.5 Meetings and trainings
+- **Vikao:** create meetings, invite staff, add the agenda, and attach minutes afterwards.
+- **Mafunzo:** plan trainings, add attendees, mark attendance, and record completion or certificates (see [Workflow 20.6](#206-meetings-and-trainings)).
+
+### 14.6 Transfers
+- **Uhamisho wa Walinzi:** open each **Pending** request. **Approve** (the guard moves to the new supervisor) or **Reject** with notes.
+
+### 14.7 Attendance and sick notes
+- **Daftari la Zamu:** view only.
+- **Kumbukumbu za Mahudhurio:** open guards' sick notes (see [Workflow 20.2](#202-audit-a-sick-note)).
+
+### 14.8 Recruitment and other pages
+- **Maombi ya Kazi** (Job Applications): review applications sent from the public jobs page and update their status.
+- **Matukio:** report incidents. **Mpangokazi**: view all forms.
+- **Madeni ya Walinzi**, **Biashara za Ofisi**, **Stoo**, **Maombi ya Ulinzi**, **Habari**: view only.
+- **Ripoti:** full PDF reports and payroll exports.
+
+---
+
+## 15. Accountant (Bursar)
+
+The Accountant (**Mhasibu**) handles **money**: guard debts, salary deductions, payroll and office staff attendance.
+
+### 15.1 Record guard debts
+1. Go to **Ofisi → Madeni ya Walinzi** (Guard Debts).
+2. Record a new debt: choose the guard, the type (fish, maize flour, medical, ...), the amount and the date. Save.
+3. The guard's balance updates at once.
+
+### 15.2 Deduct debts from salary
+1. Go to **Ofisi → Makato ya Mshahara** (Salary Deductions).
+2. Choose the guard and the amount to deduct for the pay period. The balance goes down.
+
+### 15.3 Office business
+- **Ofisi → Biashara za Ofisi:** enter daily figures for the fish and maize-flour business. Open the history to review past entries.
+
+### 15.4 Staff attendance
+- **Mahudhurio ya Watumishi:** record office staff attendance (see [Workflow 20.7](#207-staff-attendance)).
+
+### 15.5 Payroll and reports
+1. Go to **Usimamizi → Ripoti**.
+2. Set the start and end dates and optional filters.
+3. Click **Generate PDF**. The report includes the attendance ledger, absence breakdown and payroll deduction list.
+4. Check figures first in **Daftari la Zamu** and **Kumbukumbu za Mahudhurio** (view only).
+
+### 15.6 Other pages
+- **Wafanyakazi:** you see employee **contracts** (salary) from an employee's profile.
+- **Likizo:** view all leave requests. **Stoo**, **Maombi ya Ulinzi:** view only.
+
+---
+
+## 16. Secretary (HQ)
+
+The Secretary (**Katibu**) works at HQ and handles office duties for **all branches**.
+
+### 16.1 Meetings and trainings
+- **Vikao:** create meetings, invite staff, add the agenda, and attach minutes afterwards.
+- **Mafunzo:** plan trainings, add attendees, and mark attendance (see [Workflow 20.6](#206-meetings-and-trainings)).
+
+### 16.2 Leave intake
+- **Likizo:** file a leave request **for any employee** (choose the employee instead of "Mimi mwenyewe"). HR, the CEO or IT approves it.
+
+### 16.3 Staff attendance
+- **Mahudhurio ya Watumishi:** record office staff attendance (see [Workflow 20.7](#207-staff-attendance)).
+
+### 16.4 News
+- **Usimamizi → Habari:** write, edit and publish news for the company website.
+
+### 16.5 View-only pages
+- **Wafanyakazi** (no contracts), **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mpangokazi** (all), **Stoo**, **Madeni ya Walinzi**, **Biashara za Ofisi**, **Maombi ya Ulinzi**, **Maombi ya Kazi**.
+- **Matukio:** report incidents.
+- **Ripoti:** summary reports.
+
+---
+
+## 17. Office Assistant (Branch)
+
+The Office Assistant (**Msaidizi wa Ofisi**) does the Secretary's office work at a remote branch (Tabora or Dodoma). **Everything is limited to your own branch.**
+
+> If your account has no branch, you see no data. Ask IT to set your branch in **User Accounts**.
+
+- **Mahudhurio ya Watumishi:** record your branch's staff attendance.
+- **Vikao** and **Mafunzo:** create and manage your branch's meetings and trainings. Company-wide ones are managed by HQ.
+- **Likizo:** file leave requests for your branch's employees, and view your branch's requests.
+- **Wafanyakazi:** view your branch's employees.
+- **Matukio:** report incidents, and manage your branch's incidents (add actions, mark solved, reopen).
+- **Daftari la Zamu**, **Kumbukumbu za Mahudhurio**, **Mpangokazi:** view your branch's guards and forms.
+- **Ripoti:** summary reports for your branch's guards.
+
+---
+
+## 18. Storekeeper
+
+The Storekeeper (**Mtunza Stoo**) controls **inventory**.
+
+### 18.1 First-time setup
+1. **Stoo → Vifaa vya Stoo** (Store Items): add every item (name, unit, ...).
+2. **Stoo → Mikoa na Vituo** (Regions & Stations): add regions and stations where stock is kept.
+
+### 18.2 Record stock
+1. **Stoo → Mali Iliyopo** (Stock Holdings): see current quantities per location.
+2. Record items received and issued. Every entry goes to the **Leja ya Stoo** (Stock Ledger).
+
+### 18.3 Ledger and reports
+- **Leja ya Stoo:** full movement history (in/out, who, when).
+- **Ripoti za Stoo:** summaries for a date range.
+
+### 18.4 Stock transfers
+1. **Stoo → Uhamisho wa Mali** (Stock Transfers) lists requests.
+2. Requests from field roles arrive as **Pending**.
+3. **Approve** or **Reject** with a reason. You can also start your own transfers.
+
+### 18.5 Office duties
+- **Madeni ya Walinzi:** record guard credit purchases.
+- **Biashara za Ofisi:** record business figures.
+- **Mahudhurio ya Watumishi:** record office staff attendance.
+
+---
+
+## 19. Combined Roles
+
+A combined role gets **all pages of both roles**.
+
+### IT + Msimamizi (IT + Supervisor)
+- Everything IT can do (Section 6), plus the Supervisor's work (Section 11).
+- Exception: **Mpangokazi** — writes the form for **own assigned guards only**, not a whole branch.
+
+### Katibu + Msimamizi (Secretary + Supervisor)
+- Everything the Secretary can do (Section 16), plus the Supervisor's work (Section 11).
+- On the **Shift Sheet**, the list shows **only guards assigned to you**.
+
+---
+
+## 20. Common Workflows (Detailed)
+
+### 20.1 Record guard attendance and handle absences
+*(Supervisor, In-Charge, Operations Officer, Senior Supervisor, Operations Manager, IT)*
+
+1. **Operesheni → Daftari la Zamu** → pick the **date** → **Mchana / Usiku**. Your guards load.
+2. **Present:** saved at once with your name and time.
+3. **Late:** enter the **minutes late**.
+4. **Absent:** a dialog opens with **three options**:
+   - **Mgonjwa** (Sick): enter the sick days and **upload the doctor's note**. A progress bar shows the upload. The day is sick leave, not a pay deduction.
+   - **Ruhusa** (Permitted reason): enter the reason and the allowed days.
+   - **Bila ruhusa** (Not permitted): no valid reason. The day is flagged for **salary deduction** in the payroll report.
+5. Save. The status updates in records, dashboards and reports.
+
+**Corrections:** open the same date and shift and **mark the guard again**. The new mark replaces the old one. Only the **Senior Supervisor, Operations Manager and IT** can re-mark a guard who is already marked. Others see an error and must ask one of them.
+
+**Locks:** if two people save the same guard and shift at once, one gets "This shift is already being processed — try again shortly." Wait a moment and retry.
+
+### 20.2 Audit a sick note
+*(HR, CEO, IT)*
+
+1. **Operesheni → Kumbukumbu za Mahudhurio**.
+2. Find a **Sick** record with a document.
+3. Click to **open the note** and check it.
+
+Other roles see only the word **"Attached"** and cannot open the file.
+
+### 20.3 Mpangokazi (daily region report)
+*(Supervisor, Operations Officer, Senior Supervisor, Operations Manager, IT)*
+
+1. **Operesheni → Mpangokazi**.
+2. Fill **Tarehe** (Date) and **Mkoa** (Region). **Msimamizi** shows your name.
+3. For each guard choose a status: **Yupo** (Present), **Off**, **Ruhusa** (Permitted), **Mgonjwa** (Sick), **Hayupo (bila sababu)** (Absent without reason). The totals update at the top.
+4. Fill **Imeandaliwa na** (Prepared by), **Cheo** (Title) and optional **Maelezo** (Notes).
+5. Sign in the **Sahihi** (Signature) box with your finger or mouse.
+6. Submit. Then use **PDF** to download the form, or share it to the office WhatsApp group from your phone.
+
+### 20.4 Report and follow up an incident
+1. **Report** (field roles, HR, Secretary, Office Assistant, CEO, IT): **Operesheni → Matukio** → choose the site, client, level (**Low / Medium / High / Critical**) and describe what happened → submit.
+2. Reporters see **the incidents they reported**.
+3. **Follow up** (CEO, Operations Manager, IT for all branches; Office Assistant for own branch): add actions, then mark **Solved**, or reopen as **Not solved**.
+
+### 20.5 Leave request → approval
+1. **Request:** the employee (**Mimi mwenyewe**), or HR / Secretary / Office Assistant for another employee → **Likizo → Omba likizo** → type, dates, reason → **Tuma ombi**.
+2. **Approve:** HR, the CEO or IT opens the pending request → **Idhinisha** (Approve) or **Kataa** (Reject), with optional notes.
+3. Approved leave appears on the **Kalenda** and as a **Yuko likizo** badge on the Shift Sheet. Download the letter with **Barua (PDF)**.
+
+### 20.6 Meetings and trainings
+*(HR, Secretary, CEO, IT for all branches; Office Assistant for own branch)*
+
+**Meeting:**
+1. **Vikao → new meeting:** title, date and time, venue or online link, branch, invitees, agenda. Save.
+2. Invitees see it under **Vikao** and on the **Kalenda**.
+3. After the meeting, add the minutes as text or upload a file.
+
+**Training:**
+1. **Mafunzo → Panga mafunzo:** title, trainer, date, venue, branch. Save.
+2. Add **attendees** (staff or guards).
+3. After the training, mark who attended and record completion or certificates.
+
+### 20.7 Staff attendance
+*(Accountant, Secretary, Storekeeper, IT; Office Assistant for own branch)*
+
+1. **Operesheni → Mahudhurio ya Watumishi** → pick the date.
+2. Mark each staff member **Present** (with check-in time), **Late** (minutes late) or **Absent** (Sick / Permitted / Not permitted).
+3. Use the batch button to mark everyone present at once, then change the exceptions.
+4. Record the sign-out time at the end of the day.
+5. Only **IT** can change a recorded check-in or sign-out time.
+
+### 20.8 Guard transfer
+1. **Request** (Supervisor, Operations Officer, Senior Supervisor, Operations Manager, IT): **Usimamizi → Uhamisho wa Walinzi → Request Transfer** → guard + destination + reason → submit.
+2. **Decide** (HR, Operations Manager, CEO, IT): **Approve** (the guard's supervisor updates automatically) or **Reject** with notes. The requester sees the decision.
+
+### 20.9 Official PDF report
+*(Full: IT, CEO, Operations Manager, HR, Accountant. Summary: Senior Supervisor, Operations Officer, Secretary, Office Assistant)*
+
+1. **Usimamizi → Ripoti**.
+2. Choose the start date, end date and optional filters.
+3. Click **Generate PDF**. The file downloads.
+
+### 20.10 Stock transfer
+1. **Request** (field roles, Storekeeper, IT): **Stoo → Uhamisho wa Mali** → item, quantity, from/to location → submit.
+2. **Approve** (Storekeeper, IT): approve or reject.
+
+### 20.11 Deduct a guard's debt from salary
+1. Accountant (or IT): **Ofisi → Madeni ya Walinzi** — check the balance.
+2. **Ofisi → Makato ya Mshahara** — record the deduction for the period.
+3. The guard sees the new balance on **Madeni Yangu**.
+
+---
+
+## 21. Status Badge Legend
+
+| Badge | Meaning | Colour |
+|---|---|---|
+| **Present / Upo** | Reported for the shift | Green |
+| **Late / Umechelewa** | Reported late (minutes shown) | Amber |
+| **Sick / Mgonjwa** | Absent, sick, with a doctor's note | Amber |
+| **Permitted / Ruhusa** | Absent with an allowed reason | Amber |
+| **Not permitted / Bila ruhusa** | Absent without a valid reason — flagged for salary deduction | Red |
+| **Yuko likizo** | Guard is on approved leave | — |
+| **Pending / Inasubiri** | Request waiting for a decision | Amber |
+| **Approved / Imeidhinishwa** | Request accepted | Green |
+| **Rejected / Imekataliwa** | Request refused (read the notes) | Red |
+| **Cancelled / Imeghairiwa** | Request withdrawn | Grey |
+| **Not solved / Solved** | Incident status | — |
+| **Low / Medium / High / Critical** | Incident level | Grey / Amber / Red / Violet |
+
+---
+
+## 22. Troubleshooting & FAQ
+
+**Q: My username and password are not accepted.**
+Check spelling and Caps Lock. You can type your username **or** your work email. If it still fails, ask IT to reset your password.
+
+**Q: Google sign-in works but I get "Umezuiwa Kuingia" (Access Denied).**
+Your email is not registered, or your role changed. Use the email button on that page, or ask IT to fix your account in **User Accounts**.
+
+**Q: My Shift Sheet list is empty.**
+Check the **date** and **Mchana / Usiku** first. If it is still empty, no guards are assigned to you (Supervisor) or posted at your site (In-Charge). Ask HR to fix it in the **Guard Registry**.
+
+**Q: I marked a guard wrongly.**
+Ask a **Senior Supervisor**, the **Operations Manager** or **IT** to **re-mark** the guard on the **Shift Sheet** for that date and shift. The new mark replaces the old one.
+
+**Q: I cannot mark myself.**
+Nobody marks their own attendance. Your Supervisor marks you.
+
+**Q: The doctor's note upload fails.**
+Check your internet connection, file size and file type, then retry. If it keeps failing, record the absence and give the paper note to HR.
+
+**Q: I see "Attached" but cannot open the sick note.**
+Only HR, the CEO and IT can open sick notes.
+
+**Q: I am an Office Assistant and see no data.**
+Your account has no branch. Ask IT to set your branch.
+
+**Q: The PDF report does not download.**
+Check your role (Section 4) and the date range, then retry. If it takes too long, use a shorter date range.
 
 **Q: My debt balance looks wrong.**
-Deductions are entered per pay period by the Bursar. Raise it with the Bursar/office; they review the **Guard Debts** and **Salary Deductions** history.
+The Accountant enters deductions each pay period. Ask the Accountant to check **Guard Debts** and **Salary Deductions**.
 
-**Q: My transfer was rejected.**
-Open **Manage → Transfers**, read the reviewer notes, and submit a new request if circumstances changed.
+**Q: My leave or transfer was rejected.**
+Open the page, read the decision notes, and send a new request if things changed.
 
-**Q: The system looks different from the screenshots in this guide.**
-Buttons/labels may be refined over time. What never changes: your **role decides your menu**, and each page keeps the same purpose described here.
+**Q: Auto Print does not open.**
+It works only on the HQ office Wi-Fi.
 
----
-
-## 14. Getting Help / Requesting Access
-
-- **New user / lost access:** Email the **IT & Technical Department** (or use the pre-filled link on the Access Denied page) with:
-  1. Full official name & employee ID
-  2. Designated role (Guard / Supervisor / HR / Bursar / Storekeeper)
-  3. Assigned work location / station
-- **Wrong role permissions:** Contact the **Super Admin** — roles are changed only in **Manage → User Accounts**.
-- **Data corrections (attendance):** Supervisor → Senior Supervisor → Super Admin, in that order.
-- **Pay & deductions:** Contact the **Bursar**.
-- **Stock issues:** Contact the **Storekeeper**.
+**Q: The screens look different from this guide.**
+Labels may change over time. Your **role still decides your menu**, and each page keeps the purpose described here.
 
 ---
 
-*HKB Protection & Management — Attendance Management Portal · User Guide v1.0*
+## 23. Getting Help / Requesting Access
 
+- **New user or lost access:** email the **IT Department** (or use the button on the Access Denied page) with:
+  1. Full name and employee number
+  2. Role
+  3. Branch and work station
+- **Wrong role or branch:** contact **IT**. Roles and branches are changed only in **User Accounts**.
+- **Attendance corrections:** Supervisor or In-Charge → Senior Supervisor → Operations Manager → IT.
+- **Leave:** HR.
+- **Pay and deductions:** the Accountant.
+- **Stock:** the Storekeeper.
 
+---
 
-
-
-
+*HKB Protection & Management — HKB Portal · User Guide v2.0*

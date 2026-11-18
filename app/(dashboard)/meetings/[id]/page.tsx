@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission, ROLE_LABELS } from "@/lib/auth/rbac";
+import { canManageBranch, getManageBranchLimit } from "@/lib/auth/branch-limit";
 import { t } from "@/lib/i18n";
 import { Badge, Card } from "@/components/ui";
 import { getMeeting, getMeetingScope } from "@/features/meetings/queries/meetings";
-import { CancelMeetingButton } from "@/features/meetings/components/MeetingForms";
-import { meetingDate, meetingHasEnded, meetingTimeRange } from "@/features/meetings/format";
+import { CancelMeetingButton, MeetingMinutes } from "@/features/meetings/components/MeetingForms";
+import { eatDay, meetingDate, meetingHasEnded, meetingHasStarted, meetingTime, meetingTimeRange } from "@/features/meetings/format";
 
 export default async function MeetingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -15,12 +16,19 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
-  const meeting = await getMeeting(getMeetingScope(user), id);
+  const meeting = await getMeeting(await getMeetingScope(user), id);
   if (!meeting) notFound();
 
-  const canManage = hasPermission(user.role, "MEETING_MANAGE");
+  const canManage =
+    hasPermission(user.role, "MEETING_MANAGE") && canManageBranch(await getManageBranchLimit(user), meeting.branchId);
   const cancelled = meeting.status === "CANCELLED";
   const isPast = meetingHasEnded(meeting.startsAt, meeting.endsAt);
+  const hasStarted = meetingHasStarted(meeting.startsAt);
+  const hasMinutes = Boolean(meeting.minutesText || meeting.minutesFileName);
+  const minutesUpdatedLabel = meeting.minutesUpdatedAt
+    ? `${eatDay(meeting.minutesUpdatedAt)} ${meetingTime(meeting.minutesUpdatedAt)}` +
+      (meeting.minutesUpdatedByName ? ` · ${meeting.minutesUpdatedByName}` : "")
+    : null;
 
   return (
     <div className="space-y-6">
@@ -45,6 +53,20 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
           <Card title={M.agenda}>
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{meeting.agenda}</p>
           </Card>
+          {(hasMinutes || (hasStarted && !cancelled)) && (
+            <MeetingMinutes
+              meetingId={meeting.id}
+              text={meeting.minutesText}
+              fileName={meeting.minutesFileName}
+              updatedLabel={minutesUpdatedLabel}
+              canEdit={canManage && hasStarted && !cancelled}
+            />
+          )}
+          {!hasMinutes && !hasStarted && !cancelled && (
+            <Card title={M.minutes}>
+              <p className="text-sm text-slate-400">{M.minutesNotYet}</p>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">

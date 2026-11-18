@@ -9,6 +9,7 @@ import {
   type ActionState,
 } from "@/features/store/actions/stock.actions";
 import type { StockTransferRow } from "@/features/store/queries/stock";
+import { enumLabel } from "@/lib/i18n";
 
 type ItemOpt = { id: string; name: string };
 type StationOpt = { id: string; name: string; regionName: string };
@@ -151,7 +152,7 @@ export function StockTransferView({
     {
       key: "status",
       header: "Status",
-      cell: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge>,
+      cell: (r) => <Badge tone={statusTone(r.status)}>{enumLabel(r.status)}</Badge>,
     },
     {
       key: "meta",

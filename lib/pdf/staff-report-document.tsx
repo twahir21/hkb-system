@@ -1,6 +1,7 @@
 import { Document, Page, View, Text, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
 import type { AttendanceStatus, AbsenceCategory, Role, Gender } from "@/lib/db/schema";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
+import { enumLabel } from "@/lib/i18n";
 
 export type StaffReportRow = {
   date: string;
@@ -194,51 +195,51 @@ export function StaffReportDocument({ data }: { data: StaffReportData }) {
             <View>
               <Text style={styles.company}>{data.company}</Text>
               <Text style={styles.subCompany}>
-                Office &amp; Operational Staff Roll Call &amp; Punctuality Register
+                Daftari la Mahudhurio na Kufika kwa Wakati — Watumishi wa Ofisi na Operesheni
               </Text>
               <Text style={styles.title}>{data.title}</Text>
             </View>
             <View style={styles.metaRight}>
               <Text>
-                Report Scope:{" "}
+                Kipindi:{" "}
                 <Text style={styles.metaHighlight}>
                   {data.startDate && data.endDate
-                    ? `${data.startDate} to ${data.endDate}`
+                    ? `${data.startDate} hadi ${data.endDate}`
                     : data.date}
                 </Text>
               </Text>
-              <Text style={{ marginTop: 2 }}>Generated: {data.generatedAt}</Text>
-              <Text style={{ marginTop: 2 }}>Issued by: {data.generatedBy}</Text>
+              <Text style={{ marginTop: 2 }}>Imetolewa: {data.generatedAt}</Text>
+              <Text style={{ marginTop: 2 }}>Imetolewa na: {data.generatedBy}</Text>
             </View>
           </View>
         </View>
 
         {/* Executive Summary */}
         <View style={styles.summarySection}>
-          <Text style={styles.summaryTitle}>Attendance Performance Summary</Text>
+          <Text style={styles.summaryTitle}>Muhtasari wa Mahudhurio</Text>
           <View style={styles.summaryGrid}>
             <View style={styles.summaryBox}>
-              <Text style={styles.summaryLabel}>Total Staff Records</Text>
+              <Text style={styles.summaryLabel}>Jumla ya rekodi</Text>
               <Text style={styles.summaryValue}>{total}</Text>
             </View>
             <View style={styles.summaryBox}>
-              <Text style={styles.summaryLabel}>Present (On-Time)</Text>
+              <Text style={styles.summaryLabel}>Waliopo (kwa wakati)</Text>
               <Text style={[styles.summaryValue, { color: "#15803d" }]}>{present}</Text>
             </View>
             <View style={styles.summaryBox}>
-              <Text style={styles.summaryLabel}>Late Arrivals</Text>
+              <Text style={styles.summaryLabel}>Waliochelewa</Text>
               <Text style={[styles.summaryValue, { color: "#b45309" }]}>
-                {late} {totalLateMinutes > 0 ? `(${totalLateMinutes}m)` : ""}
+                {late} {totalLateMinutes > 0 ? `(dk ${totalLateMinutes})` : ""}
               </Text>
             </View>
             <View style={styles.summaryBox}>
-              <Text style={styles.summaryLabel}>Absences (S/P/U)</Text>
+              <Text style={styles.summaryLabel}>Wasiokuwepo (G/R/B)</Text>
               <Text style={[styles.summaryValue, { color: "#be123c" }]}>
                 {absent} ({sick}/{permitted}/{unauthorized})
               </Text>
             </View>
             <View style={styles.summaryBox}>
-              <Text style={styles.summaryLabel}>Attendance Rate</Text>
+              <Text style={styles.summaryLabel}>Kiwango cha mahudhurio</Text>
               <Text style={[styles.summaryValue, { color: "#9f7223" }]}>
                 {attendancePct}%
               </Text>
@@ -248,14 +249,14 @@ export function StaffReportDocument({ data }: { data: StaffReportData }) {
 
         {/* Table Header */}
         <View style={styles.tableHead}>
-          <Text style={styles.cellDate}>Date</Text>
-          <Text style={styles.cellName}>Staff Member</Text>
-          <Text style={styles.cellRole}>Role</Text>
-          <Text style={styles.cellStatus}>Status</Text>
-          <Text style={styles.cellCheckIn}>Check-In</Text>
-          <Text style={styles.cellCheckOut}>Sign-Out</Text>
-          <Text style={styles.cellAbsence}>Absence / Notes</Text>
-          <Text style={styles.cellRecordedBy}>Recorded By</Text>
+          <Text style={styles.cellDate}>Tarehe</Text>
+          <Text style={styles.cellName}>Mtumishi</Text>
+          <Text style={styles.cellRole}>Cheo</Text>
+          <Text style={styles.cellStatus}>Hali</Text>
+          <Text style={styles.cellCheckIn}>Kuingia</Text>
+          <Text style={styles.cellCheckOut}>Kutoka</Text>
+          <Text style={styles.cellAbsence}>Kutokuwepo / Maelezo</Text>
+          <Text style={styles.cellRecordedBy}>Ameandikwa na</Text>
         </View>
 
         {/* Table Rows */}
@@ -280,21 +281,15 @@ export function StaffReportDocument({ data }: { data: StaffReportData }) {
               ]}
             >
               {r.status === "LATE"
-                ? `Late (+${r.minutesLate || 0}m)`
+                ? `${enumLabel("LATE")} (+dk ${r.minutesLate || 0})`
                 : r.status === "ABSENT"
-                  ? `Absent (${
-                      r.absenceCategory === "SICK"
-                        ? "Sick"
-                        : r.absenceCategory === "PERMITTED_REASON"
-                          ? "Permitted"
-                          : "Unauthorized"
-                    })`
-                  : "Present"}
+                  ? `${enumLabel("ABSENT")} (${enumLabel(r.absenceCategory ?? "NOT_PERMITTED")})`
+                  : enumLabel("PRESENT")}
             </Text>
             <Text style={styles.cellCheckIn}>{r.checkInTime || "—"}</Text>
             <Text style={styles.cellCheckOut}>{r.checkOutTime || "—"}</Text>
             <Text style={styles.cellAbsence}>
-              {r.reason ? r.reason.slice(0, 30) : r.allowedDays ? `Allowed: ${r.allowedDays}d` : "—"}
+              {r.reason ? r.reason.slice(0, 30) : r.allowedDays ? `Ruhusa: siku ${r.allowedDays}` : "—"}
             </Text>
             <Text style={styles.cellRecordedBy}>{r.recordedByName}</Text>
           </View>
@@ -303,23 +298,23 @@ export function StaffReportDocument({ data }: { data: StaffReportData }) {
         {/* Signatures */}
         <View style={styles.signatureSection}>
           <View style={styles.signBox}>
-            <Text style={{ fontWeight: "bold" }}>Prepared By: Secretary / HR Admin</Text>
+            <Text style={{ fontWeight: "bold" }}>Imeandaliwa na: Katibu / HR</Text>
             <Text style={{ marginTop: 2, fontSize: 7, color: "#64748b" }}>
-              Signature: ______________________ Date: ___________
+              Sahihi: ______________________ Tarehe: ___________
             </Text>
           </View>
           <View style={styles.signBox}>
-            <Text style={{ fontWeight: "bold" }}>Approved By: Bursar / Super Admin</Text>
+            <Text style={{ fontWeight: "bold" }}>Imeidhinishwa na: Mhasibu / Msimamizi wa Mfumo</Text>
             <Text style={{ marginTop: 2, fontSize: 7, color: "#64748b" }}>
-              Signature: ______________________ Date: ___________
+              Sahihi: ______________________ Tarehe: ___________
             </Text>
           </View>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text>HKB Protection &amp; Management Co. — Official Staff Attendance Register</Text>
-          <Text>Confidential Document for Internal &amp; Payroll Compliance</Text>
+          <Text>HKB Protection &amp; Management Co. — Daftari Rasmi la Mahudhurio ya Watumishi</Text>
+          <Text>Hati ya siri — kwa matumizi ya ndani na mishahara</Text>
         </View>
       </Page>
     </Document>

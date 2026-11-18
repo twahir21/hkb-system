@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { getGuardMonthlyDetail, getGuardByUserId } from "@/lib/queries";
 import { GuardMonthlyDetail } from "@/components/reports/GuardMonthlyDetail";
@@ -12,7 +13,7 @@ export default async function MySummaryPage({ searchParams }: PageProps) {
   if (!user || !hasPermission(user.role, "ATTENDANCE_VIEW_OWN")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        This summary is only available to guard accounts.
+        {t.mySummary.guardOnly}
       </div>
     );
   }
@@ -21,7 +22,7 @@ export default async function MySummaryPage({ searchParams }: PageProps) {
   if (!profile) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-600">
-        No guard profile is linked to your account yet. Please contact your administrator.
+        {t.common.noProfile}
       </div>
     );
   }
@@ -35,7 +36,7 @@ export default async function MySummaryPage({ searchParams }: PageProps) {
   if (!detail) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-600">
-        Attendance summary is not available yet.
+        {t.mySummary.notAvailable}
       </div>
     );
   }
@@ -43,9 +44,9 @@ export default async function MySummaryPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">My Attendance Summary</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.mySummary.title}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Your monthly attendance rate, late arrivals, and per-day log.
+          {t.mySummary.subtitle}
         </p>
       </div>
 

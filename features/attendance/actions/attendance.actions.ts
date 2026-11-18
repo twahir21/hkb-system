@@ -9,7 +9,7 @@ import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { markAttendanceSchema } from "@/features/attendance/validators/attendance.schema";
 import { tryAcquireShiftLock, releaseShiftLock } from "@/lib/redis";
-import { uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
+import { getSignedDownloadUrl, uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
 import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
 
 export type ActionState = {
@@ -187,4 +187,34 @@ export async function uploadSickNote(
     };
   }
   return { ok: true, url, message: "Document uploaded." };
+}
+
+/**
+ * Sickness Document Audit (C11): short-lived download link for the doctor's
+ * note attached to a guard's attendance log. HR / CEO / Super Admin only;
+ * every view is audit-logged.
+ */
+export async function getSickNoteUrl(
+  logId: string,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const actor = await requirePermission("SICKNESS_DOC_AUDIT");
+  if (!/^[0-9a-f-]{36}$/i.test(logId)) return { ok: false, error: "Invalid request." };
+
+  const log = await db.query.attendanceLogs.findFirst({
+    where: eq(attendanceLogs.id, logId),
+    columns: { id: true, guardId: true, date: true, shift: true, documentUrl: true },
+  });
+  if (!log?.documentUrl) return { ok: false, error: "Document not found." };
+
+  const url = await getSignedDownloadUrl(log.documentUrl, 600);
+  if (!url) return { ok: false, error: "Could not create a download link. Try again." };
+
+  await writeAuditLog({
+    actorId: actor.userId,
+    action: "SICKNESS_DOCUMENT_VIEW",
+    entity: "attendance_logs",
+    entityId: log.id,
+    metadata: { guardId: log.guardId, date: log.date, shift: log.shift },
+  });
+  return { ok: true, url };
 }

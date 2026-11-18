@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import {
@@ -27,7 +28,7 @@ export default async function StaffAttendancePage({ searchParams }: PageProps) {
   if (!canView || !user) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view staff attendance records.
+        {t.denied.staffAttendance}
       </div>
     );
   }
@@ -39,7 +40,7 @@ export default async function StaffAttendancePage({ searchParams }: PageProps) {
   if (branchLimit === "none") {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-800">
-        You have no branch yet. Ask IT to set your branch.
+        {t.reportsPage.noBranch}
       </div>
     );
   }

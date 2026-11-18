@@ -190,6 +190,27 @@
       "when": 1795012567115,
       "tag": "0026_meetings",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795012881864,
+      "tag": "0027_meeting_minutes",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1795012896745,
+      "tag": "0028_trainings",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1795013039901,
+      "tag": "0029_training_attendees",
+      "breakpoints": true
     }
   ]
 }

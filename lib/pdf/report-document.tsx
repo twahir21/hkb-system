@@ -1,4 +1,5 @@
 import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer";
+import { enumLabel } from "@/lib/i18n";
 import type { AttendanceStatus, AbsenceCategory, ShiftType } from "@/lib/db/schema";
 
 export type ReportRow = {
@@ -68,7 +69,7 @@ export function ReportDocument({ data }: { data: ReportData }) {
           <Text style={styles.company}>{data.company}</Text>
           <Text style={styles.title}>{data.title}</Text>
           <Text style={styles.meta}>
-            Period: {data.startDate} → {data.endDate} · Generated: {data.generatedAt}
+            Kipindi: {data.startDate} → {data.endDate} · Imetolewa: {data.generatedAt}
           </Text>
         </View>
 
@@ -76,39 +77,39 @@ export function ReportDocument({ data }: { data: ReportData }) {
 
         <View style={styles.summaryGrid}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Overall Attendance Rate:</Text>
+            <Text style={styles.summaryLabel}>Kiwango cha mahudhurio:</Text>
             <Text style={styles.summaryValue}>{attendancePct}%</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>On-Time Rate:</Text>
+            <Text style={styles.summaryLabel}>Kiwango cha kufika kwa wakati:</Text>
             <Text style={styles.summaryValue}>{onTimePct}%</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Shifts Recorded:</Text>
+            <Text style={styles.summaryLabel}>Jumla ya zamu zilizorekodiwa:</Text>
             <Text style={styles.summaryValue}>{total}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Present (On-Time):</Text>
+            <Text style={styles.summaryLabel}>Waliopo (kwa wakati):</Text>
             <Text style={styles.summaryValue}>{present}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Late Arrivals:</Text>
-            <Text style={styles.summaryValue}>{late} ({totalLateMinutes}m delay)</Text>
+            <Text style={styles.summaryLabel}>Waliochelewa:</Text>
+            <Text style={styles.summaryValue}>{late} (dk {totalLateMinutes} za kuchelewa)</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Absences:</Text>
+            <Text style={styles.summaryLabel}>Jumla ya wasiokuwepo:</Text>
             <Text style={styles.summaryValue}>{absent}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Sick (doc-backed):</Text>
+            <Text style={styles.summaryLabel}>Wagonjwa (wenye cheti):</Text>
             <Text style={styles.summaryValue}>{sick}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Permitted Reason:</Text>
+            <Text style={styles.summaryLabel}>Ruhusa:</Text>
             <Text style={styles.summaryValue}>{permitted}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Not Permitted (payroll flag):</Text>
+            <Text style={styles.summaryLabel}>Bila ruhusa (huathiri mshahara):</Text>
             <Text style={styles.summaryValue}>{notPermitted}</Text>
           </View>
         </View>
@@ -116,13 +117,13 @@ export function ReportDocument({ data }: { data: ReportData }) {
         <View style={styles.rule} />
 
         <View style={styles.tableHead}>
-          <Text style={styles.cellEmp}>Emp ID</Text>
-          <Text style={styles.cellName}>Guard</Text>
-          <Text style={styles.cellDate}>Date</Text>
-          <Text style={styles.cellShift}>Shift</Text>
-          <Text style={styles.cellStatus}>Status</Text>
-          <Text style={styles.cellCat}>Absence / Delay</Text>
-          <Text style={styles.cellSup}>Supervisor</Text>
+          <Text style={styles.cellEmp}>Namba</Text>
+          <Text style={styles.cellName}>Mlinzi</Text>
+          <Text style={styles.cellDate}>Tarehe</Text>
+          <Text style={styles.cellShift}>Zamu</Text>
+          <Text style={styles.cellStatus}>Hali</Text>
+          <Text style={styles.cellCat}>Kutokuwepo / Kuchelewa</Text>
+          <Text style={styles.cellSup}>Msimamizi</Text>
         </View>
 
         {data.rows.map((r, i) => (
@@ -130,15 +131,15 @@ export function ReportDocument({ data }: { data: ReportData }) {
             <Text style={styles.cellEmp}>{r.employeeId}</Text>
             <Text style={styles.cellName}>{r.guardName}</Text>
             <Text style={styles.cellDate}>{r.date}</Text>
-            <Text style={styles.cellShift}>{r.shift}</Text>
-            <Text style={styles.cellStatus}>{r.status}{r.status === "LATE" && r.minutesLate ? ` (+${r.minutesLate}m)` : ""}</Text>
-            <Text style={styles.cellCat}>{r.absenceCategory ? `${r.absenceCategory}${r.allowedDays ? ` (${r.allowedDays}d)` : ""}` : (r.reason ?? "—")}</Text>
+            <Text style={styles.cellShift}>{enumLabel(r.shift)}</Text>
+            <Text style={styles.cellStatus}>{enumLabel(r.status)}{r.status === "LATE" && r.minutesLate ? ` (+dk ${r.minutesLate})` : ""}</Text>
+            <Text style={styles.cellCat}>{r.absenceCategory ? `${enumLabel(r.absenceCategory)}${r.allowedDays ? ` (siku ${r.allowedDays})` : ""}` : (r.reason ?? "—")}</Text>
             <Text style={styles.cellSup}>{r.supervisorName}</Text>
           </View>
         ))}
 
         <Text style={styles.footer}>
-          © HKB Protection and Management Company · This report is confidential and generated by the HKB Attendance System.
+          © HKB Protection and Management Company · Ripoti hii ni ya siri na imetolewa na Mfumo wa Mahudhurio wa HKB.
         </Text>
       </Page>
     </Document>

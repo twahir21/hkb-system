@@ -856,6 +856,12 @@ export const meetings = pgTable(
     agenda: text("agenda").notNull(),
     status: meetingStatusEnum("status").notNull().default("SCHEDULED"),
     createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    // Minutes (kumbukumbu) recorded after the meeting: typed text and/or an uploaded file.
+    minutesText: text("minutes_text"),
+    minutesFileUrl: text("minutes_file_url"), // object storage URL (private; served via signed links)
+    minutesFileName: varchar("minutes_file_name", { length: 255 }),
+    minutesUpdatedAt: timestamp("minutes_updated_at", { withTimezone: true }),
+    minutesUpdatedById: uuid("minutes_updated_by_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -881,7 +887,66 @@ export const meetingInvitees = pgTable(
   ]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Trainings (Mafunzo)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const trainingStatusEnum = pgEnum("training_status", ["SCHEDULED", "CANCELLED"]);
+
+export const trainings = pgTable(
+  "trainings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 200 }).notNull(),
+    trainer: varchar("trainer", { length: 200 }).notNull(), // person or institution (may be external)
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(), // same as start for one-day trainings
+    venue: varchar("venue", { length: 255 }).notNull(),
+    // null = company-wide (all branches).
+    branchId: uuid("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    description: text("description"),
+    status: trainingStatusEnum("status").notNull().default("SCHEDULED"),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("trainings_dates_idx").on(table.startDate, table.endDate),
+    index("trainings_branch_idx").on(table.branchId),
+  ]
+);
+
+export const trainingAttendanceEnum = pgEnum("training_attendance", ["PENDING", "PRESENT", "ABSENT"]);
+
+/** Who is enrolled in a training, whether they attended, and their completion / certificate record. */
+export const trainingAttendees = pgTable(
+  "training_attendees",
+  {
+    trainingId: uuid("training_id")
+      .references(() => trainings.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    attendance: trainingAttendanceEnum("attendance").notNull().default("PENDING"),
+    completed: boolean("completed").notNull().default(false),
+    completedOn: date("completed_on"),
+    certificateNo: varchar("certificate_no", { length: 100 }),
+    certificateFileUrl: text("certificate_file_url"), // object storage URL (private; served via signed links)
+    certificateFileName: varchar("certificate_file_name", { length: 255 }),
+    addedById: uuid("added_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.trainingId, table.userId] }),
+    index("training_attendees_user_idx").on(table.userId),
+  ]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
+export type TrainingAttendance = (typeof trainingAttendanceEnum.enumValues)[number];
+export type TrainingStatus = (typeof trainingStatusEnum.enumValues)[number];
 export type MeetingStatus = (typeof meetingStatusEnum.enumValues)[number];
 export type LeaveType = (typeof leaveTypeEnum.enumValues)[number];
 export type EmployeeDocumentType = (typeof employeeDocumentTypeEnum.enumValues)[number];

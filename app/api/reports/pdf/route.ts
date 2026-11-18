@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   });
 
   const data: ReportData = {
-    title: "Attendance Report",
+    title: "Ripoti ya Mahudhurio ya Walinzi",
     company: "HKB Protection & Management Co.",
     startDate: v.startDate,
     endDate: v.endDate,

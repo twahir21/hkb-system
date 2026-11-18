@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { listLogs } from "@/lib/queries";
@@ -22,7 +23,7 @@ export default async function RecordsPage() {
   } else {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view attendance records.
+        {t.denied.attendance}
       </div>
     );
   }
@@ -30,12 +31,16 @@ export default async function RecordsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Attendance Records</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t.recordsPage.title}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          {isGuardRole(user.role) ? "Your recorded attendances." : "Search and review all attendance logs."}
+          {isGuardRole(user.role) ? t.recordsPage.subtitleGuard : t.recordsPage.subtitleAll}
         </p>
       </div>
-      <RecordsView logs={logs} />
+      <RecordsView
+        // Raw storage URLs never reach the browser; auditors fetch a signed link per document.
+        logs={logs.map(({ documentUrl, ...l }) => ({ ...l, hasDocument: Boolean(documentUrl) }))}
+        canAuditDocs={hasPermission(user.role, "SICKNESS_DOC_AUDIT")}
+      />
     </div>
   );
 }

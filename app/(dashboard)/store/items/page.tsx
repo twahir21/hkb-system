@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listItems } from "@/features/store/queries/stock";
@@ -8,7 +9,7 @@ export default async function StoreItemsPage() {
   if (!user || !hasPermission(user?.role, "STORE_MANAGE_ITEMS")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to manage store items.
+        {t.store.deniedItems}
       </div>
     );
   }
@@ -18,8 +19,8 @@ export default async function StoreItemsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Store Items</h2>
-        <p className="mt-1 text-sm text-slate-500">Registry of stockable items.</p>
+        <h2 className="text-2xl font-bold text-slate-900">{t.store.itemsTitle}</h2>
+        <p className="mt-1 text-sm text-slate-500">{t.store.itemsSubtitle}</p>
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -29,10 +30,10 @@ export default async function StoreItemsPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-                <th className="px-4 py-3 font-semibold">Item</th>
-                <th className="px-4 py-3 font-semibold">Unit</th>
-                <th className="px-4 py-3 font-semibold">Category</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold">{t.store.item}</th>
+                <th className="px-4 py-3 font-semibold">{t.store.unit}</th>
+                <th className="px-4 py-3 font-semibold">{t.store.category}</th>
+                <th className="px-4 py-3 font-semibold">{t.common.status}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -50,7 +51,7 @@ export default async function StoreItemsPage() {
                           : "font-medium text-slate-400"
                       }
                     >
-                      {i.isActive ? "Active" : "Inactive"}
+                      {i.isActive ? t.store.active : t.store.inactive}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -61,7 +62,7 @@ export default async function StoreItemsPage() {
               {items.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                    No items yet — add the first one.
+                    {t.store.noItems}
                   </td>
                 </tr>
               )}

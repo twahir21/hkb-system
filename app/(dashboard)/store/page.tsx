@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors } from "@/features/hr/queries/guards";
@@ -17,7 +18,7 @@ export default async function StorePage() {
   if (!user || !canView) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view the store.
+        {t.denied.store}
       </div>
     );
   }
@@ -36,9 +37,9 @@ export default async function StorePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Store</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t.store.holdingsTitle}</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Current stock holdings per station and region.
+            {t.store.holdingsSubtitle}
           </p>
         </div>
         {canRecord && (
@@ -55,17 +56,17 @@ export default async function StorePage() {
         <table className="w-full min-w-max text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
-              <th className="px-4 py-3 font-semibold">Region</th>
-              <th className="px-4 py-3 font-semibold">Station</th>
-              <th className="px-4 py-3 font-semibold">Item</th>
-              <th className="px-4 py-3 font-semibold">Holding</th>
+              <th className="px-4 py-3 font-semibold">{t.common.region}</th>
+              <th className="px-4 py-3 font-semibold">{t.common.station}</th>
+              <th className="px-4 py-3 font-semibold">{t.store.item}</th>
+              <th className="px-4 py-3 font-semibold">{t.store.holding}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {balances.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-10 text-center text-slate-400">
-                  No stock recorded yet.
+                  {t.store.noStock}
                 </td>
               </tr>
             ) : (
