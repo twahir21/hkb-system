@@ -125,6 +125,7 @@ Access:
 | C21 | Apply migrations 0018 + 0019 + 0020. Tested on branch, **applied to production 2026-11-18**. Backup branch: `backup-before-0018-0020` | finished | small |
 | C22 | Regions page: choose a region's branch (new regions currently have no branch; incidents then use the reporter's branch) | pending | small |
 | C23 | Guard dashboard: show the guard's own shift status (guide promises it; not built) | pending | medium |
+| C25 | **Bug: promoted user still treated as Guard.** Cause: JWT kept sign-in role for up to 30 days. Fix: role re-read from DB on every session check (deleted user → signed out). Also guard profile deactivated on promotion / reactivated on demotion | finished | small |
 | C13 | Rewrite `USER_GUIDE.md` for new roles and fix all A-findings errors | pending | medium |
 
 ---

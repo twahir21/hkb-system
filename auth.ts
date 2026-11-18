@@ -138,18 +138,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.picture = user.image ?? null;
       }
 
-      // If needed, hydrate from DB on subsequent passes
-      if (token.email && (!token.userId || !token.role)) {
+      // Re-read the account on every session check so a role change
+      // (promotion, demotion, removal) takes effect immediately — the JWT
+      // would otherwise keep the role from sign-in for up to 30 days.
+      if (token.userId || token.email) {
         const found = await db.query.users.findFirst({
-          where: eq(users.email, token.email as string),
+          where: token.userId
+            ? eq(users.id, token.userId as string)
+            : eq(users.email, token.email as string),
+          columns: { id: true, role: true, username: true, fullName: true, avatarUrl: true },
         });
-        if (found) {
-          token.userId = found.id;
-          token.role = found.role;
-          token.username = found.username;
-          token.name = found.fullName;
-          token.picture = found.avatarUrl ?? token.picture ?? null;
-        }
+        // Account deleted → end the session.
+        if (!found) return null;
+        token.userId = found.id;
+        token.role = found.role;
+        token.username = found.username;
+        token.name = found.fullName;
+        token.picture = found.avatarUrl ?? token.picture ?? null;
       }
 
       return token;

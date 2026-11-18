@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
-import { eq, or, sql } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { users, guardProfiles, branches, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
@@ -180,6 +180,28 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
 
   await db.update(users).set(updateData).where(eq(users.id, v.id));
 
+  // Promotion out of GUARD: the guard profile stays for history (attendance,
+  // payroll, debts) but is deactivated so the person stops appearing on shift
+  // sheets, Mpangokazi, guard counts and the active guard list.
+  // Back to GUARD: reactivate it.
+  let guardProfileChange: "deactivated" | "reactivated" | null = null;
+  if (existing.role === "GUARD" && v.role !== "GUARD") {
+    const now = new Date();
+    const res = await db
+      .update(guardProfiles)
+      .set({ isActive: false, disabledAt: now, updatedAt: now })
+      .where(and(eq(guardProfiles.userId, v.id), eq(guardProfiles.isActive, true)))
+      .returning({ id: guardProfiles.id });
+    if (res.length) guardProfileChange = "deactivated";
+  } else if (existing.role !== "GUARD" && v.role === "GUARD") {
+    const res = await db
+      .update(guardProfiles)
+      .set({ isActive: true, disabledAt: null, updatedAt: new Date() })
+      .where(and(eq(guardProfiles.userId, v.id), eq(guardProfiles.isActive, false)))
+      .returning({ id: guardProfiles.id });
+    if (res.length) guardProfileChange = "reactivated";
+  }
+
   await writeAuditLog({
     actorId: actor.userId,
     action: "USER_UPDATE",
@@ -187,13 +209,18 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
     entityId: v.id,
     metadata: {
       role: v.role,
+      previousRole: existing.role,
       gender: v.gender,
       branchId: branch.branchId,
       passwordChanged: Boolean(v.password),
+      guardProfileChange,
     },
   });
 
   revalidatePath("/users");
+  revalidatePath("/guards");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
   return { ok: true, userId: v.id, message: "User updated successfully." };
 }
 
