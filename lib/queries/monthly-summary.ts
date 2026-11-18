@@ -1,5 +1,7 @@
 import "server-only";
 
+import { guardInScope, type GuardScope } from "@/lib/auth/guard-scope";
+
 import { and, gte, inArray, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attendanceLogs } from "@/lib/db/schema";
@@ -103,6 +105,7 @@ export async function getMonthlyAttendanceSummary(
   month: number,
   supervisorId?: string,
   includePii = false,
+  scope: GuardScope = { kind: "all" },
 ): Promise<OverallMonthlySummary> {
   // Format start and end date (e.g. 2026-09-01 to 2026-09-30)
   const paddedMonth = String(month).padStart(2, "0");
@@ -116,9 +119,11 @@ export async function getMonthlyAttendanceSummary(
     await listGuards(includePii, { includeDisabled: true }),
     startDate,
   );
-  const guards = supervisorId
-    ? allGuards.filter((g) => g.assignedSupervisorId === supervisorId)
-    : allGuards;
+  const guards = allGuards.filter(
+    (g) =>
+      guardInScope(g, scope) &&
+      (!supervisorId || g.assignedSupervisorId === supervisorId),
+  );
 
   const guardIds = guards.map((g) => g.id);
 

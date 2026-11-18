@@ -7,7 +7,7 @@ import {
   type ShiftSheetRowDTO,
 } from "@/features/attendance/components/ShiftSheet";
 import { todayISO } from "@/lib/utils";
-import { isOwnGuardsOnly } from "@/lib/auth/roles";
+import { getGuardScope } from "@/lib/auth/guard-scope";
 
 type PageProps = {
   searchParams: Promise<{
@@ -22,8 +22,9 @@ export default async function AttendancePage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
   const sp = await searchParams;
 
-  const canView = hasPermission(user?.role, "ATTENDANCE_VIEW_ALL");
   const canRecord = hasPermission(user?.role, "ATTENDANCE_RECORD");
+  // In-Charge has no view-all permission but records their own site.
+  const canView = hasPermission(user?.role, "ATTENDANCE_VIEW_ALL") || canRecord;
   const canPii = hasPermission(user?.role, "PII_VIEW");
 
   if (!canView || !user) {
@@ -38,12 +39,18 @@ export default async function AttendancePage({ searchParams }: PageProps) {
   const shift = sp.shift === "NIGHT" ? "NIGHT" : "DAY";
   const requestedSupervisor = sp.supervisorId;
 
-  // A plain supervisor only ever sees their own assigned guards.
-  const scopeSupervisor =
-    isOwnGuardsOnly(user.role) ? user.userId : requestedSupervisor;
+  // Supervisors: own guards. Office Assistant: own branch. In-Charge: own site.
+  const scope = await getGuardScope(user.userId, user.role);
+  const limited = scope.kind !== "all";
 
-  const sheet = await getShiftSheet(date, shift, scopeSupervisor, canPii);
-  const supervisors = isOwnGuardsOnly(user.role) ? [] : await getSupervisors();
+  const sheet = await getShiftSheet(
+    date,
+    shift,
+    scope,
+    limited ? undefined : requestedSupervisor,
+    canPii,
+  );
+  const supervisors = limited ? [] : await getSupervisors();
 
   const rows: ShiftSheetRowDTO[] = sheet.map((g) => ({
     id: g.id,
@@ -76,7 +83,15 @@ export default async function AttendancePage({ searchParams }: PageProps) {
         <h2 className="text-2xl font-bold text-slate-900">Shift Sheet</h2>
         <p className="mt-1 text-sm text-slate-500">
           Per-shift clock-in for{" "}
-          {isOwnGuardsOnly(user.role) ? "your assigned guards" : "guards"}.
+          {scope.kind === "supervisor"
+            ? "your assigned guards"
+            : scope.kind === "branch"
+              ? "your branch's guards"
+              : scope.kind === "stations"
+                ? "the guards at your site"
+                : scope.kind === "none"
+                  ? "guards (none: you have no branch or site yet — ask IT)"
+                  : "guards"}.
         </p>
       </div>
 

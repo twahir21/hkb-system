@@ -16,6 +16,7 @@ import {
 
 const performer = alias(users, "performed_by");
 const receiver = alias(users, "received_by");
+const inCharge = alias(users, "in_charge");
 
 export type StationRow = {
   id: string;
@@ -24,6 +25,8 @@ export type StationRow = {
   regionName: string;
   supervisorId: string | null;
   supervisorName: string | null;
+  inChargeId: string | null;
+  inChargeName: string | null;
 };
 
 export async function listRegions() {
@@ -39,12 +42,24 @@ export async function listStations(): Promise<StationRow[]> {
       regionName: regions.name,
       supervisorId: stations.supervisorId,
       supervisorName: users.fullName,
+      inChargeId: stations.inChargeId,
+      inChargeName: inCharge.fullName,
     })
     .from(stations)
     .innerJoin(regions, eq(stations.regionId, regions.id))
     .leftJoin(users, eq(stations.supervisorId, users.id))
+    .leftJoin(inCharge, eq(stations.inChargeId, inCharge.id))
     .orderBy(regions.name, stations.name);
   return rows;
+}
+
+/** Users with the In-Charge role (guards who lead one site). */
+export async function listInChargeUsers() {
+  return db
+    .select({ id: users.id, fullName: users.fullName })
+    .from(users)
+    .where(eq(users.role, "IN_CHARGE"))
+    .orderBy(users.fullName);
 }
 
 export async function listItems() {

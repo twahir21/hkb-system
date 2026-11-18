@@ -33,6 +33,8 @@ export const stationSchema = z.object({
   name: z.string().trim().min(2).max(150),
   regionId: uuid,
   supervisorId: uuid.optional(),
+  /** In-Charge (guard leader) of this site. One site per In-Charge. */
+  inChargeId: uuid.optional(),
 });
 
 export const stationUpdateSchema = stationSchema.extend({

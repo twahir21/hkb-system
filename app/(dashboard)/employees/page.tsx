@@ -5,6 +5,7 @@ import { t } from "@/lib/i18n";
 import { listEmployees, listExpiringContracts } from "@/features/employees/queries/employees";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { getStaffBranchLimit } from "@/lib/auth/guard-scope";
 
 export default async function EmployeesPage({
   searchParams,
@@ -17,6 +18,11 @@ export default async function EmployeesPage({
     return <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">{E.notAllowed}</div>;
   }
   const canContracts = hasPermission(user.role, "CONTRACT_VIEW");
+  // Office Assistant: own branch only.
+  const branchLimit = await getStaffBranchLimit(user.userId, user.role);
+  if (branchLimit === "none") {
+    return <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">{E.notAllowed}</div>;
+  }
 
   const sp = await searchParams;
   const tab = sp.tab === "guards" ? "guards" : sp.tab === "expiring" && canContracts ? "expiring" : "staff";
@@ -63,14 +69,24 @@ export default async function EmployeesPage({
         )}
       </div>
 
-      {tab === "expiring" ? <ExpiringTable /> : <EmployeeTable group={tab} q={q} showContracts={canContracts} />}
+      {tab === "expiring" ? <ExpiringTable /> : <EmployeeTable group={tab} q={q} showContracts={canContracts} branchId={branchLimit ?? undefined} />}
     </div>
   );
 }
 
-async function EmployeeTable({ group, q, showContracts }: { group: "staff" | "guards"; q: string; showContracts: boolean }) {
+async function EmployeeTable({
+  group,
+  q,
+  showContracts,
+  branchId,
+}: {
+  group: "staff" | "guards";
+  q: string;
+  showContracts: boolean;
+  branchId?: string;
+}) {
   const E = t.employees;
-  const rows = (await listEmployees(group)).filter((r) => !q || r.fullName.toLowerCase().includes(q));
+  const rows = (await listEmployees(group, branchId)).filter((r) => !q || r.fullName.toLowerCase().includes(q));
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full text-left text-sm">

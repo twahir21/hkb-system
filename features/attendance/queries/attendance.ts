@@ -5,6 +5,7 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
 import { attendanceLogs, guardProfiles, users } from "@/lib/db/schema";
 import { listGuards, type GuardRow } from "@/features/hr/queries/guards";
+import { guardInScope, type GuardScope } from "@/lib/auth/guard-scope";
 
 const supervisor = alias(users, "supervisor");
 
@@ -15,13 +16,16 @@ export type ShiftSheetRow = GuardRow & {
 export async function getShiftSheet(
   date: string,
   shift: "DAY" | "NIGHT",
+  scope: GuardScope,
   supervisorId?: string,
   includePii = false,
 ): Promise<ShiftSheetRow[]> {
   const guards = await listGuards(includePii);
-  const scoped = supervisorId
-    ? guards.filter((g) => g.assignedSupervisorId === supervisorId)
-    : guards;
+  const scoped = guards.filter(
+    (g) =>
+      guardInScope(g, scope) &&
+      (!supervisorId || g.assignedSupervisorId === supervisorId),
+  );
 
   const logRows = scoped.length
     ? await db
@@ -66,9 +70,11 @@ export async function listLogs(filters: {
   status?: "PRESENT" | "ABSENT" | "LATE";
   supervisorId?: string;
   guardId?: string;
-  guardIds?: string[];
+  /** Limit to these guards. null/undefined = no limit; [] = no rows. */
+  guardIds?: string[] | null;
   limit?: number;
 }): Promise<LogRow[]> {
+  if (filters.guardIds && filters.guardIds.length === 0) return [];
   const conds: SQL[] = [];
   if (filters.date) conds.push(eq(attendanceLogs.date, filters.date));
   if (filters.fromDate) conds.push(gte(attendanceLogs.date, filters.fromDate));

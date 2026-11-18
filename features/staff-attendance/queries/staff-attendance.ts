@@ -47,8 +47,8 @@ export type StaffSheetRow = StaffMember & {
   log: StaffAttendanceLogDTO | null;
 };
 
-/** Get all non-guard staff members */
-export async function getStaffMembers(): Promise<StaffMember[]> {
+/** Get all non-guard staff members (optionally only one branch's). */
+export async function getStaffMembers(branchId?: string): Promise<StaffMember[]> {
   const rows = await db
     .select({
       id: users.id,
@@ -60,15 +60,23 @@ export async function getStaffMembers(): Promise<StaffMember[]> {
       avatarUrl: users.avatarUrl,
     })
     .from(users)
-    .where(notInArray(users.role, [...GUARD_ROLES]))
+    .where(
+      and(
+        notInArray(users.role, [...GUARD_ROLES]),
+        branchId ? eq(users.branchId, branchId) : undefined
+      )
+    )
     .orderBy(users.fullName);
 
   return rows;
 }
 
 /** Get staff attendance sheet for a specific calendar date */
-export async function getStaffAttendanceSheet(date: string): Promise<StaffSheetRow[]> {
-  const staffList = await getStaffMembers();
+export async function getStaffAttendanceSheet(
+  date: string,
+  branchId?: string
+): Promise<StaffSheetRow[]> {
+  const staffList = await getStaffMembers(branchId);
 
   if (staffList.length === 0) {
     return [];
@@ -125,9 +133,12 @@ export async function listStaffAttendanceLogs(filters: {
   toDate?: string;
   status?: AttendanceStatus;
   role?: Role;
+  /** Only staff of this branch (users.branch_id). */
+  branchId?: string;
   limit?: number;
 }): Promise<StaffHistoryRow[]> {
   const conds: SQL[] = [];
+  if (filters.branchId) conds.push(eq(users.branchId, filters.branchId));
 
   if (filters.userId) conds.push(eq(staffAttendanceLogs.userId, filters.userId));
   if (filters.date) conds.push(eq(staffAttendanceLogs.date, filters.date));

@@ -3,6 +3,7 @@ import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { listLogs } from "@/lib/queries";
 import { getGuardByUserId } from "@/lib/queries";
 import { RecordsView } from "@/components/records/RecordsView";
+import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
 
 export default async function RecordsPage() {
   const user = await getCurrentUser();
@@ -14,7 +15,10 @@ export default async function RecordsPage() {
     const profile = await getGuardByUserId(user.userId);
     logs = profile ? await listLogs({ guardId: profile.id, limit: 2000 }) : [];
   } else if (hasPermission(user.role, "ATTENDANCE_VIEW_ALL")) {
-    logs = await listLogs({ limit: 2000 });
+    // Office Assistant: own branch only. Supervisors keep the full history view.
+    const scope = await getGuardScope(user.userId, user.role);
+    const guardIds = scope.kind === "supervisor" ? null : await getScopedGuardIds(scope);
+    logs = await listLogs({ guardIds, limit: 2000 });
   } else {
     logs = [];
   }

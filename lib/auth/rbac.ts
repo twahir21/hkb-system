@@ -10,8 +10,10 @@ import { t } from "@/lib/i18n";
  */
 const BASE_PERMISSIONS = {
   // Attendance (Guards)
+  // In-Charge: only the guards of the site they lead (see guard-scope.ts).
   ATTENDANCE_RECORD: [
     "SUPERVISOR",
+    "IN_CHARGE",
     "OPERATION_OFFICER",
     "OPERATIONS_MANAGER",
     "SENIOR_SUPERVISOR",
@@ -28,14 +30,17 @@ const BASE_PERMISSIONS = {
     "HR",
     "BURSAR",
     "SECRETARY",
+    // Office Assistant: own branch only (guard-scope.ts).
+    "OFFICE_ASSISTANT",
   ],
   ATTENDANCE_VIEW_OWN: ["GUARD", "IN_CHARGE"],
   SICKNESS_DOC_AUDIT: ["CEO", "SUPER_ADMIN", "HR"],
 
   // Staff Attendance (Office & Operations Staff)
-  STAFF_ATTENDANCE_VIEW: ["CEO", "SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
-  STAFF_ATTENDANCE_RECORD: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
-  STAFF_ATTENDANCE_EDIT: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+  // Office Assistant: own branch's staff only (getStaffBranchLimit).
+  STAFF_ATTENDANCE_VIEW: ["CEO", "SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER", "OFFICE_ASSISTANT"],
+  STAFF_ATTENDANCE_RECORD: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER", "OFFICE_ASSISTANT"],
+  STAFF_ATTENDANCE_EDIT: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER", "OFFICE_ASSISTANT"],
   // Changing recorded times (check-in / sign-out) — Super Admin only
   STAFF_ATTENDANCE_EDIT_TIME: ["SUPER_ADMIN"],
 
@@ -114,6 +119,8 @@ const BASE_PERMISSIONS = {
     "OPERATION_OFFICER",
     "SECRETARY",
     "SUPER_ADMIN",
+    // Office Assistant: own branch's guards only.
+    "OFFICE_ASSISTANT",
   ],
   PAYROLL_EXPORT: ["CEO", "SUPER_ADMIN", "HR", "BURSAR", "OPERATIONS_MANAGER"],
 
@@ -160,7 +167,8 @@ const BASE_PERMISSIONS = {
   MPANGOKAZI_VIEW_BRANCH: ["SENIOR_SUPERVISOR", "OPERATION_OFFICER", "OFFICE_ASSISTANT"],
 
   // Employees (staff directory & HR profile)
-  EMPLOYEE_VIEW: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
+  // Office Assistant: own branch only.
+  EMPLOYEE_VIEW: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER", "OFFICE_ASSISTANT"],
   EMPLOYEE_MANAGE: ["SUPER_ADMIN", "HR"],
   // Contracts include salary — HR, Accounts and IT only.
   CONTRACT_VIEW: ["CEO", "SUPER_ADMIN", "HR", "BURSAR"],

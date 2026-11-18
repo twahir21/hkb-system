@@ -59,7 +59,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/attendance",
         label: t.nav.shiftSheet,
         icon: ClipboardCheck,
-        anyOf: ["ATTENDANCE_VIEW_ALL"],
+        anyOf: ["ATTENDANCE_VIEW_ALL", "ATTENDANCE_RECORD"],
       },
       {
         href: "/staff-attendance",

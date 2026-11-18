@@ -6,6 +6,7 @@ import {
 } from "@/features/staff-attendance/queries/staff-attendance";
 import { StaffAttendanceView } from "@/features/staff-attendance/components/StaffAttendanceView";
 import { todayISO } from "@/lib/utils";
+import { getStaffBranchLimit } from "@/lib/auth/guard-scope";
 
 type PageProps = {
   searchParams: Promise<{
@@ -26,17 +27,27 @@ export default async function StaffAttendancePage({ searchParams }: PageProps) {
   if (!canView || !user) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
-        You do not have permission to view staff attendance records. This section
-        is restricted to Super Admin, Bursar, Secretary, and Storekeeper.
+        You do not have permission to view staff attendance records.
       </div>
     );
   }
 
   const date = sp.date ?? todayISO();
 
+  // Office Assistant: own branch's staff only.
+  const branchLimit = await getStaffBranchLimit(user.userId, user.role);
+  if (branchLimit === "none") {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-800">
+        You have no branch yet. Ask IT to set your branch.
+      </div>
+    );
+  }
+  const branchId = branchLimit ?? undefined;
+
   const [sheetRows, historyLogs] = await Promise.all([
-    getStaffAttendanceSheet(date),
-    listStaffAttendanceLogs({ limit: 1000 }),
+    getStaffAttendanceSheet(date, branchId),
+    listStaffAttendanceLogs({ branchId, limit: 1000 }),
   ]);
 
   return (

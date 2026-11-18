@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { regions, stations } from "@/lib/db/schema";
+import { regions, stations, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import {
@@ -91,6 +91,7 @@ export async function updateStation(
     name: formData.get("name") ?? undefined,
     regionId: formData.get("regionId") ?? undefined,
     supervisorId: formData.get("supervisorId") || undefined,
+    inChargeId: formData.get("inChargeId") || undefined,
   });
   if (!parsed.success) {
     return {
@@ -99,13 +100,26 @@ export async function updateStation(
     };
   }
 
+  const inChargeId = parsed.data.inChargeId ?? null;
+  if (inChargeId) {
+    const person = await db.query.users.findFirst({
+      where: eq(users.id, inChargeId),
+      columns: { role: true },
+    });
+    if (person?.role !== "IN_CHARGE") {
+      return { ok: false, error: "The chosen person is not an In-Charge." };
+    }
+  }
+
   try {
+
     const [station] = await db
       .update(stations)
       .set({
         name: parsed.data.name,
         regionId: parsed.data.regionId,
         supervisorId: parsed.data.supervisorId ?? null,
+        inChargeId,
         updatedAt: new Date(),
       })
       .where(eq(stations.id, parsed.data.id))
@@ -113,6 +127,14 @@ export async function updateStation(
 
     if (!station) {
       return { ok: false, error: "Station not found." };
+    }
+
+    // An In-Charge leads one site: release them from any other site.
+    if (inChargeId) {
+      await db
+        .update(stations)
+        .set({ inChargeId: null, updatedAt: new Date() })
+        .where(and(eq(stations.inChargeId, inChargeId), ne(stations.id, station.id)));
     }
 
     await writeAuditLog({
@@ -124,6 +146,7 @@ export async function updateStation(
         name: parsed.data.name,
         regionId: parsed.data.regionId,
         supervisorId: parsed.data.supervisorId ?? null,
+        inChargeId,
       },
     });
   } catch {

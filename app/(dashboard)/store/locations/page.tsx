@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { getSupervisors } from "@/features/hr/queries/guards";
-import { listRegions, listStations } from "@/features/store/queries/stock";
+import { listInChargeUsers, listRegions, listStations } from "@/features/store/queries/stock";
 import { RegionForm, StationForm, StationManager } from "@/features/store";
 import { getRegionSiteAnalytics } from "@/features/hr/queries/locations";
 import { RegionAnalyticsCard } from "@/features/hr/components/RegionAnalyticsCard";
@@ -16,11 +16,12 @@ export default async function StoreLocationsPage() {
     );
   }
 
-  const [regions, stations, supervisors, analytics] = await Promise.all([
+  const [regions, stations, supervisors, analytics, inCharges] = await Promise.all([
     listRegions(),
     listStations(),
     getSupervisors(),
     getRegionSiteAnalytics(),
+    listInChargeUsers(),
   ]);
 
   return (
@@ -28,7 +29,7 @@ export default async function StoreLocationsPage() {
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Regions &amp; Stations</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Where stock is held and guards are posted — manage stations and assign supervisors.
+          Where stock is held and guards are posted — manage stations, assign supervisors and each site&apos;s In-Charge.
         </p>
       </div>
       <RegionAnalyticsCard
@@ -52,6 +53,7 @@ export default async function StoreLocationsPage() {
               fullName: s.fullName,
               role: s.role,
             }))}
+            inCharges={inCharges}
           />
         </div>
       </div>

@@ -28,8 +28,8 @@ export type EmployeeRow = {
   hasActiveContract: boolean;
 };
 
-/** Staff (group "staff") or guards (group "guards") with HR summary. */
-export async function listEmployees(group: "staff" | "guards"): Promise<EmployeeRow[]> {
+/** Staff (group "staff") or guards (group "guards") with HR summary. `branchId`: only that branch. */
+export async function listEmployees(group: "staff" | "guards", branchId?: string): Promise<EmployeeRow[]> {
   const rows = await db
     .select({
       userId: users.id,
@@ -45,7 +45,12 @@ export async function listEmployees(group: "staff" | "guards"): Promise<Employee
     .leftJoin(branches, eq(users.branchId, branches.id))
     .leftJoin(employeeProfiles, eq(employeeProfiles.userId, users.id))
     .leftJoin(guardProfiles, eq(guardProfiles.userId, users.id))
-    .where(group === "guards" ? inArray(users.role, [...GUARD_ROLES]) : notInArray(users.role, [...GUARD_ROLES]))
+    .where(
+      and(
+        group === "guards" ? inArray(users.role, [...GUARD_ROLES]) : notInArray(users.role, [...GUARD_ROLES]),
+        branchId ? eq(users.branchId, branchId) : undefined
+      )
+    )
     .orderBy(asc(users.fullName));
 
   const ids = rows.map((r) => r.userId);
@@ -76,6 +81,7 @@ export async function getEmployee(userId: string) {
       fullName: users.fullName,
       email: users.email,
       role: users.role,
+      branchId: users.branchId,
       branchName: branches.name,
       profile: employeeProfiles,
       guardEmployeeId: guardProfiles.employeeId,

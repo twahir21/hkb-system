@@ -4,14 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { attendanceLogs } from "@/lib/db/schema";
+import { attendanceLogs, guardProfiles } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { markAttendanceSchema } from "@/features/attendance/validators/attendance.schema";
 import { tryAcquireShiftLock, releaseShiftLock } from "@/lib/redis";
-import { getSupervisorIdForGuard } from "@/features/hr/queries/guards";
 import { uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
-import { isOwnGuardsOnly } from "@/lib/auth/roles";
+import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
 
 export type ActionState = {
   ok: boolean;
@@ -50,12 +49,21 @@ export async function markAttendance(
   }
   const v = parsed.data;
 
-  // Plain supervisors may only record their own assigned guards.
-  if (isOwnGuardsOnly(user.role)) {
-    const assigned = await getSupervisorIdForGuard(v.guardId);
-    if (assigned !== user.userId) {
-      return { ok: false, error: "This guard is not assigned to you." };
-    }
+  // Supervisors: own guards only. In-Charge: own site only.
+  const allowed = await getScopedGuardIds(
+    await getGuardScope(user.userId, user.role),
+  );
+  if (allowed && !allowed.includes(v.guardId)) {
+    return { ok: false, error: "This guard is not in your area." };
+  }
+
+  // Nobody marks their own attendance (an In-Charge is a guard at their site).
+  const target = await db.query.guardProfiles.findFirst({
+    where: eq(guardProfiles.id, v.guardId),
+    columns: { userId: true },
+  });
+  if (target?.userId === user.userId) {
+    return { ok: false, error: "You cannot mark your own attendance." };
   }
 
   // Overwriting an existing log (correction) requires ATTENDANCE_EDIT.

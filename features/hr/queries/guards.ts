@@ -17,6 +17,8 @@ export type GuardRow = {
   workLocation: string;
   stationId: string | null;
   regionName: string | null;
+  /** Site's region branch, else the assigned supervisor's branch. */
+  branchId: string | null;
   clientId: string | null;
   clientName: string | null;
   kinName: string;
@@ -57,6 +59,7 @@ export async function listGuards(
       supervisorName: sql<string | null>`${supervisor.fullName}`.as("supervisor_name"),
       regionName: sql<string | null>`${regions.name}`.as("region_name"),
       clientName: sql<string | null>`${clients.name}`.as("client_name"),
+      branchId: sql<string | null>`COALESCE(${regions.branchId}, ${supervisor.branchId})`.as("guard_branch_id"),
     })
     .from(guardProfiles)
     .innerJoin(users, eq(guardProfiles.userId, users.id))
@@ -82,6 +85,7 @@ export async function listGuards(
     workLocation: r.guard.workLocation,
     stationId: r.guard.stationId,
     regionName: r.regionName ?? null,
+    branchId: r.branchId ?? null,
     clientId: r.guard.clientId,
     clientName: r.clientName ?? null,
     kinName: includePii ? r.guard.kinName : "",

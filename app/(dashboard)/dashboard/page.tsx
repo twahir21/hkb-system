@@ -28,7 +28,7 @@ import { todayISO } from "@/lib/utils";
 import { getIncidentScope, getOpenIncidentCounts } from "@/features/incidents/queries/incidents";
 import { listExpiringContracts } from "@/features/employees/queries/employees";
 import { t } from "@/lib/i18n";
-import { isOwnGuardsOnly } from "@/lib/auth/roles";
+import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
 
 function Stat({
   label,
@@ -88,21 +88,29 @@ export default async function DashboardPage() {
 
   const expiring = hasPermission(role, "CONTRACT_VIEW") ? await listExpiringContracts(60) : [];
 
-  const counts = await getDashboardCounts(role, userId);
+  // Supervisors: own guards. Office Assistant: own branch. In-Charge: own site.
+  const guardScope = await getGuardScope(userId, role);
+  const scopedGuardIds = await getScopedGuardIds(guardScope);
+  const limited = guardScope.kind !== "all";
+
+  const counts = await getDashboardCounts(role, userId, scopedGuardIds);
   const today = todayISO();
-  const todaysLogs = showAttendance ? await listLogs({ date: today, limit: 2000 }) : [];
+  const todaysLogs = showAttendance
+    ? await listLogs({ date: today, guardIds: scopedGuardIds, limit: 2000 })
+    : [];
   const present = todaysLogs.filter((l) => l.status === "PRESENT").length;
   const late = todaysLogs.filter((l) => l.status === "LATE").length;
   const absent = todaysLogs.filter((l) => l.status === "ABSENT").length;
 
-  const supervisorFilter = isOwnGuardsOnly(role) ? userId : undefined;
-  const sevenDayTrend = await get7DayAttendanceTrend(supervisorFilter);
+  const sevenDayTrend = await get7DayAttendanceTrend(scopedGuardIds);
 
   const now = new Date();
   const monthlySummary = await getMonthlyAttendanceSummary(
     now.getFullYear(),
     now.getMonth() + 1,
-    supervisorFilter
+    undefined,
+    false,
+    guardScope
   );
 
   const canRecord = hasPermission(role, "ATTENDANCE_RECORD");
@@ -177,8 +185,8 @@ export default async function DashboardPage() {
       {/* Top 5 KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat
-          label={isOwnGuardsOnly(role) ? "Assigned Guards" : "Registered Guards"}
-          value={isOwnGuardsOnly(role) ? counts.assignedGuards : counts.totalGuards}
+          label={limited ? "Your Guards" : "Registered Guards"}
+          value={limited ? counts.assignedGuards : counts.totalGuards}
           icon={<Users className="h-5 w-5" />}
           href={canSeeGuards ? "/guards" : undefined}
           subtitle={

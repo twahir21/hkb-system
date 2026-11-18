@@ -80,3 +80,20 @@ export const OWN_GUARDS_ONLY_ROLES = ["SUPERVISOR", "SECRETARY_SUPERVISOR"] as c
 export function isOwnGuardsOnly(role: RoleValue | string | null | undefined): boolean {
   return (OWN_GUARDS_ONLY_ROLES as readonly string[]).includes(role ?? "");
 }
+
+/**
+ * Remote-branch roles: they work only with their own branch's guards and
+ * staff (users.branch_id; a guard's branch is their site's region branch).
+ */
+export const OWN_BRANCH_ONLY_ROLES = ["OFFICE_ASSISTANT"] as const satisfies readonly RoleValue[];
+
+export function isOwnBranchOnly(role: RoleValue | string | null | undefined): boolean {
+  return (OWN_BRANCH_ONLY_ROLES as readonly string[]).includes(role ?? "");
+}
+
+/** Roles that work only with the guards of the site they lead (stations.in_charge_id). */
+export const OWN_SITE_ONLY_ROLES = ["IN_CHARGE"] as const satisfies readonly RoleValue[];
+
+export function isOwnSiteOnly(role: RoleValue | string | null | undefined): boolean {
+  return (OWN_SITE_ONLY_ROLES as readonly string[]).includes(role ?? "");
+}

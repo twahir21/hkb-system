@@ -3,6 +3,7 @@ import { hasPermission } from "@/lib/auth/rbac";
 import { listStaffAttendanceLogs } from "@/features/staff-attendance/queries/staff-attendance";
 import { renderStaffReportPdf, type StaffReportData } from "@/lib/pdf/staff-report-document";
 import type { Role, AttendanceStatus } from "@/lib/db/schema";
+import { getStaffBranchLimit } from "@/lib/auth/guard-scope";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +20,10 @@ export async function GET(request: Request) {
     return new Response("Forbidden", { status: 403 });
   }
 
+  // Office Assistant: own branch's staff only.
+  const branchLimit = await getStaffBranchLimit(user.userId, user.role);
+  if (branchLimit === "none") return new Response("Forbidden", { status: 403 });
+
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
   const startDate = searchParams.get("startDate");
@@ -32,6 +37,7 @@ export async function GET(request: Request) {
     toDate: endDate || undefined,
     role: role || undefined,
     status: status || undefined,
+    branchId: branchLimit ?? undefined,
     limit: 2000,
   });
 

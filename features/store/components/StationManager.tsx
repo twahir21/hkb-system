@@ -20,6 +20,7 @@ import {
 
 type RegionOpt = { id: string; name: string };
 type SupervisorOpt = { id: string; fullName: string; role?: string };
+type InChargeOpt = { id: string; fullName: string };
 
 const inputCls =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500";
@@ -30,11 +31,13 @@ function EditStationForm({
   station,
   regions,
   supervisors,
+  inCharges,
   onDone,
 }: {
   station: StationRow;
   regions: RegionOpt[];
   supervisors: SupervisorOpt[];
+  inCharges: InChargeOpt[];
   onDone: () => void;
 }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
@@ -101,6 +104,26 @@ function EditStationForm({
         </select>
       </label>
 
+      <label className="block">
+        <span className={labelSpanCls}>In-Charge</span>
+        <p className="mb-1 text-xs text-slate-500">
+          The guard who leads this site. They mark attendance for this site&apos;s guards only.
+          One site per In-Charge: choosing someone here removes them from their old site.
+        </p>
+        <select
+          name="inChargeId"
+          defaultValue={station.inChargeId ?? ""}
+          className={inputCls}
+        >
+          <option value="">— None —</option>
+          {inCharges.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.fullName}
+            </option>
+          ))}
+        </select>
+      </label>
+
       {state.error && (
         <p className="rounded-lg bg-rose-50 p-2.5 text-xs text-rose-700">
           {state.error}
@@ -128,10 +151,12 @@ export function StationManager({
   stations,
   regions,
   supervisors,
+  inCharges,
 }: {
   stations: StationRow[];
   regions: RegionOpt[];
   supervisors: SupervisorOpt[];
+  inCharges: InChargeOpt[];
 }) {
   const [q, setQ] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
@@ -237,6 +262,9 @@ export function StationManager({
               <UserX className="h-3.5 w-3.5 text-amber-500" />
               Unassigned
             </span>
+          )}
+          {r.inChargeName && (
+            <p className="mt-1 text-xs text-slate-500">In-Charge: {r.inChargeName}</p>
           )}
         </div>
       ),
@@ -367,6 +395,7 @@ export function StationManager({
             station={editingStation}
             regions={regions}
             supervisors={supervisors}
+            inCharges={inCharges}
             onDone={() => setEditingStation(null)}
           />
         )}

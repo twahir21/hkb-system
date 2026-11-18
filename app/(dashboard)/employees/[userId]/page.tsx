@@ -10,6 +10,7 @@ import {
   EmployeeProfileForm,
 } from "@/features/employees/components/EmployeeForms";
 import { Badge, Card } from "@/components/ui";
+import { getStaffBranchLimit } from "@/lib/auth/guard-scope";
 
 const STATUS_TONE = { ACTIVE: "emerald", ENDED: "slate", TERMINATED: "rose" } as const;
 
@@ -25,6 +26,9 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
 
   const emp = await getEmployee(userId);
   if (!emp) notFound();
+  // Office Assistant: own branch only.
+  const branchLimit = await getStaffBranchLimit(user.userId, user.role);
+  if (branchLimit !== null && emp.branchId !== branchLimit) notFound();
 
   const canEdit = hasPermission(user.role, "EMPLOYEE_MANAGE");
   const canViewContracts = hasPermission(user.role, "CONTRACT_VIEW");

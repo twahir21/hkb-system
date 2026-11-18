@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, count, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   attendanceLogs,
@@ -21,7 +21,16 @@ export type DailyTrendPoint = {
   total: number;
 };
 
-export async function getDashboardCounts(role: string, userId: string, date = today()) {
+/**
+ * `scopedGuardIds`: guards the user works with (null = all guards).
+ * Used for "Assigned Guards"; org-wide totals stay unscoped.
+ */
+export async function getDashboardCounts(
+  role: string,
+  userId: string,
+  scopedGuardIds: string[] | null = null,
+  date = today()
+) {
   // Disabled guards are not counted anywhere on the dashboard — they are only
   // visible in the Guard Registry and the payroll export.
   const [guards] = await db
@@ -34,9 +43,11 @@ export async function getDashboardCounts(role: string, userId: string, date = to
     .where(
       and(
         eq(guardProfiles.isActive, true),
-        isOwnGuardsOnly(role)
-          ? eq(guardProfiles.assignedSupervisorId, userId)
-          : undefined
+        scopedGuardIds === null
+          ? undefined
+          : scopedGuardIds.length
+            ? inArray(guardProfiles.id, scopedGuardIds)
+            : sql`false`
       )
     );
 
@@ -89,8 +100,9 @@ export async function getDashboardCounts(role: string, userId: string, date = to
   };
 }
 
+/** `guardIds`: limit to these guards (null = all guards, [] = none). */
 export async function get7DayAttendanceTrend(
-  supervisorId?: string
+  guardIds: string[] | null = null
 ): Promise<DailyTrendPoint[]> {
   const points: DailyTrendPoint[] = [];
   const now = new Date();
@@ -106,19 +118,7 @@ export async function get7DayAttendanceTrend(
   const startDate = dateStrings[0];
   const endDate = dateStrings[dateStrings.length - 1];
 
-  let guardFilterIds: string[] | undefined;
-  if (supervisorId) {
-    const guardRows = await db
-      .select({ id: guardProfiles.id })
-      .from(guardProfiles)
-      .where(
-        and(
-          eq(guardProfiles.assignedSupervisorId, supervisorId),
-          eq(guardProfiles.isActive, true)
-        )
-      );
-    guardFilterIds = guardRows.map((g) => g.id);
-  }
+  const guardFilterIds = guardIds;
 
   const logs = await db
     .select({
@@ -130,9 +130,11 @@ export async function get7DayAttendanceTrend(
       and(
         gte(attendanceLogs.date, startDate),
         lte(attendanceLogs.date, endDate),
-        guardFilterIds && guardFilterIds.length > 0
-          ? inArray(attendanceLogs.guardId, guardFilterIds)
-          : undefined
+        guardFilterIds === null
+          ? undefined
+          : guardFilterIds.length
+            ? inArray(attendanceLogs.guardId, guardFilterIds)
+            : sql`false`
       )
     );
 

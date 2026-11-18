@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { getGuardMonthlyDetail, getGuardByUserId } from "@/lib/queries";
 import { GuardMonthlyDetail, tierBadge } from "@/components/reports/GuardMonthlyDetail";
+import { getGuardScope, getScopedGuardIds } from "@/lib/auth/guard-scope";
 
 type PageProps = {
   params: Promise<{ guardId: string }>;
@@ -13,7 +14,17 @@ export default async function GuardMonthlyDetailPage({ params, searchParams }: P
   const { guardId } = await params;
   const sp = await searchParams;
 
-  const canViewAll = hasPermission(user?.role, "ATTENDANCE_VIEW_ALL");
+  // Office Assistant: own branch's guards only. Supervisors keep full view.
+  const scope =
+    user && hasPermission(user.role, "ATTENDANCE_VIEW_ALL")
+      ? await getGuardScope(user.userId, user.role)
+      : null;
+  const scopedIds = !scope
+    ? []
+    : scope.kind === "supervisor"
+      ? null
+      : await getScopedGuardIds(scope);
+  const canViewAll = scopedIds === null || scopedIds.includes(guardId);
   const isOwnGuardProfile =
     !!user && isGuardRole(user.role) && (await getGuardByUserId(user.userId))?.id === guardId;
 

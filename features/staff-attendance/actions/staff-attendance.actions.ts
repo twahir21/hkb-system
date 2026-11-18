@@ -17,6 +17,20 @@ import {
 } from "@/features/staff-attendance/validators/staff-attendance.schema";
 import { uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
 import { hasPermission } from "@/lib/auth/rbac";
+import { getStaffBranchLimit } from "@/lib/auth/guard-scope";
+import type { Role } from "@/lib/db/schema";
+
+/** Office Assistant may only touch staff of their own branch. Returns an error or null. */
+async function outsideBranch(actor: { userId: string; role: Role }, targetUserId: string) {
+  const limit = await getStaffBranchLimit(actor.userId, actor.role);
+  if (limit === null) return null;
+  if (limit === "none") return "You have no branch yet. Ask IT to set your branch.";
+  const target = await db.query.users.findFirst({
+    where: eq(users.id, targetUserId),
+    columns: { branchId: true },
+  });
+  return target?.branchId === limit ? null : "This staff member is not in your branch.";
+}
 
 export type ActionState = {
   ok: boolean;
@@ -57,6 +71,9 @@ export async function markStaffAttendance(
   }
 
   const v = parsed.data;
+
+  const branchError = await outsideBranch(user, v.userId);
+  if (branchError) return { ok: false, error: branchError };
 
   // If already logged, editing requires STAFF_ATTENDANCE_EDIT
   const [existing] = await db
@@ -318,11 +335,22 @@ export async function markAllStaffPresent(
 
   const { date, checkInTime } = parsed.data;
 
+  // Office Assistant: only their own branch's staff.
+  const branchLimit = await getStaffBranchLimit(user.userId, user.role);
+  if (branchLimit === "none") {
+    return { ok: false, error: "You have no branch yet. Ask IT to set your branch." };
+  }
+
   // Find all non-guard users
   const staffUsers = await db
     .select({ id: users.id })
     .from(users)
-    .where(notInArray(users.role, [...GUARD_ROLES]));
+    .where(
+      and(
+        notInArray(users.role, [...GUARD_ROLES]),
+        branchLimit ? eq(users.branchId, branchLimit) : undefined,
+      ),
+    );
 
   // Find users already marked on this date
   const existingLogs = await db
@@ -389,6 +417,9 @@ export async function clearStaffAttendance(
   }
 
   const { userId, date } = parsed.data;
+
+  const branchError = await outsideBranch(user, userId);
+  if (branchError) return { ok: false, error: branchError };
 
   await db
     .delete(staffAttendanceLogs)
