@@ -23,6 +23,8 @@ export const sw = {
     SECRETARY: "Katibu (HQ)",
     OFFICE_ASSISTANT: "Msaidizi wa Ofisi (Tawi)",
     GUARD: "Askari / Mlinzi",
+    IT_SUPERVISOR: "IT + Msimamizi",
+    SECRETARY_SUPERVISOR: "Katibu + Msimamizi",
   },
   nav: {
     groups: { operate: "Operesheni", store: "Stoo", office: "Ofisi", manage: "Usimamizi" },

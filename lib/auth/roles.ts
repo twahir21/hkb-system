@@ -17,6 +17,8 @@ export const ROLE_VALUES = [
   "SECRETARY",
   "OFFICE_ASSISTANT",
   "GUARD",
+  "IT_SUPERVISOR",
+  "SECRETARY_SUPERVISOR",
 ] as const;
 
 export type RoleValue = (typeof ROLE_VALUES)[number];
@@ -43,6 +45,7 @@ export function isGuardRole(role: RoleValue | string | null | undefined): boolea
 export const ROLE_HIERARCHY = [
   "CEO",
   "SUPER_ADMIN",
+  "IT_SUPERVISOR",
   "OPERATIONS_MANAGER",
   "SENIOR_SUPERVISOR",
   "OPERATION_OFFICER",
@@ -52,6 +55,28 @@ export const ROLE_HIERARCHY = [
   "HR",
   "BURSAR",
   "SECRETARY",
+  "SECRETARY_SUPERVISOR",
   "OFFICE_ASSISTANT",
   "STOREKEEPER",
 ] as const satisfies readonly RoleValue[];
+
+/**
+ * Combined roles: one person doing two jobs (real cases at HKB).
+ * They get every permission of both base roles (see rbac.ts), minus the
+ * exceptions listed there.
+ */
+export const COMBINED_ROLES = {
+  IT_SUPERVISOR: ["SUPER_ADMIN", "SUPERVISOR"],
+  SECRETARY_SUPERVISOR: ["SECRETARY", "SUPERVISOR"],
+} as const satisfies Partial<Record<RoleValue, readonly RoleValue[]>>;
+
+/**
+ * Roles whose guard work is limited to the guards assigned to them
+ * (shift sheet, dashboard counts, reports). IT + Supervisor already sees
+ * everything as IT, so it is not limited.
+ */
+export const OWN_GUARDS_ONLY_ROLES = ["SUPERVISOR", "SECRETARY_SUPERVISOR"] as const satisfies readonly RoleValue[];
+
+export function isOwnGuardsOnly(role: RoleValue | string | null | undefined): boolean {
+  return (OWN_GUARDS_ONLY_ROLES as readonly string[]).includes(role ?? "");
+}

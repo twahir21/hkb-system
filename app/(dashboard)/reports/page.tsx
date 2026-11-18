@@ -6,6 +6,7 @@ import { listClients } from "@/features/hr/queries/clients";
 import { MonthlySummaryView } from "@/components/reports/MonthlySummaryView";
 import { ReportBuilder } from "@/components/reports/ReportBuilder";
 import { GuardPayrollExportBuilder } from "@/components/reports/GuardPayrollExportBuilder";
+import { isOwnGuardsOnly } from "@/lib/auth/roles";
 
 export default async function ReportsPage({
   searchParams,
@@ -30,7 +31,7 @@ export default async function ReportsPage({
   const year = sp.year ? Number(sp.year) : now.getFullYear();
   const month = sp.month ? Number(sp.month) : now.getMonth() + 1;
   const supervisorId =
-    user.role === "SUPERVISOR" ? user.userId : sp.supervisorId || undefined;
+    isOwnGuardsOnly(user.role) ? user.userId : sp.supervisorId || undefined;
 
   const canPii = hasPermission(user.role, "PII_VIEW");
   const [summary, supervisors, regions, clients] = await Promise.all([

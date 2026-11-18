@@ -169,6 +169,13 @@
       "when": 1795000208292,
       "tag": "0023_ceo_role",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795001163652,
+      "tag": "0024_combined_roles",
+      "breakpoints": true
     }
   ]
 }

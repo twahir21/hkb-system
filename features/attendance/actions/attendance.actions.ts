@@ -11,6 +11,7 @@ import { markAttendanceSchema } from "@/features/attendance/validators/attendanc
 import { tryAcquireShiftLock, releaseShiftLock } from "@/lib/redis";
 import { getSupervisorIdForGuard } from "@/features/hr/queries/guards";
 import { uploadFile as uploadFileToStorage } from "@/lib/firebase/firebase-admin";
+import { isOwnGuardsOnly } from "@/lib/auth/roles";
 
 export type ActionState = {
   ok: boolean;
@@ -50,7 +51,7 @@ export async function markAttendance(
   const v = parsed.data;
 
   // Plain supervisors may only record their own assigned guards.
-  if (user.role === "SUPERVISOR") {
+  if (isOwnGuardsOnly(user.role)) {
     const assigned = await getSupervisorIdForGuard(v.guardId);
     if (assigned !== user.userId) {
       return { ok: false, error: "This guard is not assigned to you." };

@@ -10,6 +10,7 @@ import {
   stockTransfers,
   transferRequests,
 } from "@/lib/db/schema";
+import { isOwnGuardsOnly } from "@/lib/auth/roles";
 
 export type DailyTrendPoint = {
   date: string;
@@ -33,7 +34,7 @@ export async function getDashboardCounts(role: string, userId: string, date = to
     .where(
       and(
         eq(guardProfiles.isActive, true),
-        role === "SUPERVISOR"
+        isOwnGuardsOnly(role)
           ? eq(guardProfiles.assignedSupervisorId, userId)
           : undefined
       )
@@ -57,7 +58,7 @@ export async function getDashboardCounts(role: string, userId: string, date = to
   const [totalStations] = await db
     .select({ value: count() })
     .from(stations)
-    .where(role === "SUPERVISOR" ? eq(stations.supervisorId, userId) : undefined);
+    .where(isOwnGuardsOnly(role) ? eq(stations.supervisorId, userId) : undefined);
 
   const [pendingTransfers] = await db
     .select({ value: count() })

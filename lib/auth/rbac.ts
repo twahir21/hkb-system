@@ -1,14 +1,14 @@
 import type { Role } from "@/lib/db/schema";
-import { GUARD_ROLES, ROLE_HIERARCHY, ROLE_VALUES, isGuardRole } from "./roles";
+import { COMBINED_ROLES, GUARD_ROLES, ROLE_HIERARCHY, ROLE_VALUES, isGuardRole, isOwnGuardsOnly } from "./roles";
 
-export { GUARD_ROLES, isGuardRole };
+export { GUARD_ROLES, isGuardRole, isOwnGuardsOnly };
 import { t } from "@/lib/i18n";
 
 /**
  * Permission → roles mapping derived from the RBAC matrix in system.html §2.
  * Every protected operation is authorized against this single source of truth.
  */
-export const PERMISSIONS = {
+const BASE_PERMISSIONS = {
   // Attendance (Guards)
   ATTENDANCE_RECORD: [
     "SUPERVISOR",
@@ -175,7 +175,25 @@ export const PERMISSIONS = {
   LEAVE_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
 } as const;
 
-export type Permission = keyof typeof PERMISSIONS;
+export type Permission = keyof typeof BASE_PERMISSIONS;
+
+/**
+ * Combined roles never get these from a base role:
+ * - IT + Supervisor writes Mpangokazi for their own guards, not a whole branch.
+ */
+const COMBINED_EXCEPTIONS: Partial<Record<keyof typeof COMBINED_ROLES, Permission[]>> = {
+  IT_SUPERVISOR: ["MPANGOKAZI_BRANCH_WIDE"],
+};
+
+/** Final permission → roles map: base roles plus combined roles that inherit them. */
+export const PERMISSIONS: Record<Permission, readonly Role[]> = Object.fromEntries(
+  (Object.entries(BASE_PERMISSIONS) as [Permission, readonly Role[]][]).map(([perm, roles]) => {
+    const combined = (Object.entries(COMBINED_ROLES) as [keyof typeof COMBINED_ROLES, readonly Role[]][])
+      .filter(([role, bases]) => bases.some((b) => roles.includes(b)) && !COMBINED_EXCEPTIONS[role]?.includes(perm))
+      .map(([role]) => role);
+    return [perm, [...new Set([...roles, ...combined])]];
+  })
+) as unknown as Record<Permission, readonly Role[]>;
 
 export function hasPermission(role: Role | undefined, permission: Permission): boolean {
   if (!role) return false;
@@ -200,6 +218,8 @@ export const ROLE_TONES: Record<Role, "emerald" | "amber" | "rose" | "slate" | "
   OPERATION_OFFICER: "brand",
   SUPERVISOR: "brand",
   IN_CHARGE: "brand",
+  IT_SUPERVISOR: "rose",
+  SECRETARY_SUPERVISOR: "violet",
   HR: "violet",
   SECRETARY: "violet",
   OFFICE_ASSISTANT: "violet",
@@ -211,6 +231,8 @@ export const ROLE_TONES: Record<Role, "emerald" | "amber" | "rose" | "slate" | "
 /** Field roles that can be assigned guards (supervisor dropdowns). */
 export const SUPERVISOR_ROLES = [
   "SUPERVISOR",
+  "IT_SUPERVISOR",
+  "SECRETARY_SUPERVISOR",
   "OPERATION_OFFICER",
   "SENIOR_SUPERVISOR",
   "OPERATIONS_MANAGER",

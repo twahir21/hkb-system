@@ -7,6 +7,7 @@ import {
   type ShiftSheetRowDTO,
 } from "@/features/attendance/components/ShiftSheet";
 import { todayISO } from "@/lib/utils";
+import { isOwnGuardsOnly } from "@/lib/auth/roles";
 
 type PageProps = {
   searchParams: Promise<{
@@ -39,10 +40,10 @@ export default async function AttendancePage({ searchParams }: PageProps) {
 
   // A plain supervisor only ever sees their own assigned guards.
   const scopeSupervisor =
-    user.role === "SUPERVISOR" ? user.userId : requestedSupervisor;
+    isOwnGuardsOnly(user.role) ? user.userId : requestedSupervisor;
 
   const sheet = await getShiftSheet(date, shift, scopeSupervisor, canPii);
-  const supervisors = user.role === "SUPERVISOR" ? [] : await getSupervisors();
+  const supervisors = isOwnGuardsOnly(user.role) ? [] : await getSupervisors();
 
   const rows: ShiftSheetRowDTO[] = sheet.map((g) => ({
     id: g.id,
@@ -75,7 +76,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
         <h2 className="text-2xl font-bold text-slate-900">Shift Sheet</h2>
         <p className="mt-1 text-sm text-slate-500">
           Per-shift clock-in for{" "}
-          {user.role === "SUPERVISOR" ? "your assigned guards" : "guards"}.
+          {isOwnGuardsOnly(user.role) ? "your assigned guards" : "guards"}.
         </p>
       </div>
 

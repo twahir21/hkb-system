@@ -111,6 +111,7 @@ Access:
 | C8 | RBAC for new roles + new labels. Operations Manager and labels finished; Office Assistant / In-Charge get only incidents + dashboard until C6 / C8b | pending | medium |
 | C26 | Hierarchy (owner, 2026-11-18): Guard < In-Charge (guard leading a site) < Supervisor (several sites) < Operations Officer (many sites, receives supervisors' reports) < Senior Supervisor (main supervisor of a region) < Operations Manager (all regions). Then HR, Accountant, CEO. In-Charge now treated as a guard everywhere; Mpangokazi view: Senior Supervisor + Ops Officer = own region | finished | small |
 | C27 | CEO role: sees everything + approves (leave, transfers), no IT controls. Department MANAGEMENT. Migration 0023 tested on branch; **production pending approval** | pending | small |
+| C28 | Combined roles IT + Supervisor, Secretary + Supervisor (3 people): union of both roles' permissions; supervisor work limited to own guards (IT + Supervisor sees all as IT). Migration 0024 tested on branch; **production pending approval (0023 + 0024)** | pending | small |
 | C8b | In-Charge (guard leader): link to their site via `stations.in_charge_id`; later let them see their site's guards | pending | medium |
 | C9 | Update CSV bulk import + user form for new roles and branch | finished | small |
 | C10 | Replace inline role check in `jobs.actions.ts` with permission | finished | small |
