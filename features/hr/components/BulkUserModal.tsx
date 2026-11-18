@@ -1,5 +1,6 @@
 "use client";
 
+import { ROLES } from "@/lib/auth/rbac";
 import { useState, useTransition, useRef } from "react";
 import {
   Download,
@@ -117,9 +118,12 @@ export function BulkUserModal({
             <div className="sm:col-span-2">
               <span className="font-bold text-slate-900">role:</span> Must be
               one of:{" "}
-              <span className="text-brand-700 font-semibold">
-                SUPER_ADMIN, SENIOR_SUPERVISOR, OPERATION_OFFICER, SUPERVISOR, HR, BURSAR, STOREKEEPER, SECRETARY, GUARD
-              </span>
+              <span className="text-brand-700 font-semibold">{ROLES.join(", ")}</span>
+            </div>
+            <div className="sm:col-span-2">
+              <span className="font-bold text-slate-900">branch:</span> Optional branch
+              name (e.g. <span className="text-brand-700 font-semibold">Tabora</span>), blank
+              = HQ. Office Assistants need a remote branch; Secretaries stay at HQ.
             </div>
           </div>
         </div>

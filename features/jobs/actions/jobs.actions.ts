@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { hasPermission } from "@/lib/auth/rbac";
 import { jobApplications } from "@/lib/db/schema";
 import { redis } from "@/lib/redis";
 import { deleteFile, getSignedDownloadUrl } from "@/lib/firebase/firebase-admin";
@@ -172,7 +173,7 @@ export async function getDocumentDownloadUrl(
   storageUrl: string
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const actor = await getCurrentUser();
-  if (!actor || !["HR", "SUPER_ADMIN"].includes(actor.role)) {
+  if (!actor || !hasPermission(actor.role, "JOB_APPLICATIONS_MANAGE")) {
     return { ok: false, error: "Huna ruhusa ya kufikia hati hii." };
   }
 

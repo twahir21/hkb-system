@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission } from "@/lib/auth/rbac";
 import { listUsers } from "@/features/hr/queries/users";
 import { UserManager } from "@/features/hr/components/UserManager";
+import { listBranches } from "@/features/branches/queries/branches";
 
 export default async function UsersPage() {
   const user = await getCurrentUser();
@@ -14,7 +15,7 @@ export default async function UsersPage() {
     );
   }
 
-  const users = await listUsers();
+  const [users, branches] = await Promise.all([listUsers(), listBranches()]);
 
   return (
     <div className="space-y-6">
@@ -27,7 +28,7 @@ export default async function UsersPage() {
           credentials. Only users registered here can sign in.
         </p>
       </div>
-      <UserManager users={users} currentUserId={user.userId} />
+      <UserManager users={users} branches={branches} currentUserId={user.userId} />
     </div>
   );
 }

@@ -12,18 +12,9 @@ import {
   pgEnum,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { ROLE_VALUES } from "../auth/roles";
 
-export const roleEnum = pgEnum("user_role", [
-  "SUPER_ADMIN",
-  "SENIOR_SUPERVISOR",
-  "OPERATION_OFFICER",
-  "SUPERVISOR",
-  "HR",
-  "BURSAR",
-  "STOREKEEPER",
-  "SECRETARY",
-  "GUARD",
-]);
+export const roleEnum = pgEnum("user_role", ROLE_VALUES);
 
 export const shiftTypeEnum = pgEnum("shift_type", ["DAY", "NIGHT"]);
 export const attendanceStatusEnum = pgEnum("attendance_status", ["PRESENT", "ABSENT", "LATE"]);
@@ -81,6 +72,26 @@ export const newsStatusEnum = pgEnum("news_status", [
 
 
 export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
+export const incidentLevelEnum = pgEnum("incident_level", [
+  "LOW",
+  "MEDIUM",
+  "HIGH",
+  "CRITICAL",
+]);
+export const incidentStatusEnum = pgEnum("incident_status", [
+  "OPEN", // Not solved yet
+  "RESOLVED", // Solved
+]);
+
+// Branches: HQ (Dar es Salaam) and remote branches (Tabora, Dodoma, ...).
+// One unified system — Office Assistants own (run) a remote branch.
+export const branches = pgTable("branches", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 150 }).notNull().unique(),
+  isHq: boolean("is_hq").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 // Core Users Table
 export const users = pgTable("users", {
@@ -93,6 +104,7 @@ export const users = pgTable("users", {
   avatarUrl: varchar("avatar_url", { length: 512 }),
   role: roleEnum("role").notNull().default("GUARD"),
   gender: genderEnum("gender").notNull().default("MALE"),
+  branchId: uuid("branch_id").references(() => branches.id, { onDelete: "set null" }),
   coverageRequestsLastSeenAt: timestamp("coverage_requests_last_seen_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -304,6 +316,7 @@ export const regions = pgTable("regions", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 150 }).notNull().unique(),
   description: text("description"),
+  branchId: uuid("branch_id").references(() => branches.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -331,6 +344,8 @@ export const stations = pgTable(
       .notNull(),
     name: varchar("name", { length: 150 }).notNull(),
     supervisorId: uuid("supervisor_id").references(() => users.id),
+    // In-Charge: the person running this one station/site.
+    inChargeId: uuid("in_charge_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -570,7 +585,117 @@ export const news = pgTable(
   (table) => [index("news_status_published_idx").on(table.status, table.publishedAt)]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Incident Management
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const incidents = pgTable(
+  "incidents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 200 }).notNull(),
+    description: text("description").notNull(),
+    level: incidentLevelEnum("level").notNull().default("MEDIUM"),
+    status: incidentStatusEnum("status").notNull().default("OPEN"),
+    occurredAt: timestamp("occurred_at").notNull(),
+    stationId: uuid("station_id").references(() => stations.id, { onDelete: "set null" }),
+    clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
+    branchId: uuid("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    reportedById: uuid("reported_by_id")
+      .references(() => users.id)
+      .notNull(),
+    resolvedById: uuid("resolved_by_id").references(() => users.id),
+    resolvedAt: timestamp("resolved_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("incidents_status_level_idx").on(table.status, table.level),
+    index("incidents_branch_idx").on(table.branchId),
+    index("incidents_occurred_at_idx").on(table.occurredAt),
+  ]
+);
+
+// Actions taken on an incident (follow-up log).
+export const incidentActions = pgTable(
+  "incident_actions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    incidentId: uuid("incident_id")
+      .references(() => incidents.id, { onDelete: "cascade" })
+      .notNull(),
+    note: text("note").notNull(),
+    actorId: uuid("actor_id")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("incident_actions_incident_idx").on(table.incidentId)]
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fomu ya Mpangokazi — daily region report sent by supervisors
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const workPlanStatusEnum = pgEnum("work_plan_status", [
+  "PRESENT", // Yupo
+  "OFF", // Off (siku ya mapumziko)
+  "PERMITTED", // Ruhusa
+  "SICK", // Mgonjwa
+  "ABSENT", // Hayupo bila sababu
+]);
+
+export const workPlans = pgTable(
+  "work_plans",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    date: date("date").notNull(),
+    branchId: uuid("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    preparedById: uuid("prepared_by_id")
+      .references(() => users.id)
+      .notNull(),
+    // Snapshot of who prepared it, as printed on the form.
+    preparedByName: varchar("prepared_by_name", { length: 255 }).notNull(),
+    jobPosition: varchar("job_position", { length: 150 }).notNull(),
+    signatureDataUrl: text("signature_data_url").notNull(), // PNG data URL
+    totalGuards: integer("total_guards").notNull(),
+    presentCount: integer("present_count").notNull(),
+    offCount: integer("off_count").notNull(),
+    permittedCount: integer("permitted_count").notNull(),
+    sickCount: integer("sick_count").notNull(),
+    absentCount: integer("absent_count").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("work_plans_preparer_date_unique").on(table.preparedById, table.date),
+    index("work_plans_date_branch_idx").on(table.date, table.branchId),
+  ]
+);
+
+export const workPlanEntries = pgTable(
+  "work_plan_entries",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workPlanId: uuid("work_plan_id")
+      .references(() => workPlans.id, { onDelete: "cascade" })
+      .notNull(),
+    position: integer("position").notNull(), // Na.
+    guardId: uuid("guard_id").references(() => guardProfiles.id, { onDelete: "set null" }),
+    guardName: varchar("guard_name", { length: 255 }).notNull(),
+    point: varchar("point", { length: 255 }).notNull(), // site / station
+    status: workPlanStatusEnum("status").notNull(),
+  },
+  (table) => [index("work_plan_entries_plan_idx").on(table.workPlanId)]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
+export type WorkPlanStatus = (typeof workPlanStatusEnum.enumValues)[number];
+export type Branch = (typeof branches.$inferSelect);
+export type IncidentLevel = (typeof incidentLevelEnum.enumValues)[number];
+export type IncidentStatus = (typeof incidentStatusEnum.enumValues)[number];
+export type Incident = (typeof incidents.$inferSelect);
 export type Gender = (typeof genderEnum.enumValues)[number];
 export type ShiftType = (typeof shiftTypeEnum.enumValues)[number];
 export type AttendanceStatus = (typeof attendanceStatusEnum.enumValues)[number];

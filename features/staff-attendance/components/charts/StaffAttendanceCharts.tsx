@@ -16,8 +16,7 @@ import {
   Bar,
 } from "recharts";
 import type { ChartTooltipProps } from "@/components/ui/charts/chart-tooltip.types";
-import { ROLE_LABELS } from "@/lib/auth/rbac";
-import type { Role } from "@/lib/db/schema";
+import { ROLE_LABELS, STAFF_ROLES } from "@/lib/auth/rbac";
 import type {
   StaffSheetRow,
   StaffHistoryRow,
@@ -113,16 +112,7 @@ export function StaffAttendanceCharts({
 
   // 3. Attendance by Role Breakdown
   const roleData = useMemo(() => {
-    const roles: Role[] = [
-      "SUPER_ADMIN",
-      "BURSAR",
-      "SECRETARY",
-      "STOREKEEPER",
-      "HR",
-      "SENIOR_SUPERVISOR",
-      "OPERATION_OFFICER",
-      "SUPERVISOR",
-    ];
+    const roles = STAFF_ROLES;
 
     const result: { role: string; present: number; late: number; absent: number; total: number; rate: number }[] = [];
 

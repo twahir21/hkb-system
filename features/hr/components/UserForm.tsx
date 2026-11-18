@@ -8,29 +8,20 @@ import {
   type UserActionState,
 } from "@/features/hr/actions/users.actions";
 import type { UserRow } from "@/features/hr/queries/users";
-import { ROLE_LABELS } from "@/lib/auth/rbac";
-import type { Role } from "@/lib/db/schema";
+import type { BranchOption } from "@/features/branches/queries/branches";
+import { ROLE_LABELS, ROLES } from "@/lib/auth/rbac";
 
-const ROLES: Role[] = [
-  "SUPER_ADMIN",
-  "SENIOR_SUPERVISOR",
-  "OPERATION_OFFICER",
-  "SUPERVISOR",
-  "HR",
-  "BURSAR",
-  "STOREKEEPER",
-  "SECRETARY",
-  "GUARD",
-];
 
 const inputCls =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500";
 
 export function UserForm({
   editing,
+  branches,
   onDone,
 }: {
   editing: UserRow | null;
+  branches: BranchOption[];
   onDone: () => void;
 }) {
   const [state, formAction, pending] = useActionState<
@@ -121,6 +112,26 @@ export function UserForm({
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">
+            Branch
+          </label>
+          <select
+            name="branchId"
+            defaultValue={editing?.branchId ?? branches.find((b) => b.isHq)?.id ?? ""}
+            className={inputCls}
+          >
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-[11px] text-slate-400">
+            Office Assistants own a remote branch. Secretaries work at HQ.
+          </p>
         </div>
 
         <div>

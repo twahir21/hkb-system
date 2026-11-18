@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { users, guardProfiles, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
+import { users, guardProfiles, branches, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { parseCsv, type BulkImportRowError, type BulkImportResult } from "@/lib/csv";
@@ -31,6 +31,7 @@ const userCreateSchema = z.object({
   role: z.enum(roleEnum.enumValues),
   gender: z.enum(genderEnum.enumValues).default("MALE"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  branchId: z.string().uuid("Choose a branch").optional(),
 });
 
 const userUpdateSchema = z.object({
@@ -39,7 +40,29 @@ const userUpdateSchema = z.object({
   role: z.enum(roleEnum.enumValues),
   gender: z.enum(genderEnum.enumValues).optional(),
   password: z.string().min(6).optional().or(z.literal("")),
+  branchId: z.string().uuid("Choose a branch").optional(),
 });
+
+/**
+ * Resolve and validate a user's branch. Missing branch → HQ.
+ * Secretary works at HQ; Office Assistant owns a remote (non-HQ) branch.
+ */
+async function resolveBranch(
+  role: Role,
+  branchId: string | undefined
+): Promise<{ ok: true; branchId: string | null } | { ok: false; error: string }> {
+  const branch = branchId
+    ? await db.query.branches.findFirst({ where: eq(branches.id, branchId) })
+    : await db.query.branches.findFirst({ where: eq(branches.isHq, true) });
+  if (branchId && !branch) return { ok: false, error: "Selected branch no longer exists." };
+  if (role === "OFFICE_ASSISTANT" && (!branch || branch.isHq)) {
+    return { ok: false, error: "An Office Assistant must be assigned to a remote branch (not HQ)." };
+  }
+  if (role === "SECRETARY" && branch && !branch.isHq) {
+    return { ok: false, error: "A Secretary works at HQ. Use Office Assistant for remote branches." };
+  }
+  return { ok: true, branchId: branch?.id ?? null };
+}
 
 /** Create a new system user / staff account (SUPER_ADMIN only) */
 export async function createUser(_prev: UserActionState, formData: FormData): Promise<UserActionState> {
@@ -52,6 +75,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
     role: formData.get("role") ?? undefined,
     gender: formData.get("gender") ?? undefined,
     password: formData.get("password") ?? undefined,
+    branchId: formData.get("branchId") || undefined,
   });
 
   if (!parsed.success) {
@@ -59,6 +83,8 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
   }
 
   const v = parsed.data;
+  const branch = await resolveBranch(v.role, v.branchId);
+  if (!branch.ok) return { ok: false, error: branch.error };
 
   // Check if username or email is already taken
   const existing = await db.query.users.findFirst({
@@ -85,6 +111,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
       fullName: v.fullName,
       role: v.role,
       gender: v.gender,
+      branchId: branch.branchId,
       passwordHash,
     })
     .returning({ id: users.id });
@@ -94,7 +121,7 @@ export async function createUser(_prev: UserActionState, formData: FormData): Pr
     action: "USER_CREATE",
     entity: "users",
     entityId: created.id,
-    metadata: { email: v.email, username: v.username, role: v.role, gender: v.gender },
+    metadata: { email: v.email, username: v.username, role: v.role, gender: v.gender, branchId: branch.branchId },
   });
 
   revalidatePath("/users");
@@ -113,6 +140,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
     role: formData.get("role") ?? undefined,
     gender: formData.get("gender") ?? undefined,
     password: formData.get("password") ?? undefined,
+    branchId: formData.get("branchId") || undefined,
   });
 
   if (!parsed.success) {
@@ -120,6 +148,8 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
   }
 
   const v = parsed.data;
+  const branch = await resolveBranch(v.role, v.branchId);
+  if (!branch.ok) return { ok: false, error: branch.error };
 
   const existing = await db.query.users.findFirst({
     where: eq(users.id, v.id),
@@ -134,10 +164,12 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
     role: Role;
     gender?: Gender;
     passwordHash?: string;
+    branchId: string | null;
     updatedAt: Date;
   } = {
     fullName: v.fullName,
     role: v.role,
+    branchId: branch.branchId,
     ...(v.gender ? { gender: v.gender } : {}),
     updatedAt: new Date(),
   };
@@ -153,7 +185,12 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
     action: "USER_UPDATE",
     entity: "users",
     entityId: v.id,
-    metadata: { role: v.role, gender: v.gender, passwordChanged: Boolean(v.password) },
+    metadata: {
+      role: v.role,
+      gender: v.gender,
+      branchId: branch.branchId,
+      passwordChanged: Boolean(v.password),
+    },
   });
 
   revalidatePath("/users");
@@ -249,8 +286,14 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
     username: string;
     role: Role;
     gender: Gender;
+    branchId: string | null;
     passwordHash: string;
   }[] = [];
+
+  // Optional "branch" column, matched by name (blank → HQ).
+  const allBranches = await db.select().from(branches);
+  const hq = allBranches.find((b) => b.isHq) ?? null;
+  const branchByName = new Map(allBranches.map((b) => [b.name.toLowerCase(), b]));
 
   const errors: BulkImportRowError[] = [];
 
@@ -307,6 +350,25 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       continue;
     }
 
+    const branchRaw = (row.branch || "").trim();
+    const branch = branchRaw ? branchByName.get(branchRaw.toLowerCase()) : hq;
+    if (branchRaw && !branch) {
+      errors.push({
+        row: rowNum,
+        identifier,
+        reason: `Unknown branch '${branchRaw}'. Must be one of: ${allBranches.map((b) => b.name).join(", ")}`,
+      });
+      continue;
+    }
+    if (roleRaw === "OFFICE_ASSISTANT" && (!branch || branch.isHq)) {
+      errors.push({ row: rowNum, identifier, reason: "Office Assistant needs a remote branch (not HQ)" });
+      continue;
+    }
+    if (roleRaw === "SECRETARY" && branch && !branch.isHq) {
+      errors.push({ row: rowNum, identifier, reason: "Secretary must be at HQ" });
+      continue;
+    }
+
     // Check collisions with DB
     if (existingEmails.has(email)) {
       errors.push({ row: rowNum, identifier, reason: `Email '${email}' is already registered in the system` });
@@ -344,6 +406,7 @@ export async function bulkImportUsers(formData: FormData): Promise<BulkImportRes
       username,
       role: roleRaw as Role,
       gender,
+      branchId: branch?.id ?? null,
       passwordHash,
     });
   }

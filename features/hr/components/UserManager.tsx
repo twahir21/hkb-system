@@ -19,7 +19,8 @@ import {
   type Column,
 } from "@/components/ui";
 import type { UserRow } from "@/features/hr/queries/users";
-import { ROLE_LABELS } from "@/lib/auth/rbac";
+import type { BranchOption } from "@/features/branches/queries/branches";
+import { ROLE_LABELS, ROLE_TONES } from "@/lib/auth/rbac";
 import { UserForm } from "./UserForm";
 import { BulkUserModal } from "./BulkUserModal";
 import { deleteUser } from "@/features/hr/actions/users.actions";
@@ -28,9 +29,11 @@ import type { Role } from "@/lib/db/schema";
 
 export function UserManager({
   users,
+  branches,
   currentUserId,
 }: {
   users: UserRow[];
+  branches: BranchOption[];
   currentUserId: string;
 }) {
   const [q, setQ] = useState("");
@@ -95,23 +98,7 @@ export function UserManager({
     });
   };
 
-  const getRoleBadgeTone = (role: Role) => {
-    switch (role) {
-      case "SUPER_ADMIN":
-        return "brand" as const;
-      case "SENIOR_SUPERVISOR":
-      case "OPERATION_OFFICER":
-      case "SUPERVISOR":
-        return "emerald" as const;
-      case "HR":
-      case "SECRETARY":
-        return "violet" as const;
-      case "BURSAR":
-        return "amber" as const;
-      default:
-        return "slate" as const;
-    }
-  };
+  const getRoleBadgeTone = (role: Role) => ROLE_TONES[role] ?? "slate";
 
   const columns: Column<UserRow>[] = [
     {
@@ -150,7 +137,10 @@ export function UserManager({
       key: "role",
       header: "System Role",
       cell: (r) => (
-        <Badge tone={getRoleBadgeTone(r.role)}>{ROLE_LABELS[r.role]}</Badge>
+        <div className="space-y-1">
+          <Badge tone={getRoleBadgeTone(r.role)}>{ROLE_LABELS[r.role]}</Badge>
+          <p className="text-[11px] text-slate-500">{r.branchName ?? "No branch"}</p>
+        </div>
       ),
     },
     {
@@ -355,6 +345,7 @@ export function UserManager({
         <UserForm
           key={editing?.id ?? "new"}
           editing={editing}
+          branches={branches}
           onDone={() => setOpen(false)}
         />
       </Modal>

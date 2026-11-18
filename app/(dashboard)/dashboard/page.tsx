@@ -8,6 +8,7 @@ import {
   Package,
   ShieldCheck,
   FileText,
+  Siren,
 } from "lucide-react";
 import { requireAuth } from "@/lib/auth/dal";
 import {
@@ -22,8 +23,9 @@ import {
   AttendanceTrendAreaChart,
   TodayShiftDonutChart,
 } from "@/components/ui/charts";
-import { hasPermission } from "@/lib/auth/rbac";
+import { hasPermission, ROLE_LABELS } from "@/lib/auth/rbac";
 import { todayISO } from "@/lib/utils";
+import { getIncidentScope, getOpenIncidentCounts } from "@/features/incidents/queries/incidents";
 
 function Stat({
   label,
@@ -71,9 +73,19 @@ export default async function DashboardPage() {
   const role = session.user.role;
   const userId = session.user.id;
 
+  // Org-wide guard attendance is only for roles that may view all attendance.
+  // Branch-scoped roles (Office Assistant, In-Charge), guards and the
+  // storekeeper do not see other branches' numbers.
+  const showAttendance = hasPermission(role, "ATTENDANCE_VIEW_ALL");
+  const incidentScope = await getIncidentScope({ userId, role });
+  const incidentCounts =
+    incidentScope.kind === "all" || incidentScope.kind === "branch"
+      ? await getOpenIncidentCounts(incidentScope)
+      : null;
+
   const counts = await getDashboardCounts(role, userId);
   const today = todayISO();
-  const todaysLogs = await listLogs({ date: today, limit: 2000 });
+  const todaysLogs = showAttendance ? await listLogs({ date: today, limit: 2000 }) : [];
   const present = todaysLogs.filter((l) => l.status === "PRESENT").length;
   const late = todaysLogs.filter((l) => l.status === "LATE").length;
   const absent = todaysLogs.filter((l) => l.status === "ABSENT").length;
@@ -103,19 +115,43 @@ export default async function DashboardPage() {
             Welcome back, {name.split(" ")[0]}.
           </h2>
           <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Overview for {today} · Role: <span className="font-semibold text-slate-700">{role.replace(/_/g, " ")}</span>
+            Overview for {today} · Role: <span className="font-semibold text-slate-700">{ROLE_LABELS[role]}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {showAttendance && (
           <Link
             href="/attendance"
             className="rounded-lg bg-brand-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-brand-500"
           >
             Open Shift Sheet →
           </Link>
+          )}
         </div>
       </div>
 
+      {incidentCounts && (
+        <Link
+          href="/incidents?status=OPEN"
+          className={
+            incidentCounts.critical > 0
+              ? "flex items-center justify-between rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-800 transition hover:bg-rose-100"
+              : "flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 text-slate-700 transition hover:bg-slate-50"
+          }
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <Siren className="h-4 w-4" />
+            {incidentCounts.open} open incident{incidentCounts.open === 1 ? "" : "s"}
+            {incidentScope.kind === "branch" ? " in your branch" : ""}
+          </span>
+          {incidentCounts.critical > 0 && (
+            <span className="text-xs font-bold">{incidentCounts.critical} high / critical</span>
+          )}
+        </Link>
+      )}
+
+      {showAttendance && (
+      <>
       {/* Top 5 KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat
@@ -177,6 +213,9 @@ export default async function DashboardPage() {
           />
         </div>
       </div>
+
+      </>
+      )}
 
       {/* Action / Operational Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -259,12 +298,22 @@ export default async function DashboardPage() {
       {/* Module Shortcuts */}
       <Card title="Quick Navigation" subtitle="Jump directly to key management modules">
         <div className="flex flex-wrap gap-2">
+          {(showAttendance || hasPermission(role, "ATTENDANCE_VIEW_OWN")) && (
           <Link
             href="/records"
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
           >
             <FileText className="h-3.5 w-3.5 text-slate-500" /> Attendance Records
           </Link>
+          )}
+          {incidentScope.kind !== "none" && (
+            <Link
+              href="/incidents"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              <Siren className="h-3.5 w-3.5 text-slate-500" /> Incidents
+            </Link>
+          )}
           {canRecord && (
             <Link
               href="/attendance"

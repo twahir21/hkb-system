@@ -3,6 +3,7 @@ import "server-only";
 import { desc, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
+import { SUPERVISOR_ROLES } from "@/lib/auth/rbac";
 import { guardProfiles, clients, regions, stations, users, type Gender } from "@/lib/db/schema";
 
 export type GuardRow = {
@@ -125,12 +126,7 @@ export async function getSupervisors() {
     .select({ id: users.id, fullName: users.fullName, role: users.role })
     .from(users)
     .where(
-      inArray(users.role, [
-        "SUPERVISOR",
-        "OPERATION_OFFICER",
-        "SENIOR_SUPERVISOR",
-        "SUPER_ADMIN",
-      ])
+      inArray(users.role, [...SUPERVISOR_ROLES])
     )
     .orderBy(users.fullName);
 }

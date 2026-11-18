@@ -127,6 +127,27 @@
       "when": 1790948747105,
       "tag": "0017_job_application_mdhamini",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794995135881,
+      "tag": "0018_branches_roles_incidents",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794996181821,
+      "tag": "0019_mpangokazi",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794996931689,
+      "tag": "0020_remove_tanga_region",
+      "breakpoints": true
     }
   ]
 }

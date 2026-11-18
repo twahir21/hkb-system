@@ -25,14 +25,22 @@ import {
   Newspaper,
   UserCheck,
   Briefcase,
+  Siren,
+  Landmark,
+  ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/db/schema";
-import { ROLE_LABELS } from "@/lib/auth/rbac";
+import { ROLE_LABELS, hasPermission, type Permission } from "@/lib/auth/rbac";
 import { AutoPrintButton } from "./AutoPrintModal";
 
-type NavItem = { href: string; label: string; icon: LucideIcon; roles: Role[] };
+/** A link is shown when the role holds ANY of the listed permissions ("ALL" = every signed-in user). */
+type NavItem = { href: string; label: string; icon: LucideIcon; anyOf: Permission[] | "ALL" };
+
+function canSee(role: Role, item: NavItem) {
+  return item.anyOf === "ALL" || item.anyOf.some((p) => hasPermission(role, p));
+}
 
 const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
@@ -42,58 +50,44 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        roles: [
-          "SUPER_ADMIN",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "HR",
-          "BURSAR",
-          "SECRETARY",
-          "GUARD",
-        ],
+        anyOf: "ALL",
       },
       {
         href: "/attendance",
         label: "Shift Sheet",
         icon: ClipboardCheck,
-        roles: [
-          "SUPER_ADMIN",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "HR",
-          "BURSAR",
-          "SECRETARY",
-        ],
+        anyOf: ["ATTENDANCE_VIEW_ALL"],
       },
       {
         href: "/staff-attendance",
         label: "Staff Attendance",
         icon: UserCheck,
-        roles: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+        anyOf: ["STAFF_ATTENDANCE_VIEW"],
       },
 
       {
         href: "/records",
         label: "Attendance Records",
         icon: FileText,
-        roles: [
-          "SUPER_ADMIN",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "HR",
-          "BURSAR",
-          "SECRETARY",
-          "GUARD",
-        ],
+        anyOf: ["ATTENDANCE_VIEW_ALL", "ATTENDANCE_VIEW_OWN"],
+      },
+      {
+        href: "/mpangokazi",
+        label: "Mpangokazi",
+        icon: ClipboardList,
+        anyOf: ["MPANGOKAZI_SUBMIT", "MPANGOKAZI_VIEW_ALL", "MPANGOKAZI_VIEW_BRANCH"],
+      },
+      {
+        href: "/incidents",
+        label: "Incidents",
+        icon: Siren,
+        anyOf: ["INCIDENT_REPORT", "INCIDENT_MANAGE_ALL", "INCIDENT_MANAGE_BRANCH"],
       },
       {
         href: "/my-summary",
         label: "My Summary",
         icon: CalendarCheck,
-        roles: ["GUARD"],
+        anyOf: ["ATTENDANCE_VIEW_OWN"],
       },
     ],
   },
@@ -104,70 +98,37 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/store",
         label: "Stock Holdings",
         icon: Boxes,
-        roles: [
-          "SUPER_ADMIN",
-          "STOREKEEPER",
-          "BURSAR",
-          "HR",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "SECRETARY",
-        ],
+        anyOf: ["STOCK_VIEW"],
       },
       {
         href: "/store/ledger",
         label: "Stock Ledger",
         icon: ScrollText,
-        roles: [
-          "SUPER_ADMIN",
-          "STOREKEEPER",
-          "BURSAR",
-          "HR",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "SECRETARY",
-        ],
+        anyOf: ["STOCK_VIEW"],
       },
       {
         href: "/store/transfers",
         label: "Stock Transfers",
         icon: ArrowLeftRight,
-        roles: [
-          "SUPER_ADMIN",
-          "STOREKEEPER",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-        ],
+        anyOf: ["STOCK_TRANSFER_INITIATE", "STOCK_TRANSFER_APPROVE"],
       },
       {
         href: "/store/reports",
         label: "Stock Reports",
         icon: FileText,
-        roles: [
-          "SUPER_ADMIN",
-          "STOREKEEPER",
-          "BURSAR",
-          "HR",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "SECRETARY",
-        ],
+        anyOf: ["STOCK_VIEW"],
       },
       {
         href: "/store/items",
         label: "Store Items",
         icon: Package,
-        roles: ["SUPER_ADMIN", "STOREKEEPER"],
+        anyOf: ["STORE_MANAGE_ITEMS"],
       },
       {
         href: "/store/locations",
         label: "Regions & Stations",
         icon: MapPin,
-        roles: ["SUPER_ADMIN", "STOREKEEPER"],
+        anyOf: ["STORE_LOCATIONS_MANAGE"],
       },
     ],
   },
@@ -178,25 +139,25 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/office/credit",
         label: "Guard Debts",
         icon: HandCoins,
-        roles: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER", "HR", "SECRETARY"],
+        anyOf: ["CREDIT_RECORD", "BUSINESS_VIEW"],
       },
       {
         href: "/office/credit/settlement",
         label: "Salary Deductions",
         icon: CalendarX,
-        roles: ["SUPER_ADMIN", "BURSAR"],
+        anyOf: ["CREDIT_SETTLE"],
       },
       {
         href: "/office/business",
         label: "Business Tracking",
         icon: Store,
-        roles: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER", "HR", "SECRETARY"],
+        anyOf: ["BUSINESS_VIEW"],
       },
       {
         href: "/my-credits",
         label: "My Debts",
         icon: Wallet,
-        roles: ["GUARD"],
+        anyOf: ["CREDIT_VIEW_OWN"],
       },
     ],
   },
@@ -207,62 +168,55 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         href: "/users",
         label: "User Accounts",
         icon: UserCog,
-        roles: ["SUPER_ADMIN"],
+        anyOf: ["USER_MANAGE"],
+      },
+      {
+        href: "/branches",
+        label: "Branches",
+        icon: Landmark,
+        anyOf: ["BRANCH_MANAGE"],
       },
       {
         href: "/guards",
         label: "Guard Registry",
         icon: Users,
-        roles: ["SUPER_ADMIN", "HR", "SECRETARY"],
+        anyOf: ["GUARD_MANAGE"],
       },
       {
         href: "/clients",
         label: "Clients",
         icon: Building2,
-        roles: ["SUPER_ADMIN", "HR", "SECRETARY"],
+        anyOf: ["GUARD_MANAGE"],
       },
       {
         href: "/transfers",
         label: "Transfers",
         icon: ArrowLeftRight,
-        roles: [
-          "SUPER_ADMIN",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "SUPERVISOR",
-          "HR",
-        ],
+        anyOf: ["TRANSFER_INITIATE", "TRANSFER_APPROVE"],
       },
       {
         href: "/coverage-requests",
         label: "Coverage Requests",
         icon: BellRing,
-        roles: ["SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
+        anyOf: ["COVERAGE_VIEW"],
       },
       {
         href: "/job-applications",
         label: "Job Applications",
         icon: Briefcase,
-        roles: ["SUPER_ADMIN", "HR", "SECRETARY"],
+        anyOf: ["JOB_APPLICATIONS_VIEW"],
       },
       {
         href: "/news",
         label: "News",
         icon: Newspaper,
-        roles: ["SUPER_ADMIN", "HR", "SECRETARY"],
+        anyOf: ["NEWS_VIEW"],
       },
       {
         href: "/reports",
         label: "Reports",
         icon: ShieldCheck,
-        roles: [
-          "SUPER_ADMIN",
-          "SENIOR_SUPERVISOR",
-          "OPERATION_OFFICER",
-          "HR",
-          "BURSAR",
-          "SECRETARY",
-        ],
+        anyOf: ["REPORTS_FULL_PDF", "REPORTS_SUMMARY"],
       },
     ],
   },
@@ -289,7 +243,7 @@ export function Sidebar({
 
   const groups = NAV_GROUPS.map((g) => ({
     ...g,
-    items: g.items.filter((i) => i.roles.includes(role)),
+    items: g.items.filter((i) => canSee(role, i)),
   })).filter((g) => g.items.length > 0);
 
   const nav = (onNavigate?: () => void) => (

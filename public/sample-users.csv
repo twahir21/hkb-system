@@ -1,7 +1,10 @@
-fullName,email,username,role,gender,password
-John Doe,john.doe@hkb.co,jdoe,SUPERVISOR,MALE,TemporaryPass123!
-Sarah Connor,sarah.connor@hkb.co,sconnor,HR,FEMALE,TemporaryPass123!
-Michael Chang,michael.chang@hkb.co,mchang,BURSAR,MALE,TemporaryPass123!
-David Kim,david.kim@hkb.co,dkim,SENIOR_SUPERVISOR,MALE,TemporaryPass123!
-James Wilson,james.wilson@hkb.co,jwilson,GUARD,MALE,TemporaryPass123!
-Admin Supervisor,admin.sec@hkb.co,adminsec,SUPER_ADMIN,MALE,TemporaryPass123!
+fullName,email,username,role,gender,password,branch
+John Doe,john.doe@hkb.co,jdoe,SUPERVISOR,MALE,TemporaryPass123!,
+Sarah Connor,sarah.connor@hkb.co,sconnor,HR,FEMALE,TemporaryPass123!,
+Michael Chang,michael.chang@hkb.co,mchang,BURSAR,MALE,TemporaryPass123!,
+David Kim,david.kim@hkb.co,dkim,SENIOR_SUPERVISOR,MALE,TemporaryPass123!,
+Grace Mushi,grace.mushi@hkb.co,gmushi,OPERATIONS_MANAGER,FEMALE,TemporaryPass123!,
+Amina Said,amina.said@hkb.co,asaid,OFFICE_ASSISTANT,FEMALE,TemporaryPass123!,Tabora
+Peter Mollel,peter.mollel@hkb.co,pmollel,IN_CHARGE,MALE,TemporaryPass123!,Dodoma
+James Wilson,james.wilson@hkb.co,jwilson,GUARD,MALE,TemporaryPass123!,
+Admin Supervisor,admin.sec@hkb.co,adminsec,SUPER_ADMIN,MALE,TemporaryPass123!,

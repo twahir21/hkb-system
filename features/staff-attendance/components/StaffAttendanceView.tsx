@@ -21,7 +21,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Button, Badge, Modal } from "@/components/ui";
-import { ROLE_LABELS } from "@/lib/auth/rbac";
+import { ROLE_LABELS, ROLE_TONES, STAFF_ROLES } from "@/lib/auth/rbac";
 import type { Role } from "@/lib/db/schema";
 import type {
   StaffSheetRow,
@@ -294,27 +294,10 @@ export function StaffAttendanceView({
     document.body.removeChild(link);
   };
 
-  const getRoleBadge = (role: Role) => {
-    const label = ROLE_LABELS[role] ?? role;
-    switch (role) {
-      case "SUPER_ADMIN":
-        return <Badge tone="rose">{label}</Badge>;
-      case "BURSAR":
-        return <Badge tone="amber">{label}</Badge>;
-      case "SECRETARY":
-        return <Badge tone="emerald">{label}</Badge>;
-      case "STOREKEEPER":
-        return <Badge tone="brand">{label}</Badge>;
-      case "HR":
-        return <Badge tone="violet">{label}</Badge>;
-      case "SENIOR_SUPERVISOR":
-      case "OPERATION_OFFICER":
-      case "SUPERVISOR":
-        return <Badge tone="violet">{label}</Badge>;
-      default:
-        return <Badge tone="slate">{label}</Badge>;
-    }
-  };
+  const getRoleBadge = (role: Role) => (
+    <Badge tone={ROLE_TONES[role] ?? "slate"}>{ROLE_LABELS[role] ?? role}</Badge>
+  );
+
 
 
   return (
@@ -579,14 +562,11 @@ export function StaffAttendanceView({
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">All Roles</option>
-                <option value="SUPER_ADMIN">Super Admin</option>
-                <option value="BURSAR">Bursar</option>
-                <option value="SECRETARY">Secretary</option>
-                <option value="STOREKEEPER">Storekeeper</option>
-                <option value="HR">HR</option>
-                <option value="SENIOR_SUPERVISOR">Senior Supervisor</option>
-                <option value="OPERATION_OFFICER">Operation Officer</option>
-                <option value="SUPERVISOR">Supervisor</option>
+                {STAFF_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {ROLE_LABELS[r]}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -897,14 +877,11 @@ export function StaffAttendanceView({
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">All Roles</option>
-                <option value="SUPER_ADMIN">Super Admin</option>
-                <option value="BURSAR">Bursar</option>
-                <option value="SECRETARY">Secretary</option>
-                <option value="STOREKEEPER">Storekeeper</option>
-                <option value="HR">HR</option>
-                <option value="SENIOR_SUPERVISOR">Senior Supervisor</option>
-                <option value="OPERATION_OFFICER">Operation Officer</option>
-                <option value="SUPERVISOR">Supervisor</option>
+                {STAFF_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {ROLE_LABELS[r]}
+                  </option>
+                ))}
               </select>
 
               <select

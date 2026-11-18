@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { SUPERVISOR_ROLES } from "@/lib/auth/rbac";
 import { guardProfiles, clients, regions, stations, users, transferRequests, guardCredits } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
 import { writeAuditLog } from "@/lib/auth/audit";
@@ -543,12 +544,6 @@ export async function deleteGuard(
   };
 }
 
-const SUPERVISOR_ROLES = [
-  "SUPERVISOR",
-  "OPERATION_OFFICER",
-  "SENIOR_SUPERVISOR",
-  "SUPER_ADMIN",
-] as const;
 /**
  * A CSV row that passed validation and is ready to be written. `rowNum` and
  * `identifier` stay attached to it so any failure — during validation or at
