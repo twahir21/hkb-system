@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
+import { t } from "@/lib/i18n";
 
 function LoginForm() {
   const router = useRouter();
@@ -30,9 +31,9 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(
     urlError === "CredentialsSignin"
-      ? "Invalid username/email or password."
+      ? t.login.errInvalid
       : urlError === "AccessDenied"
-      ? "Access Denied: Your account is not registered in the system. Only personnel registered by a Super Admin can sign in."
+      ? t.login.errDenied
       : null
   );
   const [isPending, startTransition] = useTransition();
@@ -42,7 +43,7 @@ function LoginForm() {
     setErrorMsg(null);
 
     if (!identifier.trim() || !password) {
-      setErrorMsg("Please enter both username/email and password.");
+      setErrorMsg(t.login.errMissing);
       return;
     }
 
@@ -56,7 +57,7 @@ function LoginForm() {
         });
 
         if (!res || res.error) {
-          setErrorMsg("Invalid username/email or password.");
+          setErrorMsg(t.login.errInvalid);
         } else if (res.url) {
           router.push(res.url);
           router.refresh();
@@ -65,7 +66,7 @@ function LoginForm() {
           router.refresh();
         }
       } catch {
-        setErrorMsg("An unexpected error occurred. Please try again.");
+        setErrorMsg(t.login.errUnexpected);
       }
     });
   };
@@ -91,7 +92,7 @@ function LoginForm() {
                 </div>
                 <div>
                   <span className="text-xs font-bold uppercase tracking-widest text-brand-400">
-                    Security &amp; Logistics
+                    {t.login.brandBadge}
                   </span>
                   <h3 className="text-lg font-black tracking-wide text-paper">
                     H.K.B
@@ -102,26 +103,22 @@ function LoginForm() {
                 HKB Protection &amp; Management Co.
               </h2>
               <p className="mt-2 text-sm text-paper/50">
-                Shift-based attendance, guard registry, leave processing and
-                payroll reporting — unified.
+                {t.login.brandText}
               </p>
             </div>
             <ul className="space-y-4 text-sm text-paper/70">
               <li className="flex items-center gap-3">
-                <ShieldCheck className="h-5 w-5 text-brand-400" /> Role-based
-                access control (RBAC)
+                <ShieldCheck className="h-5 w-5 text-brand-400" /> {t.login.featureRbac}
               </li>
               <li className="flex items-center gap-3">
-                <CalendarClock className="h-5 w-5 text-brand-400" /> Day &amp;
-                Night shift attendance tracking
+                <CalendarClock className="h-5 w-5 text-brand-400" /> {t.login.featureShifts}
               </li>
               <li className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-brand-400" /> Strict PDF
-                reporting &amp; audit trail
+                <FileText className="h-5 w-5 text-brand-400" /> {t.login.featurePdf}
               </li>
             </ul>
             <div className="text-xs text-paper/40">
-              HKB Internal Security System &bull; Authorized Personnel Only
+              {t.login.footerNote}
             </div>
           </div>
 
@@ -144,13 +141,13 @@ function LoginForm() {
                 </span>
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-brass">
-                HKB Security Portal
+                {t.login.portal}
               </p>
               <h1 className="mt-1 text-2xl font-extrabold text-paper">
-                Sign in to your account
+                {t.login.title}
               </h1>
               <p className="mt-1 text-sm text-paper/50">
-                Enter your system credentials below to continue.
+                {t.login.subtitle}
               </p>
             </div>
 
@@ -164,7 +161,7 @@ function LoginForm() {
             <form onSubmit={handleCredentialsSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-paper/70">
-                  Username or Email
+                  {t.login.identifier}
                 </label>
                 <div className="relative mt-1.5">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-paper/40">
@@ -174,7 +171,7 @@ function LoginForm() {
                     type="text"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="admin or user@hkb.co"
+                    placeholder={t.login.identifierPlaceholder}
                     autoComplete="username"
                     required
                     disabled={isPending}
@@ -185,7 +182,7 @@ function LoginForm() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-paper/70">
-                  Password
+                  {t.login.password}
                 </label>
                 <div className="relative mt-1.5">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-paper/40">
@@ -224,12 +221,12 @@ function LoginForm() {
                 {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Authenticating...
+                    {t.login.submitting}
                   </>
                 ) : (
                   <>
                     <LogIn className="h-4 w-4" />
-                    Sign In
+                    {t.login.submit}
                   </>
                 )}
               </button>
@@ -241,7 +238,7 @@ function LoginForm() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-charcoal px-3 text-paper/50 font-semibold">
-                  Or continue with
+                  {t.login.or}
                 </span>
               </div>
             </div>
@@ -269,12 +266,11 @@ function LoginForm() {
                   d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2 4.1-3.6 5.6l6.2 5.2C41.7 35.1 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"
                 />
               </svg>
-              Sign in with Google
+              {t.login.google}
             </button>
 
             <p className="mt-6 text-center text-xs text-paper/40">
-              Access is strictly restricted to authorized employees registered
-              by an administrator.
+              {t.login.restricted}
             </p>
           </div>
         </div>

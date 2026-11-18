@@ -3,6 +3,7 @@ import { logout } from "@/app/actions/auth.actions";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import type { Role } from "@/lib/db/schema";
 import { AutoPrintButton } from "./AutoPrintModal";
+import { t } from "@/lib/i18n";
 
 export function Topbar({
   name,
@@ -21,13 +22,13 @@ export function Topbar({
         <button
           type="button"
           onClick={onMenuToggle}
-          aria-label="Open navigation menu"
+          aria-label={t.topbar.openMenu}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
         <div className="min-w-0">
-          <h1 className="truncate text-base font-bold text-slate-900">HKB Attendance</h1>
+          <h1 className="truncate text-base font-bold text-slate-900">{t.app.name}</h1>
           <p className="truncate text-xs text-slate-400 sm:hidden">{ROLE_LABELS[role]}</p>
         </div>
       </div>
@@ -48,7 +49,7 @@ export function Topbar({
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
           >
             <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign out</span>
+            <span className="hidden sm:inline">{t.topbar.signOut}</span>
           </button>
         </form>
       </div>

@@ -1,5 +1,6 @@
 import type { Role } from "@/lib/db/schema";
 import { ROLE_VALUES } from "./roles";
+import { t } from "@/lib/i18n";
 
 /**
  * Permission → roles mapping derived from the RBAC matrix in system.html §2.
@@ -168,20 +169,7 @@ export function canViewPii(role: Role | undefined): boolean {
 /** Every role, in display order (single source for forms, filters, CSV import). */
 export const ROLES: readonly Role[] = ROLE_VALUES;
 
-export const ROLE_LABELS: Record<Role, string> = {
-  SUPER_ADMIN: "IT / System Administrator",
-  OPERATIONS_MANAGER: "Operations Manager",
-  SENIOR_SUPERVISOR: "Senior Supervisor",
-  OPERATION_OFFICER: "Operations Officer",
-  SUPERVISOR: "Supervisor",
-  IN_CHARGE: "In-Charge",
-  HR: "HR Office",
-  BURSAR: "Accountant",
-  STOREKEEPER: "Storekeeper",
-  SECRETARY: "Secretary (HQ)",
-  OFFICE_ASSISTANT: "Office Assistant (Branch)",
-  GUARD: "Askari / Security Guard",
-};
+export const ROLE_LABELS: Record<Role, string> = t.roles;
 
 /** Badge colour per role (user lists, staff attendance). */
 export const ROLE_TONES: Record<Role, "emerald" | "amber" | "rose" | "slate" | "brand" | "violet"> = {

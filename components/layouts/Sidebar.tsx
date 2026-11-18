@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/db/schema";
 import { ROLE_LABELS, hasPermission, type Permission } from "@/lib/auth/rbac";
 import { AutoPrintButton } from "./AutoPrintModal";
+import { t } from "@/lib/i18n";
 
 /** A link is shown when the role holds ANY of the listed permissions ("ALL" = every signed-in user). */
 type NavItem = { href: string; label: string; icon: LucideIcon; anyOf: Permission[] | "ALL" };
@@ -44,177 +45,177 @@ function canSee(role: Role, item: NavItem) {
 
 const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
-    title: "Operate",
+    title: t.nav.groups.operate,
     items: [
       {
         href: "/dashboard",
-        label: "Dashboard",
+        label: t.nav.dashboard,
         icon: LayoutDashboard,
         anyOf: "ALL",
       },
       {
         href: "/attendance",
-        label: "Shift Sheet",
+        label: t.nav.shiftSheet,
         icon: ClipboardCheck,
         anyOf: ["ATTENDANCE_VIEW_ALL"],
       },
       {
         href: "/staff-attendance",
-        label: "Staff Attendance",
+        label: t.nav.staffAttendance,
         icon: UserCheck,
         anyOf: ["STAFF_ATTENDANCE_VIEW"],
       },
 
       {
         href: "/records",
-        label: "Attendance Records",
+        label: t.nav.records,
         icon: FileText,
         anyOf: ["ATTENDANCE_VIEW_ALL", "ATTENDANCE_VIEW_OWN"],
       },
       {
         href: "/mpangokazi",
-        label: "Mpangokazi",
+        label: t.nav.mpangokazi,
         icon: ClipboardList,
         anyOf: ["MPANGOKAZI_SUBMIT", "MPANGOKAZI_VIEW_ALL", "MPANGOKAZI_VIEW_BRANCH"],
       },
       {
         href: "/incidents",
-        label: "Incidents",
+        label: t.nav.incidents,
         icon: Siren,
         anyOf: ["INCIDENT_REPORT", "INCIDENT_MANAGE_ALL", "INCIDENT_MANAGE_BRANCH"],
       },
       {
         href: "/my-summary",
-        label: "My Summary",
+        label: t.nav.mySummary,
         icon: CalendarCheck,
         anyOf: ["ATTENDANCE_VIEW_OWN"],
       },
     ],
   },
   {
-    title: "Store",
+    title: t.nav.groups.store,
     items: [
       {
         href: "/store",
-        label: "Stock Holdings",
+        label: t.nav.stockHoldings,
         icon: Boxes,
         anyOf: ["STOCK_VIEW"],
       },
       {
         href: "/store/ledger",
-        label: "Stock Ledger",
+        label: t.nav.stockLedger,
         icon: ScrollText,
         anyOf: ["STOCK_VIEW"],
       },
       {
         href: "/store/transfers",
-        label: "Stock Transfers",
+        label: t.nav.stockTransfers,
         icon: ArrowLeftRight,
         anyOf: ["STOCK_TRANSFER_INITIATE", "STOCK_TRANSFER_APPROVE"],
       },
       {
         href: "/store/reports",
-        label: "Stock Reports",
+        label: t.nav.stockReports,
         icon: FileText,
         anyOf: ["STOCK_VIEW"],
       },
       {
         href: "/store/items",
-        label: "Store Items",
+        label: t.nav.storeItems,
         icon: Package,
         anyOf: ["STORE_MANAGE_ITEMS"],
       },
       {
         href: "/store/locations",
-        label: "Regions & Stations",
+        label: t.nav.locations,
         icon: MapPin,
         anyOf: ["STORE_LOCATIONS_MANAGE"],
       },
     ],
   },
   {
-    title: "Office",
+    title: t.nav.groups.office,
     items: [
       {
         href: "/office/credit",
-        label: "Guard Debts",
+        label: t.nav.guardDebts,
         icon: HandCoins,
         anyOf: ["CREDIT_RECORD", "BUSINESS_VIEW"],
       },
       {
         href: "/office/credit/settlement",
-        label: "Salary Deductions",
+        label: t.nav.salaryDeductions,
         icon: CalendarX,
         anyOf: ["CREDIT_SETTLE"],
       },
       {
         href: "/office/business",
-        label: "Business Tracking",
+        label: t.nav.business,
         icon: Store,
         anyOf: ["BUSINESS_VIEW"],
       },
       {
         href: "/my-credits",
-        label: "My Debts",
+        label: t.nav.myDebts,
         icon: Wallet,
         anyOf: ["CREDIT_VIEW_OWN"],
       },
     ],
   },
   {
-    title: "Manage",
+    title: t.nav.groups.manage,
     items: [
       {
         href: "/users",
-        label: "User Accounts",
+        label: t.nav.users,
         icon: UserCog,
         anyOf: ["USER_MANAGE"],
       },
       {
         href: "/branches",
-        label: "Branches",
+        label: t.nav.branches,
         icon: Landmark,
         anyOf: ["BRANCH_MANAGE"],
       },
       {
         href: "/guards",
-        label: "Guard Registry",
+        label: t.nav.guards,
         icon: Users,
         anyOf: ["GUARD_MANAGE"],
       },
       {
         href: "/clients",
-        label: "Clients",
+        label: t.nav.clients,
         icon: Building2,
         anyOf: ["GUARD_MANAGE"],
       },
       {
         href: "/transfers",
-        label: "Transfers",
+        label: t.nav.transfers,
         icon: ArrowLeftRight,
         anyOf: ["TRANSFER_INITIATE", "TRANSFER_APPROVE"],
       },
       {
         href: "/coverage-requests",
-        label: "Coverage Requests",
+        label: t.nav.coverage,
         icon: BellRing,
         anyOf: ["COVERAGE_VIEW"],
       },
       {
         href: "/job-applications",
-        label: "Job Applications",
+        label: t.nav.jobs,
         icon: Briefcase,
         anyOf: ["JOB_APPLICATIONS_VIEW"],
       },
       {
         href: "/news",
-        label: "News",
+        label: t.nav.news,
         icon: Newspaper,
         anyOf: ["NEWS_VIEW"],
       },
       {
         href: "/reports",
-        label: "Reports",
+        label: t.nav.reports,
         icon: ShieldCheck,
         anyOf: ["REPORTS_FULL_PDF", "REPORTS_SUMMARY"],
       },
@@ -298,8 +299,8 @@ export function Sidebar({
         />
       </div>
       <div className="leading-tight">
-        <p className="text-sm font-bold text-slate-900">HKB Attendance</p>
-        <p className="text-[11px] text-slate-400">Protection &amp; Management</p>
+        <p className="text-sm font-bold text-slate-900">{t.app.name}</p>
+        <p className="text-[11px] text-slate-400">{t.app.tagline}</p>
       </div>
     </div>
   );

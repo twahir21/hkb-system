@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
+import { t } from "@/lib/i18n";
 
 const SUPPORT_EMAIL = "info@hkbprotection.co.tz";
 
@@ -26,9 +27,9 @@ function AccessDeniedContent() {
   };
 
   const mailtoLink = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
-    "HKB Attendance Portal — Access Request"
+    t.accessDenied.mailSubject
   )}&body=${encodeURIComponent(
-    "Hello HKB IT & Technical Department,\n\nI am requesting access to the HKB Attendance Management Portal.\n\nMy Details:\n• Full Name: \n• Employee ID: \n• Email: \n• Role (Guard/Supervisor/HR/Bursar): \n• Work Location / Post: \n\nThank you."
+    t.accessDenied.mailBody
   )}`;
 
   return (
@@ -60,17 +61,17 @@ function AccessDeniedContent() {
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-full border border-brass/40 bg-brass/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-brass">
-            Access Restricted &bull; Unregistered User
+            {t.accessDenied.badge}
           </div>
 
           <h1 className="mt-4 text-2xl font-black tracking-tight text-paper sm:text-3xl">
-            Unauthorized Portal Access
+            {t.accessDenied.heading}
           </h1>
 
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-paper/60">
-            Access to the <strong className="text-paper/90">HKB Attendance System</strong> is
-            strictly restricted to authorized personnel registered by a Super Administrator. Your
-            account is not currently provisioned in the system.
+            {t.accessDenied.intro}{" "}
+            <strong className="text-paper/90">{t.accessDenied.systemName}</strong>{" "}
+            {t.accessDenied.body}
           </p>
         </div>
 
@@ -82,18 +83,17 @@ function AccessDeniedContent() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-paper">
-                Contact HKB IT &amp; Technical Department
+                {t.accessDenied.contactTitle}
               </h2>
               <p className="text-xs text-paper/50">
-                Authorized registration &amp; account provisioning support
+                {t.accessDenied.contactSubtitle}
               </p>
             </div>
           </div>
 
           <div className="mt-4 space-y-3 text-xs text-paper/80">
             <p className="leading-relaxed">
-              If you are an active employee, guard, supervisor, or staff member of HKB Protection &amp;
-              Management Co., please contact the technical department to have your account registered.
+              {t.accessDenied.contactBody}
             </p>
 
             <div className="flex flex-col gap-2 rounded-xl border border-charcoal bg-charcoal/60 p-3.5 sm:flex-row sm:items-center sm:justify-between">
@@ -108,22 +108,22 @@ function AccessDeniedContent() {
               >
                 {copied ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-brass" /> Copied
+                    <Check className="h-3.5 w-3.5 text-brass" /> {t.accessDenied.copied}
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5" /> Copy Email
+                    <Copy className="h-3.5 w-3.5" /> {t.accessDenied.copyEmail}
                   </>
                 )}
               </button>
             </div>
 
             <div className="rounded-lg bg-charcoal/40 p-3 text-[11px] text-paper/50">
-              <span className="font-bold text-paper/80">Please include in your request:</span>
+              <span className="font-bold text-paper/80">{t.accessDenied.includeTitle}</span>
               <ul className="mt-1 list-disc list-inside space-y-0.5">
-                <li>Your Full Official Name &amp; Employee ID</li>
-                <li>Designated Role (e.g., Guard, Supervisor, HR, Bursar)</li>
-                <li>Assigned Work Location / Station</li>
+                <li>{t.accessDenied.includeName}</li>
+                <li>{t.accessDenied.includeRole}</li>
+                <li>{t.accessDenied.includeLocation}</li>
               </ul>
             </div>
           </div>
@@ -135,21 +135,21 @@ function AccessDeniedContent() {
               className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brass px-4 text-sm font-bold text-ink transition hover:bg-brass/85 focus:outline-none focus:ring-2 focus:ring-brass/50"
             >
               <Mail className="h-4 w-4" />
-              Email IT Department
+              {t.accessDenied.emailIt}
             </a>
             <Link
               href="/login"
               className="flex h-11 items-center justify-center gap-2 rounded-xl border border-paper/20 bg-ink px-5 text-sm font-semibold text-paper/80 transition hover:border-brass/50 hover:text-brass"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Login
+              {t.accessDenied.backToLogin}
             </Link>
           </div>
         </div>
 
         {/* Security Footer */}
         <div className="mt-8 text-center text-[11px] text-paper/40">
-          HKB Protection &amp; Management Co. &bull; Internal Security Protocol &bull; All unauthorized access attempts are logged.
+          {t.accessDenied.footer}
         </div>
       </div>
       </main>

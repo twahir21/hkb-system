@@ -210,8 +210,8 @@ Scope of guards: Supervisor → own assigned guards. Senior Supervisor / Ops Off
 
 | # | Task | Status | Effort |
 |---|------|--------|--------|
-| D7.1 | `lib/i18n/sw.ts` dictionary + `t()` helper | pending | small |
-| D7.2 | Translate sidebar, top bar, login, access-denied, role labels | pending | small |
+| D7.1 | `lib/i18n/sw.ts` dictionary + `t()` helper | finished | small |
+| D7.2 | Translate sidebar, top bar, login, access-denied, role labels | finished | small |
 | D7.3 | Translate every page and form (~25 pages) | pending | hard |
 | D7.4 | Translate PDFs and status badges | pending | medium |
 | D7.5 | Rewrite USER_GUIDE.md in Swahili | pending | medium |
