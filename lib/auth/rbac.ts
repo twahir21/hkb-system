@@ -185,6 +185,11 @@ const BASE_PERMISSIONS = {
   LEAVE_APPROVE: ["CEO", "SUPER_ADMIN", "HR"],
   LEAVE_VIEW_ALL: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER", "BURSAR"],
   LEAVE_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
+
+  // Meetings (Vikao). Everyone sees meetings they are invited to.
+  // Office Assistant joins via D6.3 (own branch only).
+  MEETING_MANAGE: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY"],
+  MEETING_VIEW_ALL: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
 } as const;
 
 export type Permission = keyof typeof BASE_PERMISSIONS;

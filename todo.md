@@ -44,8 +44,8 @@ Single source of truth: `lib/auth/roles.ts` + `lib/auth/rbac.ts`. Scoping: `lib/
 |---|------|--------|--------|
 | D2.3b | Shift Sheet badge for guards on approved leave | done | small |
 | D2.4 | Leave calendar + PDF letter | done | medium |
-| D3.4 | Employee documents (certificates, IDs) storage | pending | medium |
-| D5.1 | Meetings: title, date/time, venue/online link, branch, invitees, agenda | pending | medium |
+| D3.4 | Employee documents (certificates, IDs) storage | done | medium |
+| D5.1 | Meetings: title, date/time, venue/online link, branch, invitees, agenda | done | medium |
 | D5.2 | Month calendar view (meetings + trainings + approved leave) | pending | medium |
 | D5.3 | Minutes (kumbukumbu) upload / text after meeting | pending | small |
 | D4.1 | Training sessions: title, trainer, date, venue, branch | pending | small |

@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { hasPermission, isGuardRole, ROLE_LABELS } from "@/lib/auth/rbac";
 import { t } from "@/lib/i18n";
-import { getEmployee, listContracts } from "@/features/employees/queries/employees";
+import { getEmployee, listContracts, listEmployeeDocuments } from "@/features/employees/queries/employees";
+import { EmployeeDocuments } from "@/features/employees/components/EmployeeDocuments";
 import {
   ContractForm,
   ContractRowActions,
@@ -33,7 +34,12 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
   const canEdit = hasPermission(user.role, "EMPLOYEE_MANAGE");
   const canViewContracts = hasPermission(user.role, "CONTRACT_VIEW");
   const canManageContracts = hasPermission(user.role, "CONTRACT_MANAGE");
-  const contractRows = canViewContracts ? await listContracts(userId) : [];
+  const canViewDocs = hasPermission(user.role, "EMPLOYEE_DOC_VIEW");
+  const canManageDocs = hasPermission(user.role, "EMPLOYEE_DOC_MANAGE");
+  const [contractRows, documentRows] = await Promise.all([
+    canViewContracts ? listContracts(userId) : Promise.resolve([]),
+    canViewDocs ? listEmployeeDocuments(userId) : Promise.resolve([]),
+  ]);
   const p = emp.profile;
 
   return (
@@ -73,6 +79,24 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
               kinName: p?.kinName ?? null,
               kinPhone: p?.kinPhone ?? null,
             }}
+          />
+        )}
+
+        {canViewDocs && (
+          <EmployeeDocuments
+            userId={userId}
+            canManage={canManageDocs}
+            today={new Date().toISOString().slice(0, 10)}
+            documents={documentRows.map((d) => ({
+              id: d.id,
+              type: d.type,
+              title: d.title,
+              fileName: d.fileName,
+              sizeBytes: d.sizeBytes,
+              expiresOn: d.expiresOn,
+              uploadedByName: d.uploadedByName,
+              createdAt: d.createdAt.toISOString().slice(0, 10),
+            }))}
           />
         )}
 

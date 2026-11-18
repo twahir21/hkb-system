@@ -30,6 +30,7 @@ import {
   ClipboardList,
   IdCard,
   Plane,
+  CalendarClock,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -85,6 +86,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: t.nav.leave,
         icon: Plane,
         anyOf: ["LEAVE_REQUEST_OWN"],
+      },
+      {
+        href: "/meetings",
+        label: t.nav.meetings,
+        icon: CalendarClock,
+        anyOf: "ALL",
       },
       {
         href: "/incidents",

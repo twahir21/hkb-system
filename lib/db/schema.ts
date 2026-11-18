@@ -11,6 +11,7 @@ import {
   index,
   pgEnum,
   uniqueIndex,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { ROLE_VALUES } from "../auth/roles";
 
@@ -835,7 +836,53 @@ export const leaveRequests = pgTable(
   ]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Meetings (Vikao)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const meetingStatusEnum = pgEnum("meeting_status", ["SCHEDULED", "CANCELLED"]);
+
+export const meetings = pgTable(
+  "meetings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 200 }).notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    venue: varchar("venue", { length: 255 }), // physical place (optional when online)
+    onlineLink: text("online_link"), // Zoom / Meet / Teams link (optional)
+    // null = company-wide (all branches).
+    branchId: uuid("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    agenda: text("agenda").notNull(),
+    status: meetingStatusEnum("status").notNull().default("SCHEDULED"),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("meetings_starts_at_idx").on(table.startsAt),
+    index("meetings_branch_idx").on(table.branchId),
+  ]
+);
+
+export const meetingInvitees = pgTable(
+  "meeting_invitees",
+  {
+    meetingId: uuid("meeting_id")
+      .references(() => meetings.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.meetingId, table.userId] }),
+    index("meeting_invitees_user_idx").on(table.userId),
+  ]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
+export type MeetingStatus = (typeof meetingStatusEnum.enumValues)[number];
 export type LeaveType = (typeof leaveTypeEnum.enumValues)[number];
 export type EmployeeDocumentType = (typeof employeeDocumentTypeEnum.enumValues)[number];
 export type LeaveStatus = (typeof leaveStatusEnum.enumValues)[number];
