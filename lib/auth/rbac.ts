@@ -19,7 +19,7 @@ export const PERMISSIONS = {
   ],
   ATTENDANCE_EDIT: ["OPERATIONS_MANAGER",
     "SENIOR_SUPERVISOR", "SUPER_ADMIN"],
-  ATTENDANCE_VIEW_ALL: [
+  ATTENDANCE_VIEW_ALL: ["CEO", 
     "SUPERVISOR",
     "OPERATION_OFFICER",
     "OPERATIONS_MANAGER",
@@ -30,10 +30,10 @@ export const PERMISSIONS = {
     "SECRETARY",
   ],
   ATTENDANCE_VIEW_OWN: ["GUARD", "IN_CHARGE"],
-  SICKNESS_DOC_AUDIT: ["SUPER_ADMIN", "HR"],
+  SICKNESS_DOC_AUDIT: ["CEO", "SUPER_ADMIN", "HR"],
 
   // Staff Attendance (Office & Operations Staff)
-  STAFF_ATTENDANCE_VIEW: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
+  STAFF_ATTENDANCE_VIEW: ["CEO", "SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
   STAFF_ATTENDANCE_RECORD: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
   STAFF_ATTENDANCE_EDIT: ["SUPER_ADMIN", "BURSAR", "SECRETARY", "STOREKEEPER"],
   // Changing recorded times (check-in / sign-out) — Super Admin only
@@ -55,7 +55,7 @@ export const PERMISSIONS = {
     "SENIOR_SUPERVISOR",
     "SUPER_ADMIN",
   ],
-  TRANSFER_APPROVE: ["SUPER_ADMIN", "HR", "OPERATIONS_MANAGER"],
+  TRANSFER_APPROVE: ["CEO", "SUPER_ADMIN", "HR", "OPERATIONS_MANAGER"],
 
   // Store
   STORE_MANAGE_ITEMS: ["SUPER_ADMIN", "STOREKEEPER"],
@@ -70,7 +70,7 @@ export const PERMISSIONS = {
     "SUPERVISOR",
   ],
   STOCK_TRANSFER_APPROVE: ["SUPER_ADMIN", "STOREKEEPER"],
-  STOCK_VIEW: [
+  STOCK_VIEW: ["CEO", 
     "SUPER_ADMIN",
     "STOREKEEPER",
     "BURSAR",
@@ -83,19 +83,19 @@ export const PERMISSIONS = {
   ],
 
   // Coverage requests (public website submissions)
-  COVERAGE_VIEW: ["SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
+  COVERAGE_VIEW: ["CEO", "SUPER_ADMIN", "HR", "BURSAR", "SECRETARY"],
   COVERAGE_MANAGE: ["SUPER_ADMIN"],
 
   // Job applications (public /jobs submissions — guard recruitment)
-  JOB_APPLICATIONS_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY"],
+  JOB_APPLICATIONS_VIEW: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY"],
   JOB_APPLICATIONS_MANAGE: ["SUPER_ADMIN", "HR"],
 
   // News / website content
-  NEWS_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY"],
+  NEWS_VIEW: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY"],
   NEWS_MANAGE: ["SUPER_ADMIN", "SECRETARY"],
 
   // PII / sensitive data
-  PII_VIEW: ["SUPER_ADMIN", "HR"],
+  PII_VIEW: ["CEO", "SUPER_ADMIN", "HR"],
 
   // Office credit (guard debts: fish, maize flour, medical)
   CREDIT_RECORD: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
@@ -104,25 +104,25 @@ export const PERMISSIONS = {
 
   // Office businesses (fish & maize flour tracking)
   BUSINESS_MANAGE: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
-  BUSINESS_VIEW: ["SUPER_ADMIN", "BURSAR", "HR", "STOREKEEPER", "SECRETARY"],
+  BUSINESS_VIEW: ["CEO", "SUPER_ADMIN", "BURSAR", "HR", "STOREKEEPER", "SECRETARY"],
 
   // Reports
-  REPORTS_FULL_PDF: ["SUPER_ADMIN", "HR", "BURSAR", "OPERATIONS_MANAGER"],
-  REPORTS_SUMMARY: [
+  REPORTS_FULL_PDF: ["CEO", "SUPER_ADMIN", "HR", "BURSAR", "OPERATIONS_MANAGER"],
+  REPORTS_SUMMARY: ["CEO", 
     "OPERATIONS_MANAGER",
     "SENIOR_SUPERVISOR",
     "OPERATION_OFFICER",
     "SECRETARY",
     "SUPER_ADMIN",
   ],
-  PAYROLL_EXPORT: ["SUPER_ADMIN", "HR", "BURSAR", "OPERATIONS_MANAGER"],
+  PAYROLL_EXPORT: ["CEO", "SUPER_ADMIN", "HR", "BURSAR", "OPERATIONS_MANAGER"],
 
   // Branches (HQ Dar es Salaam + remote branches)
   BRANCH_MANAGE: ["SUPER_ADMIN"],
 
   // Incident management
   // Report: anyone running sites or offices.
-  INCIDENT_REPORT: [
+  INCIDENT_REPORT: ["CEO", 
     "SUPER_ADMIN",
     "OPERATIONS_MANAGER",
     "SENIOR_SUPERVISOR",
@@ -134,7 +134,7 @@ export const PERMISSIONS = {
     "OFFICE_ASSISTANT",
   ],
   // See every incident in every branch, add actions, mark solved / reopen.
-  INCIDENT_MANAGE_ALL: ["SUPER_ADMIN", "OPERATIONS_MANAGER"],
+  INCIDENT_MANAGE_ALL: ["CEO", "SUPER_ADMIN", "OPERATIONS_MANAGER"],
   // Same, but only for incidents of the user's own branch.
   INCIDENT_MANAGE_BRANCH: ["OFFICE_ASSISTANT"],
 
@@ -154,24 +154,24 @@ export const PERMISSIONS = {
     "SUPER_ADMIN",
   ],
   // Operations Manager oversees all regions; HQ office sees everything.
-  MPANGOKAZI_VIEW_ALL: ["SUPER_ADMIN", "OPERATIONS_MANAGER", "HR", "SECRETARY"],
+  MPANGOKAZI_VIEW_ALL: ["CEO", "SUPER_ADMIN", "OPERATIONS_MANAGER", "HR", "SECRETARY"],
   // Senior Supervisor (main supervisor of a region) and Operations Officer
   // (receives supervisors' reports) see their own region's forms.
   MPANGOKAZI_VIEW_BRANCH: ["SENIOR_SUPERVISOR", "OPERATION_OFFICER", "OFFICE_ASSISTANT"],
 
   // Employees (staff directory & HR profile)
-  EMPLOYEE_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
+  EMPLOYEE_VIEW: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
   EMPLOYEE_MANAGE: ["SUPER_ADMIN", "HR"],
   // Contracts include salary — HR, Accounts and IT only.
-  CONTRACT_VIEW: ["SUPER_ADMIN", "HR", "BURSAR"],
+  CONTRACT_VIEW: ["CEO", "SUPER_ADMIN", "HR", "BURSAR"],
   CONTRACT_MANAGE: ["SUPER_ADMIN", "HR"],
 
   // Leave (Likizo)
   LEAVE_REQUEST_OWN: [...ROLE_VALUES],
   // File a request for another employee (Office Assistant: own branch only).
   LEAVE_FILE_FOR_OTHERS: ["SUPER_ADMIN", "HR", "SECRETARY", "OFFICE_ASSISTANT"],
-  LEAVE_APPROVE: ["SUPER_ADMIN", "HR"],
-  LEAVE_VIEW_ALL: ["SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER", "BURSAR"],
+  LEAVE_APPROVE: ["CEO", "SUPER_ADMIN", "HR"],
+  LEAVE_VIEW_ALL: ["CEO", "SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER", "BURSAR"],
   LEAVE_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
 } as const;
 
@@ -193,6 +193,7 @@ export const ROLE_LABELS: Record<Role, string> = t.roles;
 
 /** Badge colour per role (user lists, staff attendance). */
 export const ROLE_TONES: Record<Role, "emerald" | "amber" | "rose" | "slate" | "brand" | "violet"> = {
+  CEO: "rose",
   SUPER_ADMIN: "rose",
   OPERATIONS_MANAGER: "brand",
   SENIOR_SUPERVISOR: "brand",

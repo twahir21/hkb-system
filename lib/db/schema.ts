@@ -695,6 +695,7 @@ export const workPlanEntries = pgTable(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const departmentEnum = pgEnum("department", [
+  "MANAGEMENT", // CEO / top management
   "IT", // IT & Technical (System Administrators)
   "HR",
   "ACCOUNTS",

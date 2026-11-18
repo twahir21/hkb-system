@@ -5,6 +5,7 @@
  */
 export const ROLE_VALUES = [
   "SUPER_ADMIN",
+  "CEO",
   "OPERATIONS_MANAGER",
   "SENIOR_SUPERVISOR",
   "OPERATION_OFFICER",
@@ -32,7 +33,7 @@ export function isGuardRole(role: RoleValue | string | null | undefined): boolea
 }
 
 /**
- * Display order, top → bottom. Field chain of command:
+ * Display order, top → bottom. CEO heads the company. Field chain of command:
  * Operations Manager (all regions) → Senior Supervisor (one region) →
  * Operations Officer (many sites) → Supervisor (several sites) →
  * In-Charge (leads one site) → Guard. Office: HR, Accountant, Secretary,
@@ -40,6 +41,7 @@ export function isGuardRole(role: RoleValue | string | null | undefined): boolea
  * (The Postgres enum order is fixed; use this list for anything shown.)
  */
 export const ROLE_HIERARCHY = [
+  "CEO",
   "SUPER_ADMIN",
   "OPERATIONS_MANAGER",
   "SENIOR_SUPERVISOR",

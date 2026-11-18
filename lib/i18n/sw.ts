@@ -10,6 +10,7 @@ export const sw = {
     company: "HKB Protection & Management Co.",
   },
   roles: {
+    CEO: "Mkurugenzi Mtendaji (CEO)",
     SUPER_ADMIN: "IT / Msimamizi wa Mfumo",
     OPERATIONS_MANAGER: "Meneja wa Operesheni",
     SENIOR_SUPERVISOR: "Msimamizi Mkuu",
@@ -86,6 +87,7 @@ export const sw = {
     notAllowed: "Huna ruhusa ya kuona wafanyakazi.",
   },
   departments: {
+    MANAGEMENT: "Uongozi",
     IT: "IT na Ufundi",
     HR: "Rasilimali Watu",
     ACCOUNTS: "Uhasibu",
