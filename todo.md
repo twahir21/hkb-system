@@ -122,7 +122,7 @@ Access:
 | C18 | Incidents permissions in `rbac.ts` + scoping helper (all / own branch / own reports) | finished | small |
 | C19 | Incidents page `/incidents`: report form, filter by status/level/branch, table, detail modal with action log + solve/reopen | finished | medium |
 | C20 | Dashboard: open incidents count (critical highlighted) for incident managers | finished | small |
-| C24 | **Apply migrations 0021 (employees, contracts) + 0022 (leave) to production** — tested on branch; must run BEFORE deploying this branch | pending | small |
+| C24 | Migrations 0021 + 0022 applied to production 2026-11-18 (24 migrations). Backup branch: `backup-before-0021-0022` | finished | small |
 | C21 | Apply migrations 0018 + 0019 + 0020. Tested on branch, **applied to production 2026-11-18**. Backup branch: `backup-before-0018-0020` | finished | small |
 | C22 | Regions page: choose a region's branch (new regions currently have no branch; incidents then use the reporter's branch) | pending | small |
 | C23 | Guard dashboard: show the guard's own shift status (guide promises it; not built) | pending | medium |
