@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray, lte, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lte, notInArray, sql } from "drizzle-orm";
+import { GUARD_ROLES, isGuardRole } from "@/lib/auth/roles";
 import { db } from "@/lib/db";
 import {
   branches,
@@ -44,7 +45,7 @@ export async function listEmployees(group: "staff" | "guards"): Promise<Employee
     .leftJoin(branches, eq(users.branchId, branches.id))
     .leftJoin(employeeProfiles, eq(employeeProfiles.userId, users.id))
     .leftJoin(guardProfiles, eq(guardProfiles.userId, users.id))
-    .where(group === "guards" ? eq(users.role, "GUARD") : ne(users.role, "GUARD"))
+    .where(group === "guards" ? inArray(users.role, [...GUARD_ROLES]) : notInArray(users.role, [...GUARD_ROLES]))
     .orderBy(asc(users.fullName));
 
   const ids = rows.map((r) => r.userId);
@@ -60,7 +61,7 @@ export async function listEmployees(group: "staff" | "guards"): Promise<Employee
     const ends = mine.map((c) => c.endDate).filter((d): d is string => Boolean(d)).sort();
     return {
       ...r,
-      department: r.department ?? (r.role === "GUARD" ? "SECURITY" : null),
+      department: r.department ?? (isGuardRole(r.role) ? "SECURITY" : null),
       jobTitle: r.jobTitle ?? null,
       contractEnd: ends[0] ?? null,
       hasActiveContract: mine.length > 0,

@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth/dal";
-import { hasPermission } from "@/lib/auth/rbac";
+import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { getGuardMonthlyDetail, getGuardByUserId } from "@/lib/queries";
 import { GuardMonthlyDetail, tierBadge } from "@/components/reports/GuardMonthlyDetail";
 
@@ -15,7 +15,7 @@ export default async function GuardMonthlyDetailPage({ params, searchParams }: P
 
   const canViewAll = hasPermission(user?.role, "ATTENDANCE_VIEW_ALL");
   const isOwnGuardProfile =
-    user?.role === "GUARD" && (await getGuardByUserId(user.userId))?.id === guardId;
+    !!user && isGuardRole(user.role) && (await getGuardByUserId(user.userId))?.id === guardId;
 
   if (!user || (!canViewAll && !isOwnGuardProfile)) {
     return (

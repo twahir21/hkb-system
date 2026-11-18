@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, notInArray } from "drizzle-orm";
+import { GUARD_ROLES } from "@/lib/auth/roles";
 import { db } from "@/lib/db";
 import { staffAttendanceLogs, users } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
@@ -321,7 +322,7 @@ export async function markAllStaffPresent(
   const staffUsers = await db
     .select({ id: users.id })
     .from(users)
-    .where(ne(users.role, "GUARD"));
+    .where(notInArray(users.role, [...GUARD_ROLES]));
 
   // Find users already marked on this date
   const existingLogs = await db

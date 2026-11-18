@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/dal";
 import { getGuardMonthlyDetail, getGuardByUserId } from "@/lib/queries";
 import { GuardMonthlyDetail } from "@/components/reports/GuardMonthlyDetail";
+import { hasPermission } from "@/lib/auth/rbac";
 
 type PageProps = { searchParams: Promise<{ month?: string; year?: string }> };
 
@@ -8,7 +9,7 @@ type PageProps = { searchParams: Promise<{ month?: string; year?: string }> };
 export default async function MySummaryPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== "GUARD") {
+  if (!user || !hasPermission(user.role, "ATTENDANCE_VIEW_OWN")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
         This summary is only available to guard accounts.

@@ -1,5 +1,7 @@
 import type { Role } from "@/lib/db/schema";
-import { ROLE_VALUES } from "./roles";
+import { GUARD_ROLES, ROLE_HIERARCHY, ROLE_VALUES, isGuardRole } from "./roles";
+
+export { GUARD_ROLES, isGuardRole };
 import { t } from "@/lib/i18n";
 
 /**
@@ -27,7 +29,7 @@ export const PERMISSIONS = {
     "BURSAR",
     "SECRETARY",
   ],
-  ATTENDANCE_VIEW_OWN: ["GUARD"],
+  ATTENDANCE_VIEW_OWN: ["GUARD", "IN_CHARGE"],
   SICKNESS_DOC_AUDIT: ["SUPER_ADMIN", "HR"],
 
   // Staff Attendance (Office & Operations Staff)
@@ -98,7 +100,7 @@ export const PERMISSIONS = {
   // Office credit (guard debts: fish, maize flour, medical)
   CREDIT_RECORD: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
   CREDIT_SETTLE: ["SUPER_ADMIN", "BURSAR"],
-  CREDIT_VIEW_OWN: ["GUARD"],
+  CREDIT_VIEW_OWN: ["GUARD", "IN_CHARGE"],
 
   // Office businesses (fish & maize flour tracking)
   BUSINESS_MANAGE: ["SUPER_ADMIN", "BURSAR", "STOREKEEPER"],
@@ -151,8 +153,11 @@ export const PERMISSIONS = {
     "OPERATIONS_MANAGER",
     "SUPER_ADMIN",
   ],
-  MPANGOKAZI_VIEW_ALL: ["SUPER_ADMIN", "OPERATIONS_MANAGER", "HR", "SECRETARY", "SENIOR_SUPERVISOR"],
-  MPANGOKAZI_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
+  // Operations Manager oversees all regions; HQ office sees everything.
+  MPANGOKAZI_VIEW_ALL: ["SUPER_ADMIN", "OPERATIONS_MANAGER", "HR", "SECRETARY"],
+  // Senior Supervisor (main supervisor of a region) and Operations Officer
+  // (receives supervisors' reports) see their own region's forms.
+  MPANGOKAZI_VIEW_BRANCH: ["SENIOR_SUPERVISOR", "OPERATION_OFFICER", "OFFICE_ASSISTANT"],
 
   // Employees (staff directory & HR profile)
   EMPLOYEE_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
@@ -182,7 +187,7 @@ export function canViewPii(role: Role | undefined): boolean {
 }
 
 /** Every role, in display order (single source for forms, filters, CSV import). */
-export const ROLES: readonly Role[] = ROLE_VALUES;
+export const ROLES: readonly Role[] = ROLE_HIERARCHY;
 
 export const ROLE_LABELS: Record<Role, string> = t.roles;
 
@@ -211,5 +216,5 @@ export const SUPERVISOR_ROLES = [
   "SUPER_ADMIN",
 ] as const satisfies readonly Role[];
 
-/** Office / operations staff (everyone except guards). */
-export const STAFF_ROLES: readonly Role[] = ROLES.filter((r) => r !== "GUARD");
+/** Office / operations staff (everyone except guards and In-Charges). */
+export const STAFF_ROLES: readonly Role[] = ROLES.filter((r) => !isGuardRole(r));

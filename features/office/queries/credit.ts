@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { GUARD_ROLES } from "@/lib/auth/roles";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
 import { guardCredits, guardProfiles, users } from "@/lib/db/schema";
@@ -113,7 +114,7 @@ export async function listGuardOptions(): Promise<GuardOption[]> {
     .leftJoin(guardCredits, eq(guardCredits.guardId, guardProfiles.id))
     // Disabled guards can no longer take new credit (their outstanding debt is
     // still listed by getOutstandingByGuard, which is a payroll view).
-    .where(and(eq(users.role, "GUARD"), eq(guardProfiles.isActive, true)))
+    .where(and(inArray(users.role, [...GUARD_ROLES]), eq(guardProfiles.isActive, true)))
     .groupBy(guardProfiles.id, guardProfiles.employeeId, users.fullName)
     .orderBy(users.fullName);
 

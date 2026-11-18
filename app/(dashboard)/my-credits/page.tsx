@@ -2,12 +2,13 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { getGuardByUserId } from "@/features/hr/queries/guards";
 import { listCredits, getGuardTotalOutstanding } from "@/features/office/queries/credit";
 import { CREDIT_TYPE_LABELS } from "@/features/office";
+import { hasPermission } from "@/lib/auth/rbac";
 
 /** Guard-facing view of their own office debts (fish, flour, medical). */
 export default async function MyCreditsPage() {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== "GUARD") {
+  if (!user || !hasPermission(user.role, "CREDIT_VIEW_OWN")) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
         This page is only available to guard accounts.

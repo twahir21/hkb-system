@@ -109,7 +109,8 @@ Access:
 | C6 | Branch scoping: Office Assistant (and others as decided) only see data for their branch | pending | hard |
 | C7 | Replace `role === "SUPERVISOR"` checks with a scope helper (own guards / own branch / all) | pending | medium |
 | C8 | RBAC for new roles + new labels. Operations Manager and labels finished; Office Assistant / In-Charge get only incidents + dashboard until C6 / C8b | pending | medium |
-| C8b | In-Charge: add `stations.in_charge_id` (or user→station link) so In-Charge sees only their station guards | pending | medium |
+| C26 | Hierarchy (owner, 2026-11-18): Guard < In-Charge (guard leading a site) < Supervisor (several sites) < Operations Officer (many sites, receives supervisors' reports) < Senior Supervisor (main supervisor of a region) < Operations Manager (all regions). Then HR, Accountant, CEO. In-Charge now treated as a guard everywhere; Mpangokazi view: Senior Supervisor + Ops Officer = own region | finished | small |
+| C8b | In-Charge (guard leader): link to their site via `stations.in_charge_id`; later let them see their site's guards | pending | medium |
 | C9 | Update CSV bulk import + user form for new roles and branch | finished | small |
 | C10 | Replace inline role check in `jobs.actions.ts` with permission | finished | small |
 | C11 | Wire `SICKNESS_DOC_AUDIT` to records UI, or drop from guide | pending | medium |

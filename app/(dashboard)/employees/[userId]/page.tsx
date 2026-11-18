@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/dal";
-import { hasPermission, ROLE_LABELS } from "@/lib/auth/rbac";
+import { hasPermission, isGuardRole, ROLE_LABELS } from "@/lib/auth/rbac";
 import { t } from "@/lib/i18n";
 import { getEmployee, listContracts } from "@/features/employees/queries/employees";
 import {
@@ -35,7 +35,7 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/employees${emp.role === "GUARD" ? "?tab=guards" : ""}`} className="text-xs text-slate-500 hover:underline">
+        <Link href={`/employees${isGuardRole(emp.role) ? "?tab=guards" : ""}`} className="text-xs text-slate-500 hover:underline">
           ← {E.back}
         </Link>
         <h2 className="mt-1 text-2xl font-bold text-slate-900">{emp.fullName}</h2>
@@ -45,7 +45,7 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        {emp.role === "GUARD" && !p ? (
+        {isGuardRole(emp.role) && !p ? (
           <Card title={E.profile}>
             <p className="text-sm text-slate-500">
               {E.employeeNo}: {emp.guardEmployeeId ?? "—"}.{" "}

@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, desc, eq, gte, lte, ne, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, lte, notInArray, type SQL } from "drizzle-orm";
+import { GUARD_ROLES } from "@/lib/auth/roles";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db";
 import {
@@ -59,7 +60,7 @@ export async function getStaffMembers(): Promise<StaffMember[]> {
       avatarUrl: users.avatarUrl,
     })
     .from(users)
-    .where(ne(users.role, "GUARD"))
+    .where(notInArray(users.role, [...GUARD_ROLES]))
     .orderBy(users.fullName);
 
   return rows;

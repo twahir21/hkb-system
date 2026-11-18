@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { users, guardProfiles, branches, roleEnum, genderEnum, type Role, type Gender } from "@/lib/db/schema";
 import { requirePermission } from "@/lib/auth/dal";
+import { isGuardRole } from "@/lib/auth/roles";
 import { writeAuditLog } from "@/lib/auth/audit";
 import { parseCsv, type BulkImportRowError, type BulkImportResult } from "@/lib/csv";
 
@@ -180,12 +181,12 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
 
   await db.update(users).set(updateData).where(eq(users.id, v.id));
 
-  // Promotion out of GUARD: the guard profile stays for history (attendance,
+  // Promotion out of the guard ranks (Guard / In-Charge): the guard profile stays for history (attendance,
   // payroll, debts) but is deactivated so the person stops appearing on shift
   // sheets, Mpangokazi, guard counts and the active guard list.
-  // Back to GUARD: reactivate it.
+  // Back to Guard / In-Charge: reactivate it. Guard ↔ In-Charge keeps it active.
   let guardProfileChange: "deactivated" | "reactivated" | null = null;
-  if (existing.role === "GUARD" && v.role !== "GUARD") {
+  if (isGuardRole(existing.role) && !isGuardRole(v.role)) {
     const now = new Date();
     const res = await db
       .update(guardProfiles)
@@ -193,7 +194,7 @@ export async function updateUser(_prev: UserActionState, formData: FormData): Pr
       .where(and(eq(guardProfiles.userId, v.id), eq(guardProfiles.isActive, true)))
       .returning({ id: guardProfiles.id });
     if (res.length) guardProfileChange = "deactivated";
-  } else if (existing.role !== "GUARD" && v.role === "GUARD") {
+  } else if (!isGuardRole(existing.role) && isGuardRole(v.role)) {
     const res = await db
       .update(guardProfiles)
       .set({ isActive: true, disabledAt: null, updatedAt: new Date() })

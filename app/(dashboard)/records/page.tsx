@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth/dal";
-import { hasPermission } from "@/lib/auth/rbac";
+import { hasPermission, isGuardRole } from "@/lib/auth/rbac";
 import { listLogs } from "@/lib/queries";
 import { getGuardByUserId } from "@/lib/queries";
 import { RecordsView } from "@/components/records/RecordsView";
@@ -9,7 +9,7 @@ export default async function RecordsPage() {
   if (!user) return null;
 
   let logs: Awaited<ReturnType<typeof listLogs>>;
-  if (user.role === "GUARD") {
+  if (isGuardRole(user.role)) {
     // Guards see only their own logs.
     const profile = await getGuardByUserId(user.userId);
     logs = profile ? await listLogs({ guardId: profile.id, limit: 2000 }) : [];
@@ -24,7 +24,7 @@ export default async function RecordsPage() {
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Attendance Records</h2>
         <p className="mt-1 text-sm text-slate-500">
-          {user.role === "GUARD" ? "Your recorded attendances." : "Search and review all attendance logs."}
+          {isGuardRole(user.role) ? "Your recorded attendances." : "Search and review all attendance logs."}
         </p>
       </div>
       <RecordsView logs={logs} />
