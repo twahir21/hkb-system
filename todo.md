@@ -121,6 +121,7 @@ Access:
 | C18 | Incidents permissions in `rbac.ts` + scoping helper (all / own branch / own reports) | finished | small |
 | C19 | Incidents page `/incidents`: report form, filter by status/level/branch, table, detail modal with action log + solve/reopen | finished | medium |
 | C20 | Dashboard: open incidents count (critical highlighted) for incident managers | finished | small |
+| C24 | **Apply migration 0021 (employees, contracts) to production** — tested on branch; must run BEFORE deploying this branch | pending | small |
 | C21 | Apply migrations 0018 + 0019 + 0020. Tested on branch, **applied to production 2026-11-18**. Backup branch: `backup-before-0018-0020` | finished | small |
 | C22 | Regions page: choose a region's branch (new regions currently have no branch; incidents then use the reporter's branch) | pending | small |
 | C23 | Guard dashboard: show the guard's own shift status (guide promises it; not built) | pending | medium |
@@ -178,9 +179,9 @@ Scope of guards: Supervisor → own assigned guards. Senior Supervisor / Ops Off
 
 | # | Task | Status | Effort |
 |---|------|--------|--------|
-| D3.1 | Employee profile for ALL staff (not only guards): employee no., department (IT, HR, Accounts, Operations, Store, Office), job title, branch, hire date, phone, NIDA, next of kin | pending | hard |
-| D3.2 | Contracts: type (permanent, fixed-term, casual), start/end, salary, uploaded signed PDF | pending | medium |
-| D3.3 | Contract expiry alerts (30/60 days) on HR dashboard | pending | small |
+| D3.1 | Employee profile for ALL staff (not only guards): employee no., department (IT, HR, Accounts, Operations, Store, Office), job title, branch, hire date, phone, NIDA, next of kin | finished | hard |
+| D3.2 | Contracts: type (permanent, fixed-term, casual), start/end, salary, uploaded signed PDF | finished | medium |
+| D3.3 | Contract expiry alerts (30/60 days) on HR dashboard | finished | small |
 | D3.4 | Employee documents (certificates, IDs) storage | pending | medium |
 
 ### D4. Training sessions (Mafunzo)
@@ -239,6 +240,7 @@ D1 now → D7.1/D7.2 → D3 → D2 → D5 → D4 → D7.3 rest.
 - **2026-11-18** — Roles registry (`lib/auth/roles.ts`), new roles, branches, incidents, permission-driven sidebar. Typecheck, lint and `next build` pass. Migration 0018 not applied yet.
   - Behaviour change: dashboard attendance stats now show only for roles with `ATTENDANCE_VIEW_ALL` (Guard and Storekeeper no longer see org-wide guard numbers).
   - Behaviour change: Storekeeper now sees Dashboard link; Secretary no longer sees dead Guard Registry / Clients links.
+- **2026-11-18 (e)** — Swahili base (dictionary, sidebar, topbar, login, access-denied, role names). Employees & contracts (D3.1–D3.3): /employees, /employees/[id], contract PDF upload, expiry alerts. Migration 0021 tested on branch, not on production.
 - **2026-11-18 (d)** — Production migrated (22 migrations). Branches: Dar es Salaam (HQ), Dodoma, Tabora. Tanga removed. 184/184 users have a branch.
 - **2026-11-18 (c)** — Migrations tested on Neon branch: 21 migrations, 3 branches seeded, all 184 users + 4 regions get a branch (Tabora/Dodoma regions → own branches, fix added to 0018). Built app run against branch: all new pages 200 for Super Admin / Supervisor / Guard / Storekeeper; PDF route 200 for allowed users, 404 for others.
 - **2026-11-18 (b)** — Fomu ya Mpangokazi (D1) built: form prefilled from Shift Sheet, drawn signature, Swahili PDF, share-to-WhatsApp button, history. SUPER_ADMIN label → "IT / System Administrator". Migration 0019 not applied yet. Typecheck, lint, build and sample PDF render pass.

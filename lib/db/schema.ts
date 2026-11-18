@@ -690,7 +690,79 @@ export const workPlanEntries = pgTable(
   (table) => [index("work_plan_entries_plan_idx").on(table.workPlanId)]
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HR: Employees (all non-guard staff) & Contracts (all staff incl. guards)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const departmentEnum = pgEnum("department", [
+  "IT", // IT & Technical (System Administrators)
+  "HR",
+  "ACCOUNTS",
+  "OPERATIONS",
+  "STORE",
+  "OFFICE", // Secretary / Office Assistants
+  "SECURITY", // Guards
+]);
+export const contractTypeEnum = pgEnum("contract_type", [
+  "PERMANENT", // Ajira ya kudumu
+  "FIXED_TERM", // Mkataba wa muda maalum
+  "PROBATION", // Majaribio
+  "CASUAL", // Kibarua
+]);
+export const contractStatusEnum = pgEnum("contract_status", [
+  "ACTIVE", // Unaendelea
+  "ENDED", // Umeisha
+  "TERMINATED", // Umesitishwa
+]);
+
+export const employeeProfiles = pgTable("employee_profiles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull()
+    .unique(),
+  employeeNo: varchar("employee_no", { length: 50 }).unique(),
+  department: departmentEnum("department").notNull(),
+  jobTitle: varchar("job_title", { length: 150 }).notNull(),
+  hireDate: date("hire_date"),
+  phone: varchar("phone", { length: 20 }),
+  nidaNo: varchar("nida_no", { length: 30 }),
+  address: varchar("address", { length: 255 }),
+  kinName: varchar("kin_name", { length: 255 }),
+  kinPhone: varchar("kin_phone", { length: 20 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const contracts = pgTable(
+  "contracts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    type: contractTypeEnum("type").notNull(),
+    status: contractStatusEnum("status").notNull().default("ACTIVE"),
+    position: varchar("position", { length: 150 }).notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date"), // null = no end (permanent)
+    monthlySalary: numeric("monthly_salary", { precision: 12, scale: 2 }),
+    documentUrl: text("document_url"), // signed contract PDF (object storage)
+    notes: text("notes"),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("contracts_user_idx").on(table.userId),
+    index("contracts_status_end_idx").on(table.status, table.endDate),
+  ]
+);
+
 export type Role = (typeof roleEnum.enumValues)[number];
+export type Department = (typeof departmentEnum.enumValues)[number];
+export type ContractType = (typeof contractTypeEnum.enumValues)[number];
+export type ContractStatus = (typeof contractStatusEnum.enumValues)[number];
 export type WorkPlanStatus = (typeof workPlanStatusEnum.enumValues)[number];
 export type Branch = (typeof branches.$inferSelect);
 export type IncidentLevel = (typeof incidentLevelEnum.enumValues)[number];

@@ -28,6 +28,7 @@ import {
   Siren,
   Landmark,
   ClipboardList,
+  IdCard,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -170,6 +171,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         label: t.nav.users,
         icon: UserCog,
         anyOf: ["USER_MANAGE"],
+      },
+      {
+        href: "/employees",
+        label: t.nav.employees,
+        icon: IdCard,
+        anyOf: ["EMPLOYEE_VIEW"],
       },
       {
         href: "/branches",

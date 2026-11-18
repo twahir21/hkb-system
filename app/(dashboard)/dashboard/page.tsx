@@ -26,6 +26,8 @@ import {
 import { hasPermission, ROLE_LABELS } from "@/lib/auth/rbac";
 import { todayISO } from "@/lib/utils";
 import { getIncidentScope, getOpenIncidentCounts } from "@/features/incidents/queries/incidents";
+import { listExpiringContracts } from "@/features/employees/queries/employees";
+import { t } from "@/lib/i18n";
 
 function Stat({
   label,
@@ -82,6 +84,8 @@ export default async function DashboardPage() {
     incidentScope.kind === "all" || incidentScope.kind === "branch"
       ? await getOpenIncidentCounts(incidentScope)
       : null;
+
+  const expiring = hasPermission(role, "CONTRACT_VIEW") ? await listExpiringContracts(60) : [];
 
   const counts = await getDashboardCounts(role, userId);
   const today = todayISO();
@@ -146,6 +150,23 @@ export default async function DashboardPage() {
           </span>
           {incidentCounts.critical > 0 && (
             <span className="text-xs font-bold">{incidentCounts.critical} high / critical</span>
+          )}
+        </Link>
+      )}
+
+      {expiring.length > 0 && (
+        <Link
+          href="/employees?tab=expiring"
+          className="flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900 transition hover:bg-amber-100"
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <FileText className="h-4 w-4" />
+            {t.contracts.expiringTitle}: {expiring.length}
+          </span>
+          {expiring.some((c) => c.daysLeft < 0) && (
+            <span className="text-xs font-bold">
+              {expiring.filter((c) => c.daysLeft < 0).length} {t.contracts.expired.toLowerCase()}
+            </span>
           )}
         </Link>
       )}

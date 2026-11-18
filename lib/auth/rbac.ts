@@ -153,6 +153,13 @@ export const PERMISSIONS = {
   ],
   MPANGOKAZI_VIEW_ALL: ["SUPER_ADMIN", "OPERATIONS_MANAGER", "HR", "SECRETARY", "SENIOR_SUPERVISOR"],
   MPANGOKAZI_VIEW_BRANCH: ["OFFICE_ASSISTANT"],
+
+  // Employees (staff directory & HR profile)
+  EMPLOYEE_VIEW: ["SUPER_ADMIN", "HR", "SECRETARY", "OPERATIONS_MANAGER"],
+  EMPLOYEE_MANAGE: ["SUPER_ADMIN", "HR"],
+  // Contracts include salary — HR, Accounts and IT only.
+  CONTRACT_VIEW: ["SUPER_ADMIN", "HR", "BURSAR"],
+  CONTRACT_MANAGE: ["SUPER_ADMIN", "HR"],
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;

@@ -148,6 +148,13 @@
       "when": 1794996931689,
       "tag": "0020_remove_tanga_region",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794997140759,
+      "tag": "0021_employees_contracts",
+      "breakpoints": true
     }
   ]
 }
